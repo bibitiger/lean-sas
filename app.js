@@ -12,11 +12,11 @@ var app = express();
 // 设置模板引擎
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
 
 // 加载云函数定义
 var cloud = require('./cloud');
 app.use(cloud);
+app.use(express.static('public'));
 // 加载云引擎中间件
 app.use(AV.express());
 
