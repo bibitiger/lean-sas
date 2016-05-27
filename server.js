@@ -1,11 +1,10 @@
 'use strict';
 var AV = require('leanengine');
 
-//参数依次为 AppId, AppKey, MasterKey
 AV.init({
-  appId: '1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz',
-  appKey: 'MeyXCB3GkeYmQkQFOacuTSMU',
-  masterkey: 'jd2JpdnV8fHXiMW5bBimdlTT'
+  appId: process.env.LEANCLOUD_APP_ID || '1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz',
+  appKey: process.env.LEANCLOUD_APP_KEY || 'MeyXCB3GkeYmQkQFOacuTSMU',
+  masterKey: process.env.LEANCLOUD_APP_MASTER_KEY || 'jd2JpdnV8fHXiMW5bBimdlTT'
 });
 
 // 如果不希望使用 masterKey 权限，可以将下面一行删除
