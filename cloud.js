@@ -12,11 +12,12 @@ var AV = require('leanengine');
 AV.Cloud.define('hello', function(request, response) {
 	console.log("func hello "+JSON.stringify(request.params));
 	if(request.user){
-		console.log("user is "+user.getUsername());
+		console.log("session token " + request.sessionToken);
+		console.log("user is "+request.user.getUsername());
 	}else{
 		console.log("user is nil");
 	}
-	
+
   	response.success('Hello world!');
 });
 
