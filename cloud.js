@@ -27,7 +27,26 @@ AV.Cloud.define('hello', function(request, response) {
  * @description for client to request a doctor due with report, if by now no useful doc will return response with "no useful doctor"
  */
 AV.Cloud.define('RquestDoctor', function(request, response) {
+	var docs = new AV.Query('Doctor');
+	docs.find({
+		success: function(listDoc){
+			var sum = 0;
+			for (var i = 0; i < listDoc.length; ++i) {
+				console.log(JSON.stringify(listDoc[i]));
+			}
+			var loc = Math.round(Math.random()*listDoc.length);
 
+			console.log("doc cnt is " + JSON.stringify(listDoc.length));
+			// response.success("doc cnt is " + JSON.stringify(listDoc.length));
+
+			console.log(JSON.stringify(listDoc[loc]));
+			response.success(listDoc[loc]);
+		},
+		error: function(e){
+			console.log(JSON.stringify(e));
+			response.error(e);
+		}
+	})
 });
 
 
