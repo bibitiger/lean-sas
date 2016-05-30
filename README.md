@@ -1,49 +1,42 @@
-# Node.js Getting started
+#呼吸康test api
 
-一个简单的使用 Express 4 的 Node.js 应用。
-可以运行在 LeanEngine Node.js 运行时环境。
-
-## 本地运行
-
-首先确认本机已经安装 [Node.js](http://nodejs.org/) 运行环境和 [LeanCloud 命令行工具](https://www.leancloud.cn/docs/leanengine_cli.html)，然后执行下列指令：
+* **创建医生**
 
 ```
-$ git clone git@github.com:leancloud/node-js-getting-started.git
-$ cd node-js-getting-started
+curl -X POST \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "Content-Type: application/json" \
+  -d '{"createBy":{
+  "__type": "Pointer",
+  "className": "_User",
+  "objectId": "5747dfe871cfe40068d86b6c"
+},
+"ACL": {
+          "5747dfe871cfe40068d86b6c": {
+            "read": true
+			"write": true
+          }
+        }}' \
+  https://api.leancloud.cn/1.1/classes/Doctor
 ```
 
-安装依赖：
+* **请求医生查看**
+
+input `-d '{"report":"5739266adf0eea006097485d"} //需要医生查看的报告`
+
+output `{"result":{"createBy":{"__type":"Pointer","className":"_User","objectId":"573e7ad849830c00612c500b"},"objectId":"574b917f71cfe4006bebbf16","createdAt":"2016-05-30T01:03:59.646Z","updatedAt":"2016-05-30T01:03:59.646Z"}} //成功 返回分配医生信息`
+
+output `"no useful doctor" //失败 `
 
 ```
-npm install
-```
-
-关联应用：
-
-```
-lean app add origin <appId>
-```
-
-这里的 appId 填上你在 LeanCloud 上创建的某一应用的 appId 即可。origin 则有点像 Git 里的 remote 名称。
-
-启动项目：
-
-```
-lean up
-```
-
-应用即可启动运行：[localhost:3000](http://localhost:3000)
-
-## 部署到 LeanEngine
-
-部署到预备环境（若无预备环境则直接部署到生产环境）：
-```
-lean deploy
-```
-
-将预备环境的代码发布到生产环境：
-```
-lean publish
+curl -X POST -H "Content-Type: application/json; charset=utf-8" \
+       -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+       -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+	   -H "X-LC-Session: iomqjq5jxo28u55iui6xkumyj" \
+       -H "X-LC-Prod: 1" \
+       -d '{"report":"5739266adf0eea006097485d"}' \
+https://leancloud.cn/1.1/functions/RquestDoctor
 ```
 
 ## 相关文档
