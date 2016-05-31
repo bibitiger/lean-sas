@@ -30,6 +30,9 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 	var docs = new AV.Query('Doctor');
 	docs.find({
 		success: function(listDoc){
+			var reportid = request.params.report;
+			console.log("report id is " + reportid);
+
 			var sum = 0;
 			for (var i = 0; i < listDoc.length; ++i) {
 				console.log(JSON.stringify(listDoc[i]));

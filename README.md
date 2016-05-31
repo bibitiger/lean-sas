@@ -1,5 +1,9 @@
 #呼吸康test api
 
+* **权限**
+
+`-H "X-LC-Session: 787pdkl6oti0chr376ozzm1qm" \   //登陆时获取的sessionToken`
+
 * **创建医生**
 
 ```
@@ -19,6 +23,35 @@ curl -X POST \
           }
         }}' \
   https://api.leancloud.cn/1.1/classes/Doctor
+```
+
+* **创建医生公共信息**
+
+`权限：所有人可读，创建者可写`
+
+```
+curl -X POST \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "Content-Type: application/json" \
+  -d '{"createBy":{
+  "__type": "Pointer",
+  "className": "_User",
+  "objectId": "5747dfe871cfe40068d86b6c"
+},
+"Hospital":{
+  "__type": "Pointer",
+  "className": "Hosptial",
+  "objectId": "572ae445c4c971006097a3cf"
+},
+"CreateBy":{
+  "__type": "Pointer",
+  "className": "_User",
+  "objectId": "5747dfe871cfe40068d86b6c"
+},
+"Major":"呼吸科",
+"Name":"牛逼"}' \
+  https://api.leancloud.cn/1.1/classes/DoctorPub
 ```
 
 * **请求医生查看**
