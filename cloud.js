@@ -457,8 +457,17 @@ AV.Cloud.define('boundPhone', function(request, response) {
  */
 AV.Cloud.define('refuseReportByDoc', function(request, response) {
 	//findReport with report id & doc
-	var doctor = new AV.Query('DoctorPub');
-	doctor.equalTo('CreateBy', request.user);
+	var doctors = new AV.Query('DoctorPub');
+	var reportId = request.params.report;
+	doctors.equalTo('CreateBy', request.user);
+	doctors.find({
+		success: function(listDoc){
+
+		},
+		error: function(e){
+			response.error(e);
+		}
+	});
 });
 
 /**
@@ -469,6 +478,22 @@ AV.Cloud.define('refuseReportByDoc', function(request, response) {
 AV.Cloud.define('confirmReportByDoc', function(request, response) {
 	//findReport with report id & doc
 });
+
+/**
+ *
+ * @DateTime 2016-06-01T23:51:50+0800
+ *
+ * @author bibitiger
+ *
+ * maintain the elegant code comments
+ * @param {string} report reportId
+ * @param {AV.object} doc _User
+ * @param {[type]} options [description]
+ * @return {[type]}
+ */
+function findReportByReportAndDoc(report, doc, options){
+
+}
 
 
 module.exports = AV.Cloud;
