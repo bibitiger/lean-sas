@@ -11,7 +11,7 @@ curl -X POST \
   -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
   -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
   -H "Content-Type: application/json" \
-  -d '{"createBy":{
+  -d '{"CreateBy":{
   "__type": "Pointer",
   "className": "_User",
   "objectId": "5747dfe871cfe40068d86b6c"
@@ -34,11 +34,7 @@ curl -X POST \
   -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
   -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
   -H "Content-Type: application/json" \
-  -d '{"createBy":{
-  "__type": "Pointer",
-  "className": "_User",
-  "objectId": "5747dfe871cfe40068d86b6c"
-},
+  -d '{
 "Hospital":{
   "__type": "Pointer",
   "className": "Hosptial",
