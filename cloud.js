@@ -46,6 +46,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 				var reports = new AV.Query('Reports');
 				reports.equalTo('idPatient', listPatient[0]);
 				reports.equalTo('objectId', request.params.report);
+				reports.include('Doctor');
 				reports.find({
 					success: function(listReport){
 						if(listReport.length != 1){
@@ -65,12 +66,16 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 									var loc = Math.round(Math.random()*listDoc.length);
 									console.log("chose doc is " + JSON.stringify(listDoc[loc]));
 
+									if(listReport[0].get('Doctor')){
+										response.error("this report has been assigned to a doctor");
+									}
+
 									//get user who create doctorPub
 									console.log("chose user is " + JSON.stringify(listDoc[loc].get('CreateBy')));
 									//set doctor to report and set report InCheck to 'true'
 									listReport[0].fetchWhenSave(true);
 									listReport[0].set('Doctor', listDoc[loc]);
-									listReport[0].set('InCheck', true);
+									listReport[0].set('InCheck', false);
 
 									//set acl to doc and patient
 									var groupACL = new AV.ACL();
@@ -85,6 +90,16 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 									//save report to server
 									listReport[0].save().then(function(report){
 										console.log("now report is " + JSON.stringify(report));
+										console.log("doc user id is " + listDoc[loc].get('CreateBy').get('objectId'));
+
+										//push msg to doc
+										AV.Push.send({
+											channels: [listDoc[loc].get('CreateBy').get('objectId')],
+											data: {
+												alert: 'new report'
+											}
+										});
+
 										//success
 										response.success(listDoc[loc]);
 									}, function(e){
@@ -109,54 +124,88 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 			response.error(e);
 		}
 	});
+});
+
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-01T15:07:50+0800
+ * @description for client to Login with Weixin
+ */
+AV.Cloud.define('WXLogin', function(request, response) {
+	var openId = request.params.openId;
+	var access_token = request.params.access_token;
+	var expires_in = request.params.expires_in;
+
+	// console.log('test:' + openId + access_token + expires_in);
+
+	// var authData = {'openid': openId,'access_token': access_token,'expires_in': expires_in};
+	var data = {};
 
 
-	// var docs = new AV.Query('Doctor');
-	// docs.find({
-	// 	success: function(listDoc){
-	// 		var reportid = request.params.report;
-	// 		console.log("report id is " + reportid);
+	AV.User._logInWith('WeiXin', {
+	  'authData': {
+		    'uid': openId,
+		    'access_token': access_token,
+		    'expires_in': expires_in
+		  }
+	}).then(function(user) {
+	  //返回绑定后的用户
+	    console.log('user:' + user);
+	    var query = new AV.Query('Patients');
+	    query.equalTo('user', user);
+	    query.find().then(function(results) {
+	        
+	        if(results.length < 1){
+	                console.log('lenght0');
+	                var Patient = AV.Object.extend('Patients');
+	    
+	                var patient = new Patient();
+	                // patient.set('objectId',user.id);
+	                patient.set('user',user)
+	                
+	                // 新建一个 ACL 实例
+	                var acl = new AV.ACL();
+	                acl.setPublicReadAccess(true);
+	                acl.setWriteAccess(user,true);
+	                  // 将 ACL 实例赋予 patient 对象
+	                patient.setACL(acl);
+	                
+	                patient.save().then(function(patient) {
+	                    // 成功保存之后，执行其他逻辑.
+	                    
+	                    data['profileId'] = patient.id;
+	                    data['user'] = user;
+	                    data['sessionToken'] = user._sessionToken;
+	                    data['userId'] = user.id;
+	                    
+	                    response.success(data);
+	                }, function(err) {
+	                    // 失败之后执行其他逻辑
+	                    // error 是 AV.Error 的实例，包含有错误码和描述信息.
+	                    console.log('Failed to create new object, with error message: ' + err.message);
+	                    response.error(err);
+	                });
+	        }else{
+	            console.log('lenght1');
+	            var profile = results[0];
+	            
+	            data['userId'] = user.id;
+	            data['profileId'] = profile.id;
+	            data['sessionToken'] = user._sessionToken;
+	            data['user'] = user;
+	            //...
+	            response.success(data);   
+	        }
+	    }, function(error) {
+	        console.log('Error: ' + error.code + ' ' + error.message);
+	        response.error(error);
+	        
+	    });
 
-	// 		if(request.user){
-	// 			console.log("session token " + request.sessionToken);
-	// 			console.log("user is "+request.user.getUsername());
-	// 		}else{
-	// 			response.error("this function need user info");
-	// 		}
-
-	// 		var reports = new AV.Query('Reports');
-	// 		reports.count().then(function(cnt){
-	// 			console.log("reports cnt is " + JSON.stringify(cnt));
-	// 		}, function(e){
-	// 			console.log(JSON.stringify(e));
-	// 		})
-			
-	// 		reports.equalTo('objectId', reportid);
-	// 		reports.equalTo('idPatient', request.user);
-	// 		reports.find().then(function(report){
-	// 			console.log(JSON.stringify(report));
-	// 		}, function(e){
-	// 			console.log("can not find report with id " + reportid);
-	// 			//response.error("can not find report with id " + reportid);
-	// 		});
-
-	// 		// var sum = 0;
-	// 		// for (var i = 0; i < listDoc.length; ++i) {
-	// 		// 	console.log(JSON.stringify(listDoc[i]));
-	// 		// }
-	// 		var loc = Math.round(Math.random()*listDoc.length);
-
-	// 		console.log("doc cnt is " + JSON.stringify(listDoc.length));
-	// 		// response.success("doc cnt is " + JSON.stringify(listDoc.length));
-
-	// 		console.log(JSON.stringify(listDoc[loc]));
-	// 		//response.success(listDoc[loc]);
-	// 	},
-	// 	error: function(e){
-	// 		console.log(JSON.stringify(e));
-	// 		response.error(e);
-	// 	}
-	// })
+	}, function(error) {
+	  console.log(error);
+	  response.error(error);
+	});
 });
 
 
