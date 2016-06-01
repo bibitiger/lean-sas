@@ -72,6 +72,32 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
 https://leancloud.cn/1.1/functions/RquestDoctor
 ```
 
+* **查看医生信息**
+
+```
+curl -X GET \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: iomqjq5jxo28u55iui6xkumyj" \
+  -G \
+  --data-urlencode 'where={"CreateBy":{"__type":"Pointer","className":"_User","objectId":"5747dfe871cfe40068d86b6c"}}' \
+  https://api.leancloud.cn/1.1/classes/Doctor
+```
+
+* **查看医生公共信息**
+
+```
+curl -X GET \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: iomqjq5jxo28u55iui6xkumyj" \
+  -G \
+  --data-urlencode 'where={"CreateBy":{"__type":"Pointer","className":"_User","objectId":"5747dfe871cfe40068d86b6c"}}' \
+  https://api.leancloud.cn/1.1/classes/DoctorPub
+```
+
+
+
 ## 相关文档
 
 * [LeanEngine 指南](https://leancloud.cn/docs/leanengine_guide-node.html)
