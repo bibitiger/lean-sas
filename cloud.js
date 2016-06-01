@@ -448,9 +448,26 @@ AV.Cloud.define('boundPhone', function(request, response) {
 	    response.error(err);
 	});
 
+});
 
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-01T15:07:50+0800
+ * @description 
+ */
+AV.Cloud.define('refuseReportByDoc', function(request, response) {
+	//findReport with report id & doc
+	var doctor = new AV.Query('DoctorPub');
+	doctor.equalTo('CreateBy', request.user);
+});
 
-
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-01T15:07:50+0800
+ * @description 
+ */
+AV.Cloud.define('confirmReportByDoc', function(request, response) {
+	//findReport with report id & doc
 });
 
 
