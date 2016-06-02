@@ -584,6 +584,46 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
 });
 
 /**
+ * @Author   bibitiger
+ * @DateTime 2016-06-02T18:23:03+0800
+ * @description 
+ */
+AV.Cloud.define('RefuseReportByUser', function(request, response) {
+}
+
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-02T18:23:03+0800
+ * @description 
+ */
+AV.Cloud.define('CloseCheckByDoc', function(request, response) {
+}
+
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-02T18:23:03+0800
+ * @description 
+ */
+AV.Cloud.define('CloseCheckByDoc', function(request, response) {
+}
+
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-02T18:23:03+0800
+ * @description 
+ */
+AV.Cloud.define('commentByUser', function(request, response) {
+}
+
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-02T18:23:03+0800
+ * @description 
+ */
+AV.Cloud.define('commentByDoctor', function(request, response) {
+}
+
+/**
  *
  * @DateTime 2016-06-01T23:51:50+0800
  *
