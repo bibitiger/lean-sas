@@ -106,7 +106,7 @@ CheckState {string}:
 State {string}:
 
 | 医生分配 | 用户关闭 | 医生关闭 | 医生接单 | 医生拒单 | 关闭 | 用户放弃 | 评论 |
-| :--------: | :-----: | :-----: | :---: |
+| :--------: | :-----: | :-----: | :---: | :---: | :---: | :---: | :---: |
 | "AssignedToDoc"  | "CloseBypatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "Close" | "RefuseByPatient" | "comment" |
 
 * **医生拒单**
