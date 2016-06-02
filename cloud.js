@@ -5,6 +5,7 @@
  */
 
 var AV = require('leanengine');
+var uuid = require('node-uuid');
 
 /**
  * 一个简单的云代码方法
@@ -39,6 +40,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 					console.log(JSON.stringify(listPatient[i]));
 				}
 				response.error("cant find patient");
+				return;
 			} else {
 				console.log("current patient is " + JSON.stringify(listPatient[0]));
 
@@ -68,6 +70,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 
 									if(listReport[0].get('Doctor')){
 										response.error("this report has been assigned to a doctor");
+										return;
 									}
 
 									//get user who create doctorPub
@@ -75,7 +78,8 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 									//set doctor to report and set report InCheck to 'true'
 									listReport[0].fetchWhenSave(true);
 									listReport[0].set('Doctor', listDoc[loc]);
-									listReport[0].set('InCheck', false);
+									listReport[0].set('CheckState', "WaitDoc");
+									listReport[0].set('CheckId', uuid.v1());
 
 									//set acl to doc and patient
 									var groupACL = new AV.ACL();
@@ -457,17 +461,62 @@ AV.Cloud.define('boundPhone', function(request, response) {
  */
 AV.Cloud.define('refuseReportByDoc', function(request, response) {
 	//findReport with report id & doc
-	var doctors = new AV.Query('DoctorPub');
-	var reportId = request.params.report;
-	doctors.equalTo('CreateBy', request.user);
-	doctors.find({
-		success: function(listDoc){
+	findReportByReportAndDoc(request.params.report, request.user, {
+		success: function(report){
+			console.log("refuseReportByDoc refuse report is " + JSON.stringify(report));
 
+			if(report.get('CheckState') != "WaitDoc"){
+				response.error("report state error");
+			}
+
+			var doc = report.get('Doctor');
+			var checkId = report.get('CheckId');
+
+			report.fetchWhenSave(true);
+			report.unset('Doctor');
+			report.unset('CheckState');
+			report.unset('CheckId');
+
+			var groupACL = new AV.ACL();
+			console.log("patient user is " + JSON.stringify(report.get('idPatient').get('user')));
+			groupACL.setReadAccess(report.get('idPatient').get('user'), true);
+			groupACL.setWriteAccess(report.get('idPatient').get('user'), true);
+			groupACL.setReadAccess(request.user, false);
+			groupACL.setWriteAccess(request.user, false);
+			report.setACL(groupACL);
+
+			report.save().then(function(report){
+				var history = AV.Object.new('ReportCheckHistory');
+				console.log(JSON.stringify(history));
+				history.set('Report', report);
+				history.set('Note', "refuse by doctor " + doc.get('objectId'));
+				history.set('CheckId', checkId);
+				history.set('Doctor', doc);
+				history.set('state', "RefuseByDoc");
+				console.log(JSON.stringify(history));
+				history.save().then(function(history){
+					AV.Push.send({
+						channels: [report.get('idPatient').get('user').get('objectId')],
+						data: {
+							alert: "report " + report.get(objectId) + " refuse by doctor"
+						}
+					});
+					console.log(JSON.stringify(history));
+					response.success(history);
+				}, function(e){
+					console.log(JSON.stringify(e));
+					response.error(e);
+				});
+			}, function(e){
+				console.log(JSON.stringify(e));
+				response.error(e);
+			});
 		},
 		error: function(e){
+			console.log(JSON.stringify(e));
 			response.error(e);
 		}
-	});
+	})
 });
 
 /**
@@ -477,6 +526,61 @@ AV.Cloud.define('refuseReportByDoc', function(request, response) {
  */
 AV.Cloud.define('confirmReportByDoc', function(request, response) {
 	//findReport with report id & doc
+	findReportByReportAndDoc(request.params.report, request.user, {
+		success: function(report){
+			console.log("confirmReportByDoc confirm report is " + JSON.stringify(report));
+			console.log("user is " + report.get('idPatient').get('user').get('objectId'));
+
+			if(report.get('CheckState') != "WaitDoc"){
+				response.error("report state error");
+			}
+
+			var doc = report.get('Doctor');
+			var checkId = report.get('CheckId');
+
+			report.fetchWhenSave(true);
+			report.set('CheckState', "InCheck");
+
+			var groupACL = new AV.ACL();
+			console.log("patient user is " + JSON.stringify(report.get('idPatient').get('user')));
+			groupACL.setReadAccess(report.get('idPatient').get('user'), true);
+			groupACL.setWriteAccess(report.get('idPatient').get('user'), true);
+			groupACL.setReadAccess(request.user, true);
+			groupACL.setWriteAccess(request.user, true);
+			report.setACL(groupACL);
+
+			report.save().then(function(report){
+				var history = AV.Object.new('ReportCheckHistory');
+				history.set('Report', report);
+				history.set('Note', "comfirm by doctor " + doc.get('objectId'));
+				history.set('CheckId', checkId);
+				history.set('Doctor', doc);
+				history.set('state', "BeginCheck");
+				history.set('Conversation', request.params.conversation);
+				history.save().then(function(history){
+					console.log("history success");
+					AV.Push.send({
+						channels: [report.get('idPatient').get('user').get('objectId')],
+						data: {
+							alert: "report " + report.get('objectId') + " begin check"
+						}
+					});
+					console.log(JSON.stringify(history));
+					response.success(history);
+				}, function(e){
+					console.log(JSON.stringify(e));
+					response.error(e);
+				});
+			}, function(e){
+				console.log(JSON.stringify(e));
+				response.error(e);
+			});
+		},
+		error: function(e){
+			console.log(JSON.stringify(e));
+			response.error(e);
+		}
+	})
 });
 
 /**
@@ -486,13 +590,56 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
  * @author bibitiger
  *
  * maintain the elegant code comments
- * @param {string} report reportId
+ * @param {string} reportId reportId
  * @param {AV.object} doc _User
  * @param {[type]} options [description]
  * @return {[type]}
  */
-function findReportByReportAndDoc(report, doc, options){
-
+function findReportByReportAndDoc(reportId, doc, options){
+	var doctors = new AV.Query('DoctorPub');
+	doctors.equalTo('CreateBy', doc);
+	doctors.find({
+		success: function(listDoc){
+			if(listDoc.length != 1){
+				if(options.error){
+					for (var i = 0; i < listDoc.length; ++i) {
+						console.log(JSON.stringify(listDoc[i]));
+					}
+					options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, "cant find doc"));
+				}
+			} else {
+				var reports = new AV.Query('Reports');
+				reports.equalTo('Doctor', listDoc[0]);
+				reports.equalTo('objectId', reportId);
+				reports.include(['idPatient.user']);
+				reports.include('Doctor');
+				reports.find({
+					success: function(listReport){
+						if(listReport.length != 1){
+							if(option.error){
+								options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, "cant find report"));
+							}
+						} else {
+							if(options.success){
+								options.success.call(this, listReport[0]);
+							}
+						}
+					},
+					error: function(e){
+						console.log(JSON.stringify(e));
+						if(options.error){
+							options.error.call(this, e);
+						}
+					}
+				})
+			}
+		},
+		error: function(e){
+			if(options.error){
+				options.error.call(this, e);
+			}
+		}
+	});
 }
 
 

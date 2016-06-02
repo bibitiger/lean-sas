@@ -92,6 +92,23 @@ curl -X GET \
   https://api.leancloud.cn/1.1/classes/DoctorPub
 ```
 
+* **report状态**
+
+CheckState {string}:
+
+| 无状态 | 等待医生接受 | 用户关闭 | 医生关闭 | 检查中 |
+| :---: | :--------: | :-----: | :-----: | :---: |
+| null  | "WaitDoc"  | "CloseBypatient" | "CloseByDoc" | "InCheck" |
+|可以请求医生检查|医生或者用户可以拒接单|可以医生关闭|可以用户关闭|可以医生或者用户关闭|
+
+* **ReportCheckHistory状态**
+
+State {string}:
+
+| 医生分配 | 用户关闭 | 医生关闭 | 医生接单 | 医生拒单 | 关闭 | 用户放弃 | 评论 |
+| :--------: | :-----: | :-----: | :---: |
+| "AssignedToDoc"  | "CloseBypatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "Close" | "RefuseByPatient" | "comment" |
+
 
 
 ## 相关文档
