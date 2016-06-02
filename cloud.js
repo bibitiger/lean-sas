@@ -498,7 +498,7 @@ AV.Cloud.define('refuseReportByDoc', function(request, response) {
 					AV.Push.send({
 						channels: [report.get('idPatient').get('user').get('objectId')],
 						data: {
-							alert: "report " + report.get(objectId) + " refuse by doctor"
+							alert: "report " + report.get('objectId') + " refuse by doctor"
 						}
 					});
 					console.log(JSON.stringify(history));
