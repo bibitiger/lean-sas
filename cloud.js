@@ -618,8 +618,8 @@ AV.Cloud.define('RefuseReportByUser', function(request, response) {
 			report.save().then(function(report){
 				var history = AV.Object.new('ReportCheckHistory');
 				history.set('Report', report);
-				console.log(JSON.stringify(request.user.objectId));
-				history.set('Note', "refuse by patient " + request.user.objectId);
+				console.log(JSON.stringify(request.user.get('objectId')));
+				history.set('Note', "refuse by patient " + request.user.get('objectId'));
 				console.log("222222222222");
 				history.set('CheckId', checkId);
 				history.set('Doctor', doc);
