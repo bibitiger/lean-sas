@@ -96,18 +96,18 @@ curl -X GET \
 
 CheckState {string}:
 
-| 无状态 | 等待医生接受 | 用户关闭 | 医生关闭 | 检查中 |
-| :---: | :--------: | :-----: | :-----: | :---: |
-| null  | "WaitDoc"  | "CloseBypatient" | "CloseByDoc" | "InCheck" |
+| 无状态 | 等待医生接受  | 检查中 |
+| :---: | :--------: | :---: |
+| null  | "WaitDoc"  | "InCheck" |
 |可以请求医生检查|医生或者用户可以拒接单|可以医生关闭|可以用户关闭|可以医生或者用户关闭|
 
 * **ReportCheckHistory状态**
 
 State {string}:
 
-| 医生分配 | 用户关闭 | 医生关闭 | 医生接单 | 医生拒单 | 关闭 | 用户放弃 | 评论 |
-| :--------: | :-----: | :-----: | :---: | :---: | :---: | :---: | :---: |
-| "AssignedToDoc"  | "CloseBypatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "Close" | "RefuseByPatient" | "comment" |
+| 医生分配 | 用户关闭 | 医生关闭 | 医生接单 | 医生拒单 | 用户放弃 | 评论 | 接单超时 | 咨询到时 |
+| :--------: | :-----: | :-----: | :---: | :---: | :---: | :---: | :---: | :---: |
+| "AssignedToDoc"  | "CloseByPatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "RefuseByPatient" | "comment" | "RefuseBySys" | "CloseBySys" |
 
 * **医生拒单**
 
@@ -226,6 +226,88 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Prod: 1" \
        -d '{"report":"5739266adf0eea006097485d"}' \
 https://leancloud.cn/1.1/functions/RefuseReportByUser
+```
+
+
+* **用户结束**
+
+input `-d '{"report":"5739266adf0eea006097485d"} //需要关闭的报告`
+
+output `{
+  "result": {
+    "Report": {
+      "__type": "Pointer",
+      "className": "Reports",
+      "objectId": "57345545c4c9710060f10e1d"
+    },
+    "Note": "close by patient 5718a17671cfe400574c018c",
+    "CheckId": "702381f0-2970-11e6-867b-d12770944751",
+    "Doctor": {
+      "__type": "Pointer",
+      "className": "DoctorPub",
+      "objectId": "574ff73a530fd300696f09e0"
+    },
+    "state": "CloseByPatient",
+    "Conversation": "574eb33e2e958a0069401b71",
+    "objectId": "575152c02e958a0068a70367",
+    "createdAt": "2016-06-03T09:49:52.681Z",
+    "updatedAt": "2016-06-03T09:49:52.681Z"
+  }
+}  //成功 关闭记录在ReportCheckHistory里的记录`
+
+output `“report 57345545c4c9710060f10e1d close by patient” //推送一条消息到对应医生 `
+
+output `"report state error" //失败 report状态必须为“InCheck” `
+
+```
+curl -X POST -H "Content-Type: application/json; charset=utf-8" \
+       -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+       -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
+       -H "X-LC-Prod: 1" \
+       -d '{"report":"57345545c4c9710060f10e1d","conversation":"574eb33e2e958a0069401b71"}' \
+https://leancloud.cn/1.1/functions/CloseCheckByUser
+```
+
+
+* **医生结束**
+
+input `-d '{"report":"5739266adf0eea006097485d"} //需要关闭的报告`
+
+output `{
+  "result": {
+    "Report": {
+      "__type": "Pointer",
+      "className": "Reports",
+      "objectId": "57345545c4c9710060f10e1d"
+    },
+    "Note": "close by doctor 574d58fa71cfe4005eb83f1c",
+    "CheckId": "c5c847b0-296d-11e6-867b-d12770944751",
+    "Doctor": {
+      "__type": "Pointer",
+      "className": "DoctorPub",
+      "objectId": "574d58fa5bbb500057b165a6"
+    },
+    "state": "CloseByDoc",
+    "Conversation": "574eb33e2e958a0069401b71",
+    "objectId": "57514e3c7db2a20069755f80",
+    "createdAt": "2016-06-03T09:30:36.042Z",
+    "updatedAt": "2016-06-03T09:30:36.042Z"
+  }
+}  //成功 关闭记录在ReportCheckHistory里的记录`
+
+output `“report 57345545c4c9710060f10e1d close by doctor” //推送一条消息到对应病人 `
+
+output `"report state error" //失败 report状态必须为“InCheck” `
+
+```
+curl -X POST -H "Content-Type: application/json; charset=utf-8" \
+       -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+       -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
+       -H "X-LC-Prod: 1" \
+       -d '{"report":"57345545c4c9710060f10e1d","conversation":"574eb33e2e958a0069401b71"}' \
+https://leancloud.cn/1.1/functions/CloseCheckByDoc
 ```
 
 
