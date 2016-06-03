@@ -549,6 +549,7 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
 
 			report.fetchWhenSave(true);
 			report.set('CheckState', "InCheck");
+			report.set('Conversation', request.params.conversation);
 
 			var groupACL = new AV.ACL();
 			console.log("patient user is " + JSON.stringify(report.get('idPatient').get('user')));
@@ -794,9 +795,10 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
 /**
  * @Author   bibitiger
  * @DateTime 2016-06-02T18:23:03+0800
- * @description 
+ * @description check report checking, 20 sec interval loop, if it is time to close or refuse
  */
-AV.Cloud.define('commentByUser', function(request, response) {
+AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
+	console.log("time out");
 });
 
 /**
@@ -804,7 +806,15 @@ AV.Cloud.define('commentByUser', function(request, response) {
  * @DateTime 2016-06-02T18:23:03+0800
  * @description 
  */
-AV.Cloud.define('commentByDoctor', function(request, response) {
+AV.Cloud.define('CommentByUser', function(request, response) {
+});
+
+/**
+ * @Author   bibitiger
+ * @DateTime 2016-06-02T18:23:03+0800
+ * @description 
+ */
+AV.Cloud.define('CommentByDoctor', function(request, response) {
 });
 
 /**
