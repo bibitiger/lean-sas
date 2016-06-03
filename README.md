@@ -189,6 +189,45 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
 https://leancloud.cn/1.1/functions/confirmReportByDoc
 ```
 
+* **用户放弃**
+
+input `-d '{"report":"5739266adf0eea006097485d"} //需要放弃的报告`
+
+output `{
+  "result": {
+    "Report": {
+      "__type": "Pointer",
+      "className": "Reports",
+      "objectId": "57345545c4c9710060f10e1d"
+    },
+    "Note": "refuse by patient undefined",
+    "CheckId": "cdbbedf0-2940-11e6-b9a5-d14916d50369",
+    "Doctor": {
+      "__type": "Pointer",
+      "className": "DoctorPub",
+      "objectId": "574d5907d342d3004342bd9c"
+    },
+    "state": "RefuseByPatient",
+    "objectId": "575102b8530fd30068ed6867",
+    "createdAt": "2016-06-03T04:08:24.057Z",
+    "updatedAt": "2016-06-03T04:08:24.057Z"
+  }
+}  //成功 拒单记录在ReportCheckHistory里的记录`
+
+output `“report 57345545c4c9710060f10e1d refuse by patient” //推送一条消息到对应医生 `
+
+output `"report state error" //失败 report状态必须为“WaitDoc” `
+
+```
+curl -X POST -H "Content-Type: application/json; charset=utf-8" \
+       -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+       -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
+       -H "X-LC-Prod: 1" \
+       -d '{"report":"5739266adf0eea006097485d"}' \
+https://leancloud.cn/1.1/functions/RefuseReportByUser
+```
+
 
 ## 相关文档
 

@@ -589,7 +589,67 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
  * @description 
  */
 AV.Cloud.define('RefuseReportByUser', function(request, response) {
-}
+	var Findinfo = createFindReportInfo("Patients", "user", "cant find patient", "idPatient");
+	findReportByReportAndEntity.call(Findinfo, request.params.report, request.user, {
+		success: function(report){
+			console.log("RefuseReportByUser confirm report is " + JSON.stringify(report));
+			console.log("user is " + report.get('idPatient').get('user').get('objectId'));
+
+			if(report.get('CheckState') != "WaitDoc"){
+				response.error("report state error");
+			}
+
+			var doc = report.get('Doctor');
+			var checkId = report.get('CheckId');
+
+			report.fetchWhenSave(true);
+			report.unset('CheckState');
+			report.unset('CheckId');
+			report.unset('Doctor');
+
+			var groupACL = new AV.ACL();
+			console.log("doc user is " + JSON.stringify(doc.get('CreateBy')));
+			groupACL.setReadAccess(doc.get('CreateBy'), false);
+			groupACL.setWriteAccess(doc.get('CreateBy'), false);
+			groupACL.setReadAccess(request.user, true);
+			groupACL.setWriteAccess(request.user, true);
+			report.setACL(groupACL);
+
+			report.save().then(function(report){
+				var history = AV.Object.new('ReportCheckHistory');
+				history.set('Report', report);
+				console.log(JSON.stringify(request.user.objectId));
+				history.set('Note', "refuse by patient " + request.user.objectId);
+				console.log("222222222222");
+				history.set('CheckId', checkId);
+				history.set('Doctor', doc);
+				history.set('state', "RefuseByPatient");
+				console.log("111111111111");
+				history.save().then(function(history){
+					console.log("history success");
+					AV.Push.send({
+						channels: [doc.get('CreateBy').get('objectId')],
+						data: {
+							alert: "report " + report.get('objectId') + " refuse by patient"
+						}
+					});
+					console.log(JSON.stringify(history));
+					response.success(history);
+				}, function(e){
+					console.log(JSON.stringify(e));
+					response.error(e);
+				});
+			}, function(e){
+				console.log(JSON.stringify(e));
+				response.error(e);
+			});
+		},
+		error: function(e){
+			console.log(JSON.stringify(e));
+			response.error(e);
+		}
+	})
+});
 
 /**
  * @Author   bibitiger
@@ -597,7 +657,7 @@ AV.Cloud.define('RefuseReportByUser', function(request, response) {
  * @description 
  */
 AV.Cloud.define('CloseCheckByDoc', function(request, response) {
-}
+});
 
 /**
  * @Author   bibitiger
@@ -605,7 +665,7 @@ AV.Cloud.define('CloseCheckByDoc', function(request, response) {
  * @description 
  */
 AV.Cloud.define('CloseCheckByDoc', function(request, response) {
-}
+});
 
 /**
  * @Author   bibitiger
@@ -613,7 +673,7 @@ AV.Cloud.define('CloseCheckByDoc', function(request, response) {
  * @description 
  */
 AV.Cloud.define('commentByUser', function(request, response) {
-}
+});
 
 /**
  * @Author   bibitiger
@@ -621,6 +681,114 @@ AV.Cloud.define('commentByUser', function(request, response) {
  * @description 
  */
 AV.Cloud.define('commentByDoctor', function(request, response) {
+});
+
+/**
+ * create a info for find report ,used by findReportByReportAndEntity
+ *
+ * @method createFindReportInfo
+ *
+ *
+ * @DateTime 2016-06-03T11:03:30+0800
+ *
+ *
+ * @author bibitiger
+ *
+ * maintain the elegant code comments
+ *
+ * @param {string} entityType [description]
+ * @param {string} entityDepend [description]
+ * @param {string} entityFindError [description]
+ * @param {string} reportDepend [description]
+ *
+ * @return {object} [description]
+ */
+function createFindReportInfo(entityType, entityDepend, entityFindError, reportDepend){
+	var info = {};
+	info.entityType = entityType;
+	info.entityDepend = entityDepend;
+	info.entityFindError = entityFindError;
+	info.reportDepend = reportDepend;
+	return info;
+};
+
+/**
+ * use it like :
+ * var info = createFindReportInfo("DoctorPub", "CreateBy", "cant find doc", "Doctor");
+ * findReportByReportAndEntity.call(info, request.params.report, request.user, {
+ * success: function(report){
+ * },
+ * error: function(error){
+ * }
+ * })
+ *
+ * @method findReportByReportAndEntity
+ *
+ *
+ * @DateTime 2016-06-03T11:05:39+0800
+ *
+ *
+ * @author bibitiger
+ *
+ * maintain the elegant code comments
+ *
+ * @param {[type]} reportId [description]
+ * @param {[type]} entity [description]
+ * @param {[type]} options [description]
+ *
+ * @return {[type]} [description]
+ */
+function findReportByReportAndEntity(reportId, entity, options){
+	var entitys = new AV.Query(this.entityType);
+	entitys.equalTo(this.entityDepend, entity);
+	reportDepend = this.reportDepend;
+	entitys.find({
+		success: function(listEntity){
+			console.log(listEntity.length.toString());
+			if(listEntity.length != 1){
+				if(options.error){
+					for (var i = 0; i < listEntity.length; ++i) {
+						console.log(JSON.stringify(listDoc[i]));
+					}
+					options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, this.entityFindError));
+				}
+			} else {
+				var reports = new AV.Query('Reports');
+				console.log(reportDepend);
+				console.log(JSON.stringify(listEntity[0]));
+				console.log(reportId);
+				reports.equalTo(reportDepend, listEntity[0]);
+				reports.equalTo('objectId', reportId);
+				reports.include(['idPatient.user']);
+				reports.include(['Doctor.CreateBy']);
+				reports.find({
+					success: function(listReport){
+						console.log(listReport.length.toString());
+						if(listReport.length != 1){
+							if(options.error){
+								options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, "cant find report"));
+							}
+						} else {
+							if(options.success){
+								options.success.call(this, listReport[0]);
+							}
+						}
+					},
+					error: function(e){
+						console.log(JSON.stringify(e));
+						if(options.error){
+							options.error.call(this, e);
+						}
+					}
+				})
+			}
+		},
+		error: function(e){
+			if(options.error){
+				options.error.call(this, e);
+			}
+		}
+	});
 }
 
 /**
@@ -656,7 +824,7 @@ function findReportByReportAndDoc(reportId, doc, options){
 				reports.find({
 					success: function(listReport){
 						if(listReport.length != 1){
-							if(option.error){
+							if(options.error){
 								options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, "cant find report"));
 							}
 						} else {
@@ -680,7 +848,7 @@ function findReportByReportAndDoc(reportId, doc, options){
 			}
 		}
 	});
-}
+};
 
 
 module.exports = AV.Cloud;
