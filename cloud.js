@@ -829,6 +829,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 		for (var i = 0; i < listReport.length; i++) {
 			var checkId = listReport[i].get("CheckId");
 			var reportDate = listReport[i].get('CheckStateChangeTime');
+			if(!reportDate) continue;
 			var conversation = listReport[i].get('Conversation');
 			var doc = listReport[i].get('Doctor');
 			if(listReport[i].get('CheckState') == "WaitDoc"){
@@ -870,7 +871,9 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 				history.set('CheckId', checkId);
 				history.set('Doctor', doc);
 				history.set('state', historyState);
-				history.set('Conversation', conversation);
+				if(conversation){
+					history.set('Conversation', conversation);
+				}
 				arrayHistory.push(history);
 
 				arrayPush.push(listReport[i].get('idPatient').get('user').get('objectId'));
@@ -911,6 +914,17 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
  * @description 
  */
 AV.Cloud.define('CommentByUser', function(request, response) {
+	console.log("CheckCheckingForCloseOrRefuse begin");
+	var reportsCheck = new AV.Query('Reports');
+	reportsCheck.equalTo('CheckState', "InCheck");
+
+	var reportsWait = new AV.Query('Reports');
+	reportsWait.equalTo('CheckState', "WaitDoc");
+
+	var reports = AV.Query.or(reportsCheck, reportsWait);
+	reports.include(['Doctor.CreateBy']);
+	reports.include(['idPatient.user']);
+	reports.select('CheckId', 'Doctor' , 'CheckStateChangeTime', 'idPatient', 'CheckState');
 });
 
 /**
