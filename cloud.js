@@ -804,7 +804,7 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
  * @description check report checking, 20 sec interval loop, if it is time to close or refuse
  */
 AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
-	console.log("time out");
+	console.log("CheckCheckingForCloseOrRefuse begin");
 	var reportsCheck = new AV.Query('Reports');
 	reportsCheck.equalTo('CheckState', "InCheck");
 
@@ -815,13 +815,89 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 	reports.include(['Doctor.CreateBy']);
 	reports.include(['idPatient.user']);
 	reports.select('CheckId', 'Doctor' , 'CheckStateChangeTime', 'idPatient', 'CheckState');
+	var now = new Date();
+	var nowDate = now.getTime();
 
 	reports.find().then(function(listReport){
 		console.log(listReport.length.toString());
+		var arrayReport = new Array();
+		var arrayHistory = new Array();
+		var arrayPush = new Array();
+		var needClose = false;
+		var historyNote = "";
+		var historyState = "";
 		for (var i = 0; i < listReport.length; i++) {
-			console.log(JSON.stringify(listReport[i]));
+			var checkId = listReport[i].get("CheckId");
+			var reportDate = listReport[i].get('CheckStateChangeTime');
+			var conversation = listReport[i].get('Conversation');
+			var doc = listReport[i].get('Doctor');
+			if(listReport[i].get('CheckState') == "WaitDoc"){
+				var interval = Math.floor((nowDate - reportDate)/(1000*60));
+				console.log(interval.toString());
+				if(interval >= 10){
+					needClose = true;
+					historyNote = "refuse by system";
+					historyState = "RefuseBySys";
+				}
+			} else if (listReport[i].get('CheckState') == "InCheck"){
+				var interval = Math.floor((nowDate - reportDate)/1000*3600);
+				console.log(interval.toString());
+				if(interval >= 24){
+					needClose = true;
+					historyNote = "close by system";
+					historyState = "CloseBySys";
+				}
+			}
+
+			if(needClose){
+				listReport[i].fetchWhenSave(true);
+				var groupACL = new AV.ACL();
+				listReport[i].unset('CheckState');
+				listReport[i].set('CheckStateChangeTime', new Date());
+				//report.unset('CheckId');
+				listReport[i].unset('Doctor');
+				groupACL.setPublicReadAccess(true);
+				groupACL.setReadAccess(listReport[i].get('idPatient').get('user'), true);
+				groupACL.setWriteAccess(listReport[i].get('idPatient').get('user'), true);
+				listReport[i].setACL(groupACL);
+
+				arrayReport.push(listReport[i]);
+				console.log("test1");
+
+				var history = AV.Object.new('ReportCheckHistory');
+				history.set('Report', listReport[i]);
+				history.set('Note', historyNote);
+				history.set('CheckId', checkId);
+				history.set('Doctor', doc);
+				history.set('state', historyState);
+				history.set('Conversation', conversation);
+				arrayHistory.push(history);
+
+				arrayPush.push(listReport[i].get('idPatient').get('user').get('objectId'));
+				arrayPush.push(doc.get("CreateBy").get('objectId'));
+			}
 		};
-		response.success();
+
+		if(arrayReport.length){
+			AV.Object.saveAll(arrayReport).then(function(arrayReport){
+				AV.Object.saveAll(arrayHistory).then(function(arrayHistory){
+					AV.Push.send({
+						channels: arrayPush,
+						data: {
+							alert: "report has " + historyNote
+						}
+					});
+					response.success();
+				}, function(e){
+					console.log(JSON.stringify(e));
+					response.error(e);
+				})
+			},function(e){
+				console.log(JSON.stringify(e));
+				response.error(e);
+			})
+		}
+
 	},
 	function(e){
 		console.log(JSON.stringify(e));
