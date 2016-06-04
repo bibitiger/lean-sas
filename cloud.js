@@ -828,6 +828,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 		var historyNote = "";
 		var historyState = "";
 		for (var i = 0; i < listReport.length; i++) {
+			needClose = false;
 			var checkId = listReport[i].get("CheckId");
 			var reportDate = listReport[i].get('CheckStateChangeTime');
 			if(!reportDate) continue;
