@@ -817,6 +817,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 	reports.select('CheckId', 'Doctor' , 'CheckStateChangeTime', 'idPatient', 'CheckState');
 	var now = new Date();
 	var nowDate = now.getTime();
+	console.log("now is " + JSON.stringify(now));
 
 	reports.find().then(function(listReport){
 		console.log(listReport.length.toString());
@@ -836,6 +837,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 				var interval = Math.floor((nowDate - reportDate)/(1000*60));
 				console.log(interval.toString());
 				if(interval >= 10){
+					console.log("report " + JSON.stringify(listReport[i].get('objectId')) + " refuse change time is " + JSON.stringify(reportDate));
 					needClose = true;
 					historyNote = "refuse by system";
 					historyState = "RefuseBySys";
@@ -844,6 +846,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 				var interval = Math.floor((nowDate - reportDate)/1000*3600);
 				console.log(interval.toString());
 				if(interval >= 24){
+					console.log("report " + JSON.stringify(listReport[i].get('objectId')) + " close change time is " + JSON.stringify(reportDate));
 					needClose = true;
 					historyNote = "close by system";
 					historyState = "CloseBySys";
