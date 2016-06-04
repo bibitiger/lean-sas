@@ -902,6 +902,8 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 				console.log(JSON.stringify(e));
 				response.error(e);
 			})
+		} else {
+			response.success();
 		}
 
 	},
