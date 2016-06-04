@@ -310,6 +310,20 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
 https://leancloud.cn/1.1/functions/CloseCheckByDoc
 ```
 
+* **计时检查**
+
+`用于服务器计时检查是否有检查会话“等待医生”或“医生检查”到时，等待医生：10分钟到时，医生检查：24小时到时，服务器会以20秒间隔循环调用该函数检查`
+
+```
+curl -X POST -H "Content-Type: application/json; charset=utf-8" \
+       -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+       -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
+       -H "X-LC-Prod: 1" \
+       -d '{}' \
+https://leancloud.cn/1.1/functions/CheckCheckingForCloseOrRefuse
+```
+
 
 ## 相关文档
 
