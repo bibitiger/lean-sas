@@ -844,7 +844,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 					historyState = "RefuseBySys";
 				}
 			} else if (listReport[i].get('CheckState') == "InCheck"){
-				var interval = Math.floor((nowDate - reportDate)/1000*3600);
+				var interval = Math.floor((nowDate - reportDate)/(1000*3600));
 				console.log(interval.toString());
 				if(interval >= 24){
 					console.log("report " + JSON.stringify(listReport[i].get('objectId')) + " close change time is " + JSON.stringify(reportDate));
