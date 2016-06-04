@@ -80,6 +80,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 									listReport[0].set('Doctor', listDoc[loc]);
 									listReport[0].set('CheckState', "WaitDoc");
 									listReport[0].set('CheckId', uuid.v1());
+									listReport[0].set('CheckStateChangeTime', new Date());
 
 									//set acl to doc and patient
 									var groupACL = new AV.ACL();
@@ -486,6 +487,7 @@ AV.Cloud.define('refuseReportByDoc', function(request, response) {
 			report.unset('Doctor');
 			report.unset('CheckState');
 			report.unset('CheckId');
+			report.set('CheckStateChangeTime', new Date());
 
 			var groupACL = new AV.ACL();
 			console.log("patient user is " + JSON.stringify(report.get('idPatient').get('user')));
@@ -550,6 +552,7 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
 			report.fetchWhenSave(true);
 			report.set('CheckState', "InCheck");
 			report.set('Conversation', request.params.conversation);
+			report.set('CheckStateChangeTime', new Date());
 
 			var groupACL = new AV.ACL();
 			console.log("patient user is " + JSON.stringify(report.get('idPatient').get('user')));
@@ -616,6 +619,7 @@ AV.Cloud.define('RefuseReportByUser', function(request, response) {
 			report.unset('CheckState');
 			report.unset('CheckId');
 			report.unset('Doctor');
+			report.set('CheckStateChangeTime', new Date());
 
 			var groupACL = new AV.ACL();
 			console.log("doc user is " + JSON.stringify(doc.get('CreateBy')));
@@ -685,6 +689,7 @@ AV.Cloud.define('CloseCheckByDoc', function(request, response) {
 			report.fetchWhenSave(true);
 			var groupACL = new AV.ACL();
 			report.unset('CheckState');
+			report.set('CheckStateChangeTime', new Date());
 			//report.unset('CheckId');
 			report.unset('Doctor');
 			groupACL.setPublicReadAccess(true);
@@ -751,6 +756,7 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
 			report.fetchWhenSave(true);
 			var groupACL = new AV.ACL();
 			report.unset('CheckState');
+			report.set('CheckStateChangeTime', new Date());
 			//report.unset('CheckId');
 			report.unset('Doctor');
 			groupACL.setPublicReadAccess(true);
@@ -799,6 +805,28 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
  */
 AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 	console.log("time out");
+	var reportsCheck = new AV.Query('Reports');
+	reportsCheck.equalTo('CheckState', "InCheck");
+
+	var reportsWait = new AV.Query('Reports');
+	reportsWait.equalTo('CheckState', "WaitDoc");
+
+	var reports = AV.Query.or(reportsCheck, reportsWait);
+	reports.include(['Doctor.CreateBy']);
+	reports.include(['idPatient.user']);
+	reports.select('CheckId', 'Doctor' , 'CheckStateChangeTime', 'idPatient', 'CheckState');
+
+	reports.find().then(function(listReport){
+		console.log(listReport.length.toString());
+		for (var i = 0; i < listReport.length; i++) {
+			console.log(JSON.stringify(listReport[i]));
+		};
+		response.success();
+	},
+	function(e){
+		console.log(JSON.stringify(e));
+		response.error(e);
+	})
 });
 
 /**
