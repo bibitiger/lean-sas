@@ -577,6 +577,7 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
 					AV.Push.send({
 						channels: [report.get('idPatient').get('user').get('objectId')],
 						data: {
+							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
 							alert: "report " + report.get('objectId') + " begin check"
 						}
