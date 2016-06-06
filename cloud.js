@@ -106,8 +106,10 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 											AV.Push.send({
 												channels: [listDoc[loc].get('CreateBy').get('objectId')],
 												data: {
+													action: "com.zhaoguan.huxikang",
 													type: 'ReportCheck',
-													alert: 'new report'
+													reportID: [report.get('objectId')],
+													state: "AssignedToDoc"
 												}
 											});
 
@@ -510,8 +512,10 @@ AV.Cloud.define('refuseReportByDoc', function(request, response) {
 					AV.Push.send({
 						channels: [report.get('idPatient').get('user').get('objectId')],
 						data: {
+							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
-							alert: "report " + report.get('objectId') + " refuse by doctor"
+							reportID: [report.get('objectId')],
+							state: "RefuseByDoc"
 						}
 					});
 					console.log(JSON.stringify(history));
@@ -579,7 +583,8 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
 						data: {
 							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
-							alert: "report " + report.get('objectId') + " begin check"
+							reportID: [report.get('objectId')],
+							state: "beginCheck"
 						}
 					});
 					console.log(JSON.stringify(history));
@@ -647,8 +652,10 @@ AV.Cloud.define('RefuseReportByUser', function(request, response) {
 					AV.Push.send({
 						channels: [doc.get('CreateBy').get('objectId')],
 						data: {
+							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
-							alert: "report " + report.get('objectId') + " refuse by patient"
+							reportID: [report.get('objectId')],
+							state: "closeByPatient"
 						}
 					});
 					console.log(JSON.stringify(history));
@@ -715,8 +722,10 @@ AV.Cloud.define('CloseCheckByDoc', function(request, response) {
 					AV.Push.send({
 						channels: [patient.get('user').get('objectId')],
 						data: {
+							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
-							alert: "report " + report.get('objectId') + " close by doctor"
+							reportID: [report.get('objectId')],
+							state: "closeByDoc"
 						}
 					});
 					console.log(JSON.stringify(history));
@@ -783,8 +792,10 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
 					AV.Push.send({
 						channels: [doc.get('CreateBy').get('objectId')],
 						data: {
+							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
-							alert: "report " + report.get('objectId') + " close by patient"
+							reportID: [report.get('objectId')],
+							state: CloseByPatient
 						}
 					});
 					console.log(JSON.stringify(history));
@@ -898,8 +909,10 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 					AV.Push.send({
 						channels: arrayPush,
 						data: {
+							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
-							alert: "report has " + historyNote
+							reportID: arrayReport,
+							state: historyState
 						}
 					});
 					response.success();
