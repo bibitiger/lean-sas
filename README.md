@@ -109,6 +109,15 @@ State {string}:
 | :--------: | :-----: | :-----: | :---: | :---: | :---: | :---: | :---: | :---: |
 | "AssignedToDoc"  | "CloseByPatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "RefuseByPatient" | "comment" | "RefuseBySys" | "CloseBySys" |
 
+
+* **推送类别**
+
+type {string}:
+
+| 聊天消息 | 医患检查  | 
+| :---: | :--------: |
+| "IMMsg"  | "ReportCheck"  |
+
 * **医生拒单**
 
 input `-d '{"report":"5739266adf0eea006097485d"} //需要拒单的报告`

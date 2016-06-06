@@ -106,6 +106,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 											AV.Push.send({
 												channels: [listDoc[loc].get('CreateBy').get('objectId')],
 												data: {
+													type: 'ReportCheck',
 													alert: 'new report'
 												}
 											});
@@ -509,6 +510,7 @@ AV.Cloud.define('refuseReportByDoc', function(request, response) {
 					AV.Push.send({
 						channels: [report.get('idPatient').get('user').get('objectId')],
 						data: {
+							type: 'ReportCheck',
 							alert: "report " + report.get('objectId') + " refuse by doctor"
 						}
 					});
@@ -575,6 +577,7 @@ AV.Cloud.define('confirmReportByDoc', function(request, response) {
 					AV.Push.send({
 						channels: [report.get('idPatient').get('user').get('objectId')],
 						data: {
+							type: 'ReportCheck',
 							alert: "report " + report.get('objectId') + " begin check"
 						}
 					});
@@ -643,6 +646,7 @@ AV.Cloud.define('RefuseReportByUser', function(request, response) {
 					AV.Push.send({
 						channels: [doc.get('CreateBy').get('objectId')],
 						data: {
+							type: 'ReportCheck',
 							alert: "report " + report.get('objectId') + " refuse by patient"
 						}
 					});
@@ -710,6 +714,7 @@ AV.Cloud.define('CloseCheckByDoc', function(request, response) {
 					AV.Push.send({
 						channels: [patient.get('user').get('objectId')],
 						data: {
+							type: 'ReportCheck',
 							alert: "report " + report.get('objectId') + " close by doctor"
 						}
 					});
@@ -777,6 +782,7 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
 					AV.Push.send({
 						channels: [doc.get('CreateBy').get('objectId')],
 						data: {
+							type: 'ReportCheck',
 							alert: "report " + report.get('objectId') + " close by patient"
 						}
 					});
@@ -891,6 +897,7 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 					AV.Push.send({
 						channels: arrayPush,
 						data: {
+							type: 'ReportCheck',
 							alert: "report has " + historyNote
 						}
 					});
