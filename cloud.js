@@ -648,6 +648,8 @@ AV.Cloud.define('RefuseReportByUser', function(request, response) {
 				history.set('state', "RefuseByPatient");
 				console.log("111111111111");
 				history.save().then(function(history){
+					console.log(JSON.stringify(history));
+					response.success(history);
 					console.log("history success");
 					AV.Push.send({
 						channels: [doc.get('CreateBy').get('objectId')],
@@ -658,8 +660,6 @@ AV.Cloud.define('RefuseReportByUser', function(request, response) {
 							state: "closeByPatient"
 						}
 					});
-					console.log(JSON.stringify(history));
-					response.success(history);
 				}, function(e){
 					console.log(JSON.stringify(e));
 					response.error(e);
@@ -795,7 +795,7 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
 							action: "com.zhaoguan.huxikang",
 							type: 'ReportCheck',
 							reportID: [report.get('objectId')],
-							state: CloseByPatient
+							state: "CloseByPatient"
 						}
 					});
 					console.log(JSON.stringify(history));
@@ -941,17 +941,82 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
  * @description 
  */
 AV.Cloud.define('CommentByUser', function(request, response) {
-	console.log("CheckCheckingForCloseOrRefuse begin");
-	var reportsCheck = new AV.Query('Reports');
-	reportsCheck.equalTo('CheckState', "InCheck");
+	console.log("CommentByUser begin");
+	if(request.params.score){
+		var historyTest = new AV.Query('ReportCheckHistory');
+		historyTest.equalTo('state', "CommentByPatient");
+		historyTest.equalTo('CheckId', request.params.checkId);
+		historyTest.exists('Score');
+		historyTest.find().then(function(historyTestList){
+			if(historyTestList.length > 0){
+				console.log("CommentByUser failed " + "there is a score for check " + request.params.checkId + " " + JSON.stringify(historyTestList[0]));
+				response.error("there is a score for check " + request.params.checkId + " " + JSON.stringify(historyTestList[0]));
+				return;
+			}
 
-	var reportsWait = new AV.Query('Reports');
-	reportsWait.equalTo('CheckState', "WaitDoc");
+			var checkHistoryRefuseSys = new AV.Query('ReportCheckHistory');
+			checkHistoryRefuseSys.equalTo('state', "RefuseBySys");
 
-	var reports = AV.Query.or(reportsCheck, reportsWait);
-	reports.include(['Doctor.CreateBy']);
-	reports.include(['idPatient.user']);
-	reports.select('CheckId', 'Doctor' , 'CheckStateChangeTime', 'idPatient', 'CheckState');
+			var checkHistoryRefuseDoc = new AV.Query('ReportCheckHistory');
+			checkHistoryRefuseDoc.equalTo('state', "RefuseByDoc");
+
+			var checkHistoryRefusePat = new AV.Query('ReportCheckHistory');
+			checkHistoryRefusePat.equalTo('state', "RefuseByPatient");
+
+			var checkHistoryCloseSys = new AV.Query('ReportCheckHistory');
+			checkHistoryCloseSys.equalTo('state', "CloseBySys");
+
+			var checkHistoryCloseDoc = new AV.Query('ReportCheckHistory');
+			checkHistoryCloseDoc.equalTo('state', "CloseByDoc");
+
+			var checkHistoryClosePat = new AV.Query('ReportCheckHistory');
+			checkHistoryClosePat.equalTo('state', "CloseByPatient");
+
+			var historys = AV.Query.or(checkHistoryRefuseSys, checkHistoryRefuseDoc, checkHistoryRefusePat, checkHistoryCloseSys, checkHistoryCloseDoc, checkHistoryClosePat);
+			historys.include(['Doctor.CreateBy']);
+			historys.include(['Report.idPatient.user']);
+			historys.equalTo('CheckId', request.params.checkId);
+			historys.find().then(function(listHistory){
+				if(listHistory.length != 1){
+					console.log("CommentByUser failed cant find end record by id " + request.params.checkId);
+					response.error("cant find end record by id " + request.params.checkId);
+					return;
+				}
+
+				if(listHistory[0].get('Report').get('idPatient').get('user').get('objectId') != request.user.get('objectId')){
+					console.log("CommentByUser failed not belong to " + request.user.get('objectId'));
+					response.error("permission failed");
+					return;
+				}
+
+				var history = AV.Object.new('ReportCheckHistory');
+				history.set('Report', listHistory[0].get('Report'));
+				history.set('Note', request.params.comment);
+				history.set('CheckId', listHistory[0].get('CheckId'));
+				history.set('Doctor', listHistory[0].get('Doctor'));
+				history.set('state', "CommentByPatient");
+				var score = request.params.score;
+				if(score){
+					if(score < 0) score = 0;
+					if(score > 5) score = 5;
+					history.set('Score', request.params.score);
+				}
+				history.set('Conversation', listHistory[0].get('Conversation'));
+				history.save().then(function(history){
+					response.success(history);
+					console.log("CommentByUser secced");
+				}, function(e){
+					console.log(JSON.stringify(e));
+					response.error(e);
+				})
+			}, function(e){
+				console.log(JSON.stringify(e));
+				response.error(e);
+			})
+		}, function(e){
+			console.log(e);
+		})
+	}
 });
 
 /**
@@ -960,6 +1025,82 @@ AV.Cloud.define('CommentByUser', function(request, response) {
  * @description 
  */
 AV.Cloud.define('CommentByDoctor', function(request, response) {
+	console.log("CommentByDoctor begin");
+	if(request.params.score){
+		var historyTest = new AV.Query('ReportCheckHistory');
+		historyTest.equalTo('state', "CommentByDoc");
+		historyTest.equalTo('CheckId', request.params.checkId);
+		historyTest.exists('Score');
+		historyTest.find().then(function(historyTestList){
+			if(historyTestList.length > 0){
+				console.log("CommentByDoctor failed " + "there is a score for check " + request.params.checkId + " " + JSON.stringify(historyTestList[0]));
+				response.error("there is a score for check " + request.params.checkId + " " + JSON.stringify(historyTestList[0]));
+				return;
+			}
+
+			var checkHistoryRefuseSys = new AV.Query('ReportCheckHistory');
+			checkHistoryRefuseSys.equalTo('state', "RefuseBySys");
+
+			var checkHistoryRefuseDoc = new AV.Query('ReportCheckHistory');
+			checkHistoryRefuseDoc.equalTo('state', "RefuseByDoc");
+
+			var checkHistoryRefusePat = new AV.Query('ReportCheckHistory');
+			checkHistoryRefusePat.equalTo('state', "RefuseByPatient");
+
+			var checkHistoryCloseSys = new AV.Query('ReportCheckHistory');
+			checkHistoryCloseSys.equalTo('state', "CloseBySys");
+
+			var checkHistoryCloseDoc = new AV.Query('ReportCheckHistory');
+			checkHistoryCloseDoc.equalTo('state', "CloseByDoc");
+
+			var checkHistoryClosePat = new AV.Query('ReportCheckHistory');
+			checkHistoryClosePat.equalTo('state', "CloseByPatient");
+
+			var historys = AV.Query.or(checkHistoryRefuseSys, checkHistoryRefuseDoc, checkHistoryRefusePat, checkHistoryCloseSys, checkHistoryCloseDoc, checkHistoryClosePat);
+			historys.include(['Doctor.CreateBy']);
+			historys.include(['Report.idPatient.user']);
+			historys.equalTo('CheckId', request.params.checkId);
+			historys.find().then(function(listHistory){
+				if(listHistory.length != 1){
+					console.log("CommentByDoctor failed cant find end record by id " + request.params.checkId);
+					response.error("cant find end record by id " + request.params.checkId);
+					return;
+				}
+
+				if(listHistory[0].get('Doctor').get('CreateBy').get('objectId') != request.user.get('objectId')){
+					console.log("CommentByDoctor failed not belong to " + request.user.get('objectId'));
+					response.error("permission failed");
+					return;
+				}
+
+				var history = AV.Object.new('ReportCheckHistory');
+				history.set('Report', listHistory[0].get('Report'));
+				history.set('Note', request.params.comment);
+				history.set('CheckId', listHistory[0].get('CheckId'));
+				history.set('Doctor', listHistory[0].get('Doctor'));
+				history.set('state', "CommentByDoc");
+				var score = request.params.score;
+				if(score){
+					if(score < 0) score = 0;
+					if(score > 5) score = 5;
+					history.set('Score', request.params.score);
+				}
+				history.set('Conversation', listHistory[0].get('Conversation'));
+				history.save().then(function(history){
+					response.success(history);
+					console.log("CommentByDoctor secced");
+				}, function(e){
+					console.log(JSON.stringify(e));
+					response.error(e);
+				})
+			}, function(e){
+				console.log(JSON.stringify(e));
+				response.error(e);
+			})
+		}, function(e){
+			console.log(e);
+		})
+	}
 });
 
 /**

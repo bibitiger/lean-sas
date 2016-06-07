@@ -105,9 +105,9 @@ CheckState {string}:
 
 State {string}:
 
-| 医生分配 | 用户关闭 | 医生关闭 | 医生接单 | 医生拒单 | 用户放弃 | 评论 | 接单超时 | 咨询到时 |
-| :--------: | :-----: | :-----: | :---: | :---: | :---: | :---: | :---: | :---: |
-| "AssignedToDoc"  | "CloseByPatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "RefuseByPatient" | "comment" | "RefuseBySys" | "CloseBySys" |
+| 医生分配 | 用户关闭 | 医生关闭 | 医生接单 | 医生拒单 | 用户放弃 | 用户评论 | 接单超时 | 咨询到时 | 医生评论 |
+| :--------: | :-----: | :-----: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
+| "AssignedToDoc"  | "CloseByPatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "RefuseByPatient" | "CommentByPatient" | "RefuseBySys" | "CloseBySys" | "CommentByDoc" |
 
 
 * **推送类别**
