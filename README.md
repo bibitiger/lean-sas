@@ -369,7 +369,7 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
 	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
        -H "X-LC-Prod: 1" \
        -d '{"checkId":"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356", "comment":"这个医生不错1111","score":4}' \
-https://leancloud.cn/1.1/functions/CloseCheckByDoc
+https://leancloud.cn/1.1/functions/CommentByDoctor
 ```
 
 
@@ -408,7 +408,7 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
 	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
        -H "X-LC-Prod: 1" \
        -d '{"checkId":"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356", "comment":"这个医生不错1111","score":4}' \
-https://leancloud.cn/1.1/functions/CloseCheckByDoc
+https://leancloud.cn/1.1/functions/CommentByUser
 ```
 
 
