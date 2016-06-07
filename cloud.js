@@ -179,7 +179,8 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	    
 	                var patient = new Patient();
 	                // patient.set('objectId',user.id);
-	                patient.set('user',user)
+	                patient.set('user',user);
+	                patient.set('name',user.get('username'));
 	                
 	                // 新建一个 ACL 实例
 	                var acl = new AV.ACL();
@@ -195,6 +196,7 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	                    data['user'] = user;
 	                    data['sessionToken'] = user._sessionToken;
 	                    data['userId'] = user.id;
+	                    data['name'] = user.get('name');
 	                    
 	                    response.success(data);
 	                }, function(err) {
@@ -211,6 +213,7 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	            data['profileId'] = profile.id;
 	            data['sessionToken'] = user._sessionToken;
 	            data['user'] = user;
+                data['name'] = profile.get('name');
 	            //...
 	            response.success(data);   
 	        }
@@ -252,12 +255,14 @@ AV.Cloud.define('login', function(request, response) {
 	                data['profileId'] = profile.id;
 	                data['sessionToken'] = user._sessionToken;
 	                data['user'] = user;
+	                data['name'] = profile.get('name');
 	                //...
 	                response.success(data);            
 	        }else{
 	                var Patient = AV.Object.extend('Patients');
 	                var patient = new Patient();
 	                patient.set('user',user)
+	                patient.set('name',user.get('username'));
 	                
 	                 // 新建一个 ACL 实例
 	                var acl = new AV.ACL();
@@ -272,6 +277,7 @@ AV.Cloud.define('login', function(request, response) {
 	                    data['profileId'] = patient.id;
 	                    data['sessionToken'] = user._sessionToken;
 	                    data['user'] = user;
+	                    data['name'] = user.get('username');
 	                    //...
 	                    response.success(data); 
 	                }, function(err) {
