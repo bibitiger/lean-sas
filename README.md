@@ -112,7 +112,7 @@ curl -X GET \
   https://api.leancloud.cn/1.1/classes/DoctorPub
 ```
 
-* **report状态**
+* **Check状态**
 
 CheckState {string}:
 
