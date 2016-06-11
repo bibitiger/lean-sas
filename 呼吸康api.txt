@@ -1,0 +1,61 @@
+ //创建报告
+curl -X POST \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "remSleepScore": 4,
+  "num": 105,
+  "totalSleepScore": 15,
+  "failSleepScore": 0,
+  "start": 1605120948,
+  "idReport": "HZ111605_0105",
+  "ahiScore": 6,
+  "wakeSleepScore": 0,
+  "deepSleepScore": 0,
+  "status": "5",
+  "idPatient": {
+    "__type": "Pointer",
+    "className": "Patients",
+    "objectId": "5755126e816dfa005f7d2354"
+  },
+  "end": 21780,
+  "visible": "1",
+  "idDevice": {
+    "__type": "Pointer",
+    "className": "Device",
+    "objectId": "57305c281ea4930060a3fcb0"
+  },
+   "sleepData": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  "AHI": 11,
+  "lightSleepScore": 1
+}' \
+  https://api.leancloud.cn/1.1/classes/Reports
+  
+  
+curl -X POST \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "ReportId":"575c275ea34131006148d44d",
+  "Type":"mengjia",
+  "CreateBy": {
+    "__type": "Pointer",
+    "className": "Patients",
+    "objectId": "5755126e816dfa005f7d2354"
+  }
+}' \
+  https://api.leancloud.cn/1.1/classes/BaseReports
+
+
+//登陆
+curl -X GET \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -G \
+  --data-urlencode 'username=18629551526' \
+  --data-urlencode 'password=123456' \
+  https://api.leancloud.cn/1.1/login

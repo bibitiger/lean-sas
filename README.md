@@ -52,9 +52,29 @@ curl -X POST \
 
 * **请求医生查看**
 
-input `-d '{"report":"5739266adf0eea006097485d"} //需要医生查看的报告`
+input `-d '{"report":"5739266adf0eea006097485d"} //需要医生查看的报告 BaseReports 的 objectId`
 
-output `{"result":{"createBy":{"__type":"Pointer","className":"_User","objectId":"573e7ad849830c00612c500b"},"objectId":"574b917f71cfe4006bebbf16","createdAt":"2016-05-30T01:03:59.646Z","updatedAt":"2016-05-30T01:03:59.646Z"}} //成功 返回分配医生信息`
+output `{
+  "result": {
+    "ReportId": "575c2879207703006aceee16",
+    "StateChangeTime": {
+      "__type": "Date",
+      "iso": "2016-06-11T16:03:12.324Z"
+    },
+    "State": "WaitDoc",
+    "objectId": "575c363f2e958a0069ded51a",
+    "createdAt": "2016-06-11T16:03:11.107Z",
+    "updatedAt": "2016-06-11T16:03:11.107Z"
+  }
+} //成功 返回Check信息 `
+
+`推送消息 channels: ["UserRequstDocForCheck"],
+											data: {
+												action: "com.zhaoguan.huxikang",
+												type: 'ReportCheck',
+												reportID: [check.get('objectId')],
+												state: "NoticeDocAccp"
+											}`
 
 output `"no useful doctor" //失败 `
 
@@ -96,18 +116,18 @@ curl -X GET \
 
 CheckState {string}:
 
-| 无状态 | 等待医生接受  | 检查中 |
-| :---: | :--------: | :---: |
-| null  | "WaitDoc"  | "InCheck" |
-|可以请求医生检查|医生或者用户可以拒接单|可以医生关闭|可以用户关闭|可以医生或者用户关闭|
+| 关闭状态 | 等待医生接受  | 检查中 | 等待系统医生 |
+| :---: | :--------: | :---: | :---:|
+| 参照下方 ReportCheckHistory 的各类关闭和拒绝状态 | "WaitDoc"  | "InCheck" | "WaitDocOfficial"
+|本次检查已经关闭|用户可以拒接单，通知医生抢单|可以医生关闭,可以用户关闭,可以医生或者用户关闭| 用户可以拒接单，指定系统客服接单|
 
 * **ReportCheckHistory状态**
 
 State {string}:
 
-| 医生分配 | 用户关闭 | 医生关闭 | 医生接单 | 医生拒单 | 用户放弃 | 用户评论 | 接单超时 | 咨询到时 | 医生评论 |
-| :--------: | :-----: | :-----: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
-| "AssignedToDoc"  | "CloseByPatient" | "CloseByDoc" | "BeginCheck" | "RefuseByDoc" | "RefuseByPatient" | "CommentByPatient" | "RefuseBySys" | "CloseBySys" | "CommentByDoc" |
+| 系统医生分配 | 开始抢单 |用户关闭 | 医生关闭 | 医生接单 | 用户放弃 | 用户评论 | 接单超时 | 咨询到时 | 医生评论 |
+| :--------: | :---: |:-----: | :-----: | :---: | :---: | :---: | :---: | :---: | :---: | 
+| "AssignedToOfficialDoc"  | "NoticeDocAccp" | "CloseByPatient" | "CloseByDoc" | "BeginCheck" | "RefuseByPatient" | "CommentByPatient" | "RefuseBySys" | "CloseBySys" | "CommentByDoc" |
 
 
 * **推送类别**
