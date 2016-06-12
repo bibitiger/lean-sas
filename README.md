@@ -237,33 +237,40 @@ https://leancloud.cn/1.1/functions/RefuseCheckByUser
 
 * **用户结束**
 
-input `-d '{"report":"5739266adf0eea006097485d"} //需要关闭的报告`
+input `-d '{"check":"5739266adf0eea006097485d"} //需要关闭的check`
 
 output `{
   "result": {
-    "Report": {
+    "_ApplicationProduction": 0,
+    "Patient": {
       "__type": "Pointer",
-      "className": "Reports",
-      "objectId": "57345545c4c9710060f10e1d"
+      "className": "Patients",
+      "objectId": "5755126e816dfa005f7d2354"
     },
-    "Note": "close by patient 5718a17671cfe400574c018c",
-    "CheckId": "702381f0-2970-11e6-867b-d12770944751",
+    "StateChangeTime": {
+      "__type": "Date",
+      "iso": "2016-06-12T07:48:45.794Z"
+    },
+    "ReportId": "575c2879207703006aceee16",
     "Doctor": {
       "__type": "Pointer",
       "className": "DoctorPub",
-      "objectId": "574ff73a530fd300696f09e0"
+      "objectId": "574d59165bbb500057b1668d"
     },
-    "state": "CloseByPatient",
-    "Conversation": "574eb33e2e958a0069401b71",
-    "objectId": "575152c02e958a0068a70367",
-    "createdAt": "2016-06-03T09:49:52.681Z",
-    "updatedAt": "2016-06-03T09:49:52.681Z"
+    "State": "CloseByPatient",
+    "objectId": "575d068ca3413100614e1ac4",
+    "createdAt": "2016-06-12T06:51:56.316Z",
+    "updatedAt": "2016-06-12T07:48:57.128Z"
   }
-}  //成功 关闭记录在ReportCheckHistory里的记录`
+} //成功 结束后的check`
 
-output `“report 57345545c4c9710060f10e1d close by patient” //推送一条消息到对应医生 `
-
-output `"report state error" //失败 report状态必须为“InCheck” `
+`推送消息 channels: [check.get('Doctor').get('CreateBy').get('objectId')],
+					data: {
+						action: "com.zhaoguan.huxikang",
+						type: 'ReportCheck',
+						checkID: [check.get('objectId')],
+						state: "CloseByPatient"
+					}`
 
 ```
 curl -X POST -H "Content-Type: application/json; charset=utf-8" \
@@ -271,40 +278,48 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
 	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
        -H "X-LC-Prod: 1" \
-       -d '{"report":"57345545c4c9710060f10e1d","conversation":"574eb33e2e958a0069401b71"}' \
+       -d '{"check":"57345545c4c9710060f10e1d"}' \
 https://leancloud.cn/1.1/functions/CloseCheckByUser
 ```
 
 
 * **医生结束**
 
-input `-d '{"report":"5739266adf0eea006097485d"} //需要关闭的报告`
+input `-d '{"check":"5739266adf0eea006097485d"} //需要关闭的check`
 
 output `{
   "result": {
-    "Report": {
+    "_ApplicationProduction": 0,
+    "Patient": {
       "__type": "Pointer",
-      "className": "Reports",
-      "objectId": "57345545c4c9710060f10e1d"
+      "className": "Patients",
+      "objectId": "5755126e816dfa005f7d2354"
     },
-    "Note": "close by doctor 574d58fa71cfe4005eb83f1c",
-    "CheckId": "c5c847b0-296d-11e6-867b-d12770944751",
+    "StateChangeTime": {
+      "__type": "Date",
+      "iso": "2016-06-12T08:12:36.934Z"
+    },
+    "ReportId": "575c2879207703006aceee16",
+    "Conversation": "5757d4e6816dfa00569488cb",
     "Doctor": {
       "__type": "Pointer",
       "className": "DoctorPub",
-      "objectId": "574d58fa5bbb500057b165a6"
+      "objectId": "574d59165bbb500057b1668d"
     },
-    "state": "CloseByDoc",
-    "Conversation": "574eb33e2e958a0069401b71",
-    "objectId": "57514e3c7db2a20069755f80",
-    "createdAt": "2016-06-03T09:30:36.042Z",
-    "updatedAt": "2016-06-03T09:30:36.042Z"
+    "State": "CloseByDoc",
+    "objectId": "575d19476be3ff006a43f3f4",
+    "createdAt": "2016-06-12T08:11:51.102Z",
+    "updatedAt": "2016-06-12T08:12:48.384Z"
   }
-}  //成功 关闭记录在ReportCheckHistory里的记录`
+}  //成功 结束后的check`
 
-output `“report 57345545c4c9710060f10e1d close by doctor” //推送一条消息到对应病人 `
-
-output `"report state error" //失败 report状态必须为“InCheck” `
+`推送消息 channels: [check.get('Patient').get('user').get('objectId')],
+					data: {
+						action: "com.zhaoguan.huxikang",
+						type: 'ReportCheck',
+						checkID: [check.get('objectId')],
+						state: "CloseByDoc"
+					}`
 
 ```
 curl -X POST -H "Content-Type: application/json; charset=utf-8" \
@@ -312,7 +327,7 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
 	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
        -H "X-LC-Prod: 1" \
-       -d '{"report":"57345545c4c9710060f10e1d","conversation":"574eb33e2e958a0069401b71"}' \
+       -d '{"check":"57345545c4c9710060f10e1d"}' \
 https://leancloud.cn/1.1/functions/CloseCheckByDoc
 ```
 

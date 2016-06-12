@@ -713,67 +713,78 @@ AV.Cloud.define('RefuseCheckByUser', function(request, response) {
  * @description 
  */
 AV.Cloud.define('CloseCheckByDoc', function(request, response) {
-	var Findinfo = createFindReportInfo("DoctorPub", "CreateBy", "cant find Doctor", "Doctor");
-	findReportByReportAndEntity.call(Findinfo, request.params.report, request.user, {
-		success: function(report){
-			console.log("CloseCheckByDoc report is " + JSON.stringify(report));
-			console.log("user is " + report.get('idPatient').get('user').get('objectId'));
+	console.log("CloseCheckByDoc begin");
+	var checks = new AV.Query('Check');
+	checks.include(['Patient.user']);
+	checks.include(['Doctor.CreateBy']);
+	checks.get(request.params.check).then(function(check){
+		console.log(JSON.stringify(check.get('ReportId')));
+		if(!check){
+			console.log("CloseCheckByDoc cant find check id is " + request.params.check);
+			response.error("cant find check id is " + request.params.check);
+			return;
+		}
 
-			if(report.get('CheckState') != "InCheck"){
-				response.error("report state error");
-				return;
-			}
+		if(!check.get('Patient')){
+			console.log("CloseCheckByDoc this check has not patient");
+			response.error("this check has not patient");
+			return;
+		}
 
-			var doc = report.get('Doctor');
-			var checkId = report.get('CheckId');
-			var curState = report.get('CheckState');
-			var patient = report.get('idPatient');
+		if("InCheck" != check.get('State')){
+			console.log("CloseCheckByDoc this check state error");
+			response.error("this check state error");
+			return;
+		}
 
-			report.fetchWhenSave(true);
-			var groupACL = new AV.ACL();
-			report.unset('CheckState');
-			report.set('CheckStateChangeTime', new Date());
-			//report.unset('CheckId');
-			report.unset('Doctor');
-			groupACL.setPublicReadAccess(true);
-			groupACL.setReadAccess(patient.get('user'), true);
-			groupACL.setWriteAccess(patient.get('user'), true);
+		if(!request.user){
+			console.log("CloseCheckByDoc request has not user");
+			response.error("request has not user");
+			return;
+		}
 
-			report.setACL(groupACL);
+		if(request.user.get('objectId') != check.get('Doctor').get('CreateBy').get('objectId')){
+			console.log("CloseCheckByDoc permission error");
+			response.error("permission error");
+			return;
+		}
 
-			report.save().then(function(report){
-				var history = AV.Object.new('ReportCheckHistory');
-				history.set('Report', report);
-				history.set('Note', "close by doctor " + request.user.get('objectId'));
-				history.set('CheckId', checkId);
-				history.set('Doctor', doc);
-				history.set('state', "CloseByDoc");
-				history.set('Conversation', request.params.conversation);
-				history.save().then(function(history){
-					AV.Push.send({
-						channels: [patient.get('user').get('objectId')],
-						data: {
-							action: "com.zhaoguan.huxikang",
-							type: 'ReportCheck',
-							reportID: [report.get('objectId')],
-							state: "closeByDoc"
-						}
-					});
-					console.log(JSON.stringify(history));
-					response.success(history);
-				}, function(e){
-					console.log(JSON.stringify(e));
-					response.error(e);
+		check.fetchWhenSave(true);
+		check.set('State', "CloseByDoc");
+		check.set('StateChangeTime', new Date());
+		check.save().then(function(check){
+			var history = AV.Object.new('ReportCheckHistory');
+			history.set('Note', "close check by user " + request.user.get('objectId'));
+			history.set('Check', check);
+			history.set('state', "CloseByDoc");
+			history.save().then(function(history){
+				//push msg to doc
+				AV.Push.send({
+					channels: [check.get('Patient').get('user').get('objectId')],
+					data: {
+						action: "com.zhaoguan.huxikang",
+						type: 'ReportCheck',
+						checkID: [check.get('objectId')],
+						state: "CloseByDoc"
+					}
 				});
-			}, function(e){
-				console.log(JSON.stringify(e));
+
+				//success
+				response.success(check);
+				console.log("CloseCheckByDoc success");
+			},
+			function(e){
 				response.error(e);
 			});
-		},
-		error: function(e){
+		}, function(e){
 			console.log(JSON.stringify(e));
 			response.error(e);
-		}
+			return;
+		})
+	}, function(e){
+		console.log(JSON.stringify(e));
+		response.error(e);
+		return;
 	})
 });
 
@@ -783,67 +794,78 @@ AV.Cloud.define('CloseCheckByDoc', function(request, response) {
  * @description 
  */
 AV.Cloud.define('CloseCheckByUser', function(request, response) {
-	var Findinfo = createFindReportInfo("Patients", "user", "cant find Patient", "idPatient");
-	findReportByReportAndEntity.call(Findinfo, request.params.report, request.user, {
-		success: function(report){
-			console.log("CloseCheckByUser report is " + JSON.stringify(report));
-			console.log("user is " + report.get('idPatient').get('user').get('objectId'));
+	console.log("CloseCheckByUser begin");
+	var checks = new AV.Query('Check');
+	checks.include(['Patient.user']);
+	checks.include(['Doctor.CreateBy']);
+	checks.get(request.params.check).then(function(check){
+		console.log(JSON.stringify(check.get('ReportId')));
+		if(!check){
+			console.log("CloseCheckByUser cant find check id is " + request.params.check);
+			response.error("cant find check id is " + request.params.check);
+			return;
+		}
 
-			if(report.get('CheckState') != "InCheck"){
-				response.error("report state error");
-				return;
-			}
+		if(!check.get('Patient')){
+			console.log("CloseCheckByUser this check has not patient");
+			response.error("this check has not patient");
+			return;
+		}
 
-			var doc = report.get('Doctor');
-			var checkId = report.get('CheckId');
-			var curState = report.get('CheckState');
-			var patient = report.get('idPatient');
+		if("InCheck" != check.get('State')){
+			console.log("CloseCheckByUser this check state error");
+			response.error("this check state error");
+			return;
+		}
 
-			report.fetchWhenSave(true);
-			var groupACL = new AV.ACL();
-			report.unset('CheckState');
-			report.set('CheckStateChangeTime', new Date());
-			//report.unset('CheckId');
-			report.unset('Doctor');
-			groupACL.setPublicReadAccess(true);
-			groupACL.setReadAccess(patient.get('user'), true);
-			groupACL.setWriteAccess(patient.get('user'), true);
+		if(!request.user){
+			console.log("CloseCheckByUser request has not user");
+			response.error("request has not user");
+			return;
+		}
 
-			report.setACL(groupACL);
+		if(request.user.get('objectId') != check.get('Patient').get('user').get('objectId')){
+			console.log("CloseCheckByUser permission error");
+			response.error("permission error");
+			return;
+		}
 
-			report.save().then(function(report){
-				var history = AV.Object.new('ReportCheckHistory');
-				history.set('Report', report);
-				history.set('Note', "close by patient " + request.user.get('objectId'));
-				history.set('CheckId', checkId);
-				history.set('Doctor', doc);
-				history.set('state', "CloseByPatient");
-				history.set('Conversation', request.params.conversation);
-				history.save().then(function(history){
-					AV.Push.send({
-						channels: [doc.get('CreateBy').get('objectId')],
-						data: {
-							action: "com.zhaoguan.huxikang",
-							type: 'ReportCheck',
-							reportID: [report.get('objectId')],
-							state: "CloseByPatient"
-						}
-					});
-					console.log(JSON.stringify(history));
-					response.success(history);
-				}, function(e){
-					console.log(JSON.stringify(e));
-					response.error(e);
+		check.fetchWhenSave(true);
+		check.set('State', "CloseByPatient");
+		check.set('StateChangeTime', new Date());
+		check.save().then(function(check){
+			var history = AV.Object.new('ReportCheckHistory');
+			history.set('Note', "close check by user " + request.user.get('objectId'));
+			history.set('Check', check);
+			history.set('state', "CloseByPatient");
+			history.save().then(function(history){
+				//push msg to doc
+				AV.Push.send({
+					channels: [check.get('Doctor').get('CreateBy').get('objectId')],
+					data: {
+						action: "com.zhaoguan.huxikang",
+						type: 'ReportCheck',
+						checkID: [check.get('objectId')],
+						state: "CloseByPatient"
+					}
 				});
-			}, function(e){
-				console.log(JSON.stringify(e));
+
+				//success
+				response.success(check);
+				console.log("CloseCheckByUser success");
+			},
+			function(e){
 				response.error(e);
 			});
-		},
-		error: function(e){
+		}, function(e){
 			console.log(JSON.stringify(e));
 			response.error(e);
-		}
+			return;
+		})
+	}, function(e){
+		console.log(JSON.stringify(e));
+		response.error(e);
+		return;
 	})
 });
 
@@ -1189,7 +1211,7 @@ function createFindReportInfo(entityType, entityDepend, entityFindError, reportD
  *
  * @return {[type]} [description]
  */
-function findReportByReportAndEntity(reportId, entity, options){
+function findCheckByCheckAndEntity(reportId, entity, options){
 	var entitys = new AV.Query(this.entityType);
 	entitys.equalTo(this.entityDepend, entity);
 	reportDepend = this.reportDepend;
@@ -1204,7 +1226,7 @@ function findReportByReportAndEntity(reportId, entity, options){
 					options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, this.entityFindError));
 				}
 			} else {
-				var reports = new AV.Query('Reports');
+				var reports = new AV.Query('Check');
 				console.log(reportDepend);
 				console.log(JSON.stringify(listEntity[0]));
 				console.log(reportId);
@@ -1217,7 +1239,7 @@ function findReportByReportAndEntity(reportId, entity, options){
 						console.log(listReport.length.toString());
 						if(listReport.length != 1){
 							if(options.error){
-								options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, "cant find report"));
+								options.error.call(this, new AV.Error(AV.Error.INTERNAL_SERVER_ERROR, "cant find check"));
 							}
 						} else {
 							if(options.success){
