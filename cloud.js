@@ -533,6 +533,7 @@ AV.Cloud.define('boundPhone', function(request, response) {
  * @description 
  */
 AV.Cloud.define('confirmCheckByDoc', function(request, response) {
+	console.log("confirmCheckByDoc begin");
 	var checks = new AV.Query('Check');
 	checks.include(['Patient.user']);
 	checks.include(['Doctor.CreateBy']);
@@ -601,8 +602,10 @@ AV.Cloud.define('confirmCheckByDoc', function(request, response) {
 
 					//success
 					response.success(check);
+					console.log("confirmCheckByDoc success");
 				},
 				function(e){
+					console.log(JSON.stringify(e));
 					response.error(e);
 				});
 			}, function(e){
@@ -628,69 +631,79 @@ AV.Cloud.define('confirmCheckByDoc', function(request, response) {
  * @DateTime 2016-06-02T18:23:03+0800
  * @description 
  */
-AV.Cloud.define('RefuseReportByUser', function(request, response) {
-	var Findinfo = createFindReportInfo("Patients", "user", "cant find patient", "idPatient");
-	findReportByReportAndEntity.call(Findinfo, request.params.report, request.user, {
-		success: function(report){
-			console.log("RefuseReportByUser confirm report is " + JSON.stringify(report));
-			console.log("user is " + report.get('idPatient').get('user').get('objectId'));
+AV.Cloud.define('RefuseCheckByUser', function(request, response) {
+	console.log("RefuseCheckByUser begin");
+	var checks = new AV.Query('Check');
+	checks.include(['Patient.user']);
+	checks.include(['Doctor.CreateBy']);
+	checks.get(request.params.check).then(function(check){
+		console.log(JSON.stringify(check.get('ReportId')));
+		if(!check){
+			console.log("RefuseCheckByUser cant find check id is " + request.params.check);
+			response.error("cant find check id is " + request.params.check);
+			return;
+		}
 
-			if(report.get('CheckState') != "WaitDoc"){
-				response.error("report state error");
-			}
+		if(!check.get('Patient')){
+			console.log("RefuseCheckByUser this check has not patient");
+			response.error("this check has not patient");
+			return;
+		}
 
-			var doc = report.get('Doctor');
-			var checkId = report.get('CheckId');
+		if("WaitDoc" != check.get('State')){
+			console.log("RefuseCheckByUser this check state error");
+			response.error("this check state error");
+			return;
+		}
 
-			report.fetchWhenSave(true);
-			report.unset('CheckState');
-			report.unset('CheckId');
-			report.unset('Doctor');
-			report.set('CheckStateChangeTime', new Date());
+		if(!request.user){
+			console.log("RefuseCheckByUser request has not user");
+			response.error("request has not user");
+			return;
+		}
 
-			var groupACL = new AV.ACL();
-			console.log("doc user is " + JSON.stringify(doc.get('CreateBy')));
-			groupACL.setPublicReadAccess(true);
-			groupACL.setReadAccess(request.user, true);
-			groupACL.setWriteAccess(request.user, true);
-			report.setACL(groupACL);
+		if(request.user.get('objectId') != check.get('Patient').get('user').get('objectId')){
+			console.log("RefuseCheckByUser permission error");
+			response.error("permission error");
+			return;
+		}
 
-			report.save().then(function(report){
-				var history = AV.Object.new('ReportCheckHistory');
-				history.set('Report', report);
-				console.log(JSON.stringify(request.user.get('objectId')));
-				history.set('Note', "refuse by patient " + request.user.get('objectId'));
-				console.log("222222222222");
-				history.set('CheckId', checkId);
-				history.set('Doctor', doc);
-				history.set('state', "RefuseByPatient");
-				console.log("111111111111");
-				history.save().then(function(history){
-					console.log(JSON.stringify(history));
-					response.success(history);
-					console.log("history success");
-					AV.Push.send({
-						channels: [doc.get('CreateBy').get('objectId')],
-						data: {
-							action: "com.zhaoguan.huxikang",
-							type: 'ReportCheck',
-							reportID: [report.get('objectId')],
-							state: "closeByPatient"
-						}
-					});
-				}, function(e){
-					console.log(JSON.stringify(e));
-					response.error(e);
+		check.fetchWhenSave(true);
+		check.set('State', "RefuseByPatient");
+		check.set('StateChangeTime', new Date());
+		check.save().then(function(check){
+			var history = AV.Object.new('ReportCheckHistory');
+			history.set('Note', "refuse check by user " + request.user.get('objectId'));
+			history.set('Check', check);
+			history.set('state', "RefuseByPatient");
+			history.save().then(function(history){
+				//push msg to doc
+				AV.Push.send({
+					channels: ["PatientRefuseCheck"],
+					data: {
+						action: "com.zhaoguan.huxikang",
+						type: 'ReportCheck',
+						checkID: [check.get('objectId')],
+						state: "RefuseByPatient"
+					}
 				});
-			}, function(e){
-				console.log(JSON.stringify(e));
+
+				//success
+				response.success(check);
+				console.log("RefuseCheckByUser success");
+			},
+			function(e){
 				response.error(e);
 			});
-		},
-		error: function(e){
+		}, function(e){
 			console.log(JSON.stringify(e));
 			response.error(e);
-		}
+			return;
+		})
+	}, function(e){
+		console.log(JSON.stringify(e));
+		response.error(e);
+		return;
 	})
 });
 

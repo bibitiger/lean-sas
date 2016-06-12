@@ -192,41 +192,46 @@ https://leancloud.cn/1.1/functions/confirmCheckByDoc
 
 * **用户放弃**
 
-input `-d '{"report":"5739266adf0eea006097485d"} //需要放弃的报告`
+input `-d '{"check":"575d03b2d342d30057988b14"} //需要放弃的检查`
 
 output `{
   "result": {
-    "Report": {
+    "_ApplicationProduction": 0,
+    "Patient": {
       "__type": "Pointer",
-      "className": "Reports",
-      "objectId": "57345545c4c9710060f10e1d"
+      "className": "Patients",
+      "objectId": "5755126e816dfa005f7d2354"
     },
-    "Note": "refuse by patient undefined",
-    "CheckId": "cdbbedf0-2940-11e6-b9a5-d14916d50369",
-    "Doctor": {
-      "__type": "Pointer",
-      "className": "DoctorPub",
-      "objectId": "574d5907d342d3004342bd9c"
+    "StateChangeTime": {
+      "__type": "Date",
+      "iso": "2016-06-12T06:42:34.727Z"
     },
-    "state": "RefuseByPatient",
-    "objectId": "575102b8530fd30068ed6867",
-    "createdAt": "2016-06-03T04:08:24.057Z",
-    "updatedAt": "2016-06-03T04:08:24.057Z"
+    "ReportId": "575c2879207703006aceee16",
+    "State": "RefuseByPatient",
+    "objectId": "575d03b2d342d30057988b14",
+    "createdAt": "2016-06-12T06:39:46.111Z",
+    "updatedAt": "2016-06-12T06:42:46.019Z"
   }
-}  //成功 拒单记录在ReportCheckHistory里的记录`
+}  //成功 拒单成功后的check`
 
-output `“report 57345545c4c9710060f10e1d refuse by patient” //推送一条消息到对应医生 `
+`推送消息 channels: ["PatientRefuseCheck"],
+					data: {
+						action: "com.zhaoguan.huxikang",
+						type: 'ReportCheck',
+						checkID: [check.get('objectId')],
+						state: "RefuseByPatient"
+					}`
 
-output `"report state error" //失败 report状态必须为“WaitDoc” `
 
 ```
+//RefuseCheckByUser
 curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
        -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
 	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
        -H "X-LC-Prod: 1" \
-       -d '{"report":"5739266adf0eea006097485d"}' \
-https://leancloud.cn/1.1/functions/RefuseReportByUser
+       -d '{"check":"5739266adf0eea006097485d"}' \
+https://leancloud.cn/1.1/functions/RefuseCheckByUser
 ```
 
 
