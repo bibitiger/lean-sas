@@ -109,78 +109,6 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 								response.error(e);
 								return;
 							})
-							
-							
-
-							//check out target doctor
-							// var docs = new AV.Query('DoctorPub');
-							// docs.include('CreateBy');
-							// docs.find({
-							// 	success: function(listDoc){
-							// 		var loc = Math.round(Math.random()*(listDoc.length-1));
-							// 		console.log("chose doc is " + JSON.stringify(listDoc[loc]));
-
-							// 		if(listReport[0].get('Doctor')){
-							// 			response.error("this report has been assigned to a doctor");
-							// 			return;
-							// 		}
-
-							// 		//get user who create doctorPub
-							// 		console.log("chose user is " + JSON.stringify(listDoc[loc].get('CreateBy')));
-							// 		//set doctor to report and set report InCheck to 'true'
-							// 		listReport[0].fetchWhenSave(true);
-							// 		listReport[0].set('Doctor', listDoc[loc]);
-							// 		listReport[0].set('CheckState', "WaitDoc");
-							// 		listReport[0].set('CheckId', uuid.v1());
-							// 		listReport[0].set('CheckStateChangeTime', new Date());
-
-							// 		//set acl to doc and patient
-							// 		var groupACL = new AV.ACL();
-							// 		groupACL.setPublicReadAccess(true);
-							// 		groupACL.setReadAccess(request.user, true);
-							// 		groupACL.setWriteAccess(request.user, true);
-							// 		listReport[0].setACL(groupACL);
-
-
-							// 		console.log("test");
-							// 		//save report to server
-							// 		listReport[0].save().then(function(report){
-							// 			console.log("now report is " + JSON.stringify(report));
-							// 			console.log("doc user id is " + listDoc[loc].get('CreateBy').get('objectId'));
-							// 			var history = AV.Object.new('ReportCheckHistory');
-							// 			history.set('Report', report);
-							// 			history.set('Note', "requst by user " + request.user.get('objectId'));
-							// 			history.set('CheckId', report.get('CheckId'));
-							// 			history.set('Doctor', listDoc[loc]);
-							// 			history.set('state', "AssignedToDoc");
-							// 			history.save().then(function(history){
-							// 				//push msg to doc
-							// 				AV.Push.send({
-							// 					channels: [listDoc[loc].get('CreateBy').get('objectId')],
-							// 					data: {
-							// 						action: "com.zhaoguan.huxikang",
-							// 						type: 'ReportCheck',
-							// 						reportID: [report.get('objectId')],
-							// 						state: "AssignedToDoc"
-							// 					}
-							// 				});
-
-							// 				//success
-							// 				response.success(listDoc[loc]);
-							// 			},
-							// 			function(e){
-							// 				response.error(e);
-							// 			});
-										
-							// 		}, function(e){
-							// 			response.error(e);
-							// 		});
-									
-							// 	}, 
-							// 	error: function(e){
-							// 		response.error(e);
-							// 	}
-							// })
 						}
 					},
 					error: function(e){
@@ -538,7 +466,6 @@ AV.Cloud.define('confirmCheckByDoc', function(request, response) {
 	checks.include(['Patient.user']);
 	checks.include(['Doctor.CreateBy']);
 	checks.get(request.params.check).then(function(check){
-		console.log(JSON.stringify(check.get('ReportId')));
 		if(!check){
 			console.log("confirmReportByDoc cant find check id is " + request.params.check);
 			response.error("cant find check id is " + request.params.check);
@@ -551,7 +478,7 @@ AV.Cloud.define('confirmCheckByDoc', function(request, response) {
 			return;
 		}
 
-		if("WaitDoc" != check.get('State')){
+		if("WaitDoc" != check.get('State') && "WaitDocOfficial" != check.get('State')){
 			console.log("confirmReportByDoc this check state error");
 			response.error("this check state error");
 			return;
@@ -876,110 +803,144 @@ AV.Cloud.define('CloseCheckByUser', function(request, response) {
  */
 AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 	console.log("CheckCheckingForCloseOrRefuse begin");
-	var reportsCheck = new AV.Query('Reports');
-	reportsCheck.equalTo('CheckState', "InCheck");
+	var checkIn = new AV.Query('Check');
+	checkIn.equalTo('State', "InCheck");
 
-	var reportsWait = new AV.Query('Reports');
-	reportsWait.equalTo('CheckState', "WaitDoc");
+	var checkWait = new AV.Query('Check');
+	checkWait.equalTo('State', "WaitDoc");
 
-	var reports = AV.Query.or(reportsCheck, reportsWait);
-	reports.include(['Doctor.CreateBy']);
-	reports.include(['idPatient.user']);
-	reports.select('CheckId', 'Doctor' , 'CheckStateChangeTime', 'idPatient', 'CheckState');
+	var checkWaitOfficial = new AV.Query('Check');
+	checkWaitOfficial.equalTo('State', "WaitDocOfficial");
+
+	var checks = AV.Query.or(checkIn, checkWait, checkWaitOfficial);
+	checks.include(['Doctor.CreateBy']);
+	checks.include(['Patient.user']);
 	var now = new Date();
 	var nowDate = now.getTime();
 	console.log("now is " + JSON.stringify(now));
 
-	reports.find().then(function(listReport){
-		console.log(listReport.length.toString());
-		var arrayReport = new Array();
-		var arrayHistory = new Array();
-		var arrayPush = new Array();
-		var needClose = false;
-		var historyNote = "";
-		var historyState = "";
-		for (var i = 0; i < listReport.length; i++) {
-			needClose = false;
-			var checkId = listReport[i].get("CheckId");
-			var reportDate = listReport[i].get('CheckStateChangeTime');
-			if(!reportDate) continue;
-			var conversation = listReport[i].get('Conversation');
-			var doc = listReport[i].get('Doctor');
-			if(listReport[i].get('CheckState') == "WaitDoc"){
-				var interval = Math.floor((nowDate - reportDate)/(1000*60));
-				console.log(interval.toString());
-				if(interval >= 10){
-					console.log("report " + JSON.stringify(listReport[i].get('objectId')) + " refuse change time is " + JSON.stringify(reportDate));
-					needClose = true;
-					historyNote = "refuse by system";
-					historyState = "RefuseBySys";
-				}
-			} else if (listReport[i].get('CheckState') == "InCheck"){
+	checks.find().then(function(listCheck){
+		var doctors = new AV.Query('Doctor');
+		doctors.equalTo('Source', "official");
+		doctors.include('CreateBy');
+		doctors.find().then(function(listDoc){
+			console.log(listDoc.length.toString());
+			console.log(listCheck.length.toString());
+			var arrayCheck= new Array();
+			var arrayHistory = new Array();
+			var arrayPush = new Array();
+			var needClose = false;
+			var needAssigned = false;
+			var historyNote = "";
+			var historyState = "";
+			var checkState = "";
+			for (var i = 0; i < listCheck.length; i++) {
+				needClose = false;
+				needAssigned = false;
+				var reportDate = listCheck[i].get('StateChangeTime');
+				if(!reportDate) continue;
 				var interval = Math.floor((nowDate - reportDate)/(1000*3600));
-				console.log(interval.toString());
 				if(interval >= 24){
-					console.log("report " + JSON.stringify(listReport[i].get('objectId')) + " close change time is " + JSON.stringify(reportDate));
-					needClose = true;
-					historyNote = "close by system";
-					historyState = "CloseBySys";
+					if(listCheck[i].get('State') == "WaitDoc"){
+						historyNote = "Assigned by system";
+						historyState = "AssignedToOfficialDoc";
+						checkState = "WaitDocOfficial";
+						needAssigned = true;
+					} else if(listCheck[i].get('State') == "InCheck"){
+						historyNote = "close by system";
+						historyState = "CloseBySys";
+						checkState = "CloseBySys";
+						needClose = true;
+					}else if(listCheck[i].get('State') == "WaitDocOfficial"){
+						historyNote = "refuse by system";
+						historyState = "RefuseBySys";
+						checkState = "RefuseBySys";
+						needClose = true;
+					}
 				}
-			}
 
-			if(needClose){
-				listReport[i].fetchWhenSave(true);
-				var groupACL = new AV.ACL();
-				listReport[i].unset('CheckState');
-				listReport[i].set('CheckStateChangeTime', new Date());
-				//report.unset('CheckId');
-				listReport[i].unset('Doctor');
-				groupACL.setPublicReadAccess(true);
-				groupACL.setReadAccess(listReport[i].get('idPatient').get('user'), true);
-				groupACL.setWriteAccess(listReport[i].get('idPatient').get('user'), true);
-				listReport[i].setACL(groupACL);
+				if(needClose){
+					console.log("needClose");
+					listCheck[i].fetchWhenSave(true);
+					var groupACL = new AV.ACL();
+					listCheck[i].set('State', checkState);
+					listCheck[i].set('StateChangeTime', new Date());
+					groupACL.setPublicReadAccess(true);
+					listCheck[i].setACL(groupACL);
 
-				arrayReport.push(listReport[i]);
-				console.log("test1");
+					arrayCheck.push(listCheck[i]);
 
-				var history = AV.Object.new('ReportCheckHistory');
-				history.set('Report', listReport[i]);
-				history.set('Note', historyNote);
-				history.set('CheckId', checkId);
-				history.set('Doctor', doc);
-				history.set('state', historyState);
-				if(conversation){
-					history.set('Conversation', conversation);
+					var history = AV.Object.new('ReportCheckHistory');
+
+					history.set('Note', historyNote);
+					history.set('Check', listCheck[i]);
+					history.set('state', historyState);
+					arrayHistory.push(history);
+
+					arrayPush.push(listCheck[i].get('Patient').get('user').get('objectId'));
+					if(listCheck[i].get('Doctor')){
+						arrayPush.push(listCheck[i].get('Doctor').get('CreateBy').get('objectId'));
+					}
 				}
-				arrayHistory.push(history);
 
-				arrayPush.push(listReport[i].get('idPatient').get('user').get('objectId'));
-				arrayPush.push(doc.get("CreateBy").get('objectId'));
-			}
-		};
+				if(needAssigned){
+					console.log("needAssigned");
+					var loc = Math.round(Math.random()*(listDoc.length-1));
+					listCheck[i].fetchWhenSave(true);
+					var groupACL = new AV.ACL();
+					listCheck[i].set('State', checkState);
+					listCheck[i].set('StateChangeTime', new Date());
+					groupACL.setReadAccess(listDoc[loc].get('CreateBy').get('objectId'), true);
+					groupACL.setWriteAccess(listCheck[i].get('Patient').get('user').get('objectId'), true);
+					groupACL.setReadAccess(listCheck[i].get('Patient').get('user').get('objectId'), true);
+					listCheck[i].setACL(groupACL);
 
-		if(arrayReport.length){
-			AV.Object.saveAll(arrayReport).then(function(arrayReport){
-				AV.Object.saveAll(arrayHistory).then(function(arrayHistory){
-					AV.Push.send({
-						channels: arrayPush,
-						data: {
-							action: "com.zhaoguan.huxikang",
-							type: 'ReportCheck',
-							reportID: arrayReport,
-							state: historyState
-						}
-					});
-					response.success();
-				}, function(e){
+					arrayCheck.push(listCheck[i]);
+
+					var history = AV.Object.new('ReportCheckHistory');
+
+					history.set('Note', historyNote);
+					history.set('Check', listCheck[i]);
+					history.set('state', historyState);
+					arrayHistory.push(history);
+
+					arrayPush.push(listCheck[i].get('Patient').get('user').get('objectId'));
+					if(listCheck[i].get('Doctor')){
+						arrayPush.push(listCheck[i].get('Doctor').get('CreateBy').get('objectId'));
+					}
+				}
+			};
+
+			if(arrayCheck.length){
+				AV.Object.saveAll(arrayCheck).then(function(arrayCheck){
+					AV.Object.saveAll(arrayHistory).then(function(arrayHistory){
+						AV.Push.send({
+							channels: arrayPush,
+							data: {
+								action: "com.zhaoguan.huxikang",
+								type: 'ReportCheck',
+								reportID: "111",
+								state: "systemAction"
+							}
+						});
+						console.log("CheckCheckingForCloseOrRefuse success");
+						response.success();
+					}, function(e){
+						console.log(JSON.stringify(e));
+						response.error(e);
+					})
+				},function(e){
 					console.log(JSON.stringify(e));
 					response.error(e);
 				})
-			},function(e){
-				console.log(JSON.stringify(e));
-				response.error(e);
-			})
-		} else {
-			response.success();
-		}
+			} else {
+				response.success();
+			}
+		}, function(e){
+			console.log(JSON.stringify(e));
+			response.error(e);
+		});
+		
 
 	},
 	function(e){
