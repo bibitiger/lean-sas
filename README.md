@@ -52,7 +52,7 @@ curl -X POST \
 
 * **请求医生查看**
 
-input `-d '{"report":"5739266adf0eea006097485d"} //需要医生查看的报告 BaseReports 的 objectId`
+input `-d '{"report":"575c2879207703006aceee16", "note":"昨天晚上牛奶喝多了"} //需要医生查看的报告 BaseReports 的 objectId`
 
 output `{
   "result": {
@@ -84,7 +84,7 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
 	   -H "X-LC-Session: iomqjq5jxo28u55iui6xkumyj" \
        -H "X-LC-Prod: 1" \
-       -d '{"report":"5739266adf0eea006097485d"}' \
+       -d '{"report":"575c2879207703006aceee16", "note":"昨天晚上牛奶喝多了"}' \
 https://leancloud.cn/1.1/functions/RquestDoctor
 ```
 
