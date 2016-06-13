@@ -73,6 +73,9 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 							check.set('StateChangeTime', new Date());
 							check.set('State', "WaitDoc");
 							check.set('Patient', listPatient[0]);
+							if(request.params.note){
+								check.set('Note', request.params.note);
+							}
 							check.save().then(function(check){
 								listReport[0].fetchWhenSave(true);
 								listReport[0].set('Check', check);
