@@ -348,31 +348,24 @@ https://leancloud.cn/1.1/functions/CheckCheckingForCloseOrRefuse
 
 * **医生评价**
 
-input `-d '{"checkId":"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356", "comment":"这个医生不错1111","score":4} \\需要评价的检查，ps：如果医生已经打过分不要再次打分，只支持一次打分`
+input `-d '{"check":"575d3d0f816dfa0056c073f6", "score":4, "comment":"哎呦，不错哦！！"} \\需要评价的检查，ps：如果医生已经打过分不要再次打分，只支持一次打分`
 
 output `{
   "result": {
-    "Report": {
+    "Note": "哎呦，不错哦！！",
+    "Check": {
       "__type": "Pointer",
-      "className": "Reports",
-      "objectId": "573417b1df0eea006346ec70"
-    },
-    "Note": "这个医生不错1111",
-    "CheckId": "58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356",
-    "Doctor": {
-      "__type": "Pointer",
-      "className": "DoctorPub",
-      "objectId": "575521c21532bc006499c32d"
+      "className": "Check",
+      "objectId": "575d3d0f816dfa0056c073f6"
     },
     "state": "CommentByDoc",
     "Score": 4,
-    "objectId": "575651195bbb500064533d8b",
-    "createdAt": "2016-06-07T04:44:09.520Z",
-    "updatedAt": "2016-06-07T04:44:09.520Z"
+    "objectId": "575e7e6da34131006158f6bc",
+    "createdAt": "2016-06-13T09:35:41.194Z",
+    "updatedAt": "2016-06-13T09:35:41.194Z"
   }
 } //成功 医生打分记录在ReportCheckHistory里的记录`
 
-output `{"code":1,"error":"there is a score for check 58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356 {\"_ApplicationProduction\":0,\"Score\":4,\"Report\":{\"__type\":\"Pointer\",\"className\":\"Reports\",\"objectId\":\"573417b1df0eea006346ec70\"},\"Note\":\"这个医生不错1111\",\"state\":\"CommentByDoc\",\"CheckId\":\"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356\",\"Doctor\":{\"__type\":\"Pointer\",\"className\":\"DoctorPub\",\"objectId\":\"575521c21532bc006499c32d\"},\"objectId\":\"57564f5ba341310063dc821a\",\"createdAt\":\"2016-06-07T04:36:43.751Z\",\"updatedAt\":\"2016-06-07T04:36:43.751Z\"}"} //失败 已经打过分 `
 
 ```
 curl -X POST -H "Content-Type: application/json; charset=utf-8" \
@@ -380,38 +373,30 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
 	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
        -H "X-LC-Prod: 1" \
-       -d '{"checkId":"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356", "comment":"这个医生不错1111","score":4}' \
+       -d '{"check":"575d3d0f816dfa0056c073f6", "score":4, "comment":"哎呦，不错哦！！"}' \
 https://leancloud.cn/1.1/functions/CommentByDoctor
 ```
 
 
 * **病人评价**
 
-input `-d '{"checkId":"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356", "comment":"这个医生不错1111","score":4} \\需要评价的检查，ps：如果病人已经打过分不要再次打分，只支持一次打分`
+input `-d '{"check":"575d3d0f816dfa0056c073f6", "score":4, "comment":"哎呦，不错哦！！"} \\需要评价的检查，ps：如果病人已经打过分不要再次打分，只支持一次打分`
 
 output `{
   "result": {
-    "Report": {
+    "Note": "哎呦，不错哦！！",
+    "Check": {
       "__type": "Pointer",
-      "className": "Reports",
-      "objectId": "57345545c4c9710060f10e1d"
+      "className": "Check",
+      "objectId": "575d3d0f816dfa0056c073f6"
     },
-    "Note": "close by doctor 574d58fa71cfe4005eb83f1c",
-    "CheckId": "c5c847b0-296d-11e6-867b-d12770944751",
-    "Doctor": {
-      "__type": "Pointer",
-      "className": "DoctorPub",
-      "objectId": "574d58fa5bbb500057b165a6"
-    },
-    "state": "CloseByDoc",
-    "Conversation": "574eb33e2e958a0069401b71",
-    "objectId": "57514e3c7db2a20069755f80",
-    "createdAt": "2016-06-03T09:30:36.042Z",
-    "updatedAt": "2016-06-03T09:30:36.042Z"
+    "state": "CommentByPatient",
+    "Score": 4,
+    "objectId": "575e7f081532bc0060990822",
+    "createdAt": "2016-06-13T09:38:16.830Z",
+    "updatedAt": "2016-06-13T09:38:16.830Z"
   }
-}  //成功 病人打分记录在ReportCheckHistory里的记录`
-
-output `{"code":1,"error":"there is a score for check 58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356 {\"_ApplicationProduction\":0,\"Score\":4,\"Report\":{\"__type\":\"Pointer\",\"className\":\"Reports\",\"objectId\":\"573417b1df0eea006346ec70\"},\"Note\":\"这个医生不错1111\",\"state\":\"CommentByDoc\",\"CheckId\":\"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356\",\"Doctor\":{\"__type\":\"Pointer\",\"className\":\"DoctorPub\",\"objectId\":\"575521c21532bc006499c32d\"},\"objectId\":\"57564f5ba341310063dc821a\",\"createdAt\":\"2016-06-07T04:36:43.751Z\",\"updatedAt\":\"2016-06-07T04:36:43.751Z\"}"} //失败 已经打过分 `
+} //成功 病人打分记录在ReportCheckHistory里的记录`
 
 ```
 curl -X POST -H "Content-Type: application/json; charset=utf-8" \
@@ -419,7 +404,7 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
 	   -H "X-LC-Session: prl6e5kc315sq6dqagg24lq59" \
        -H "X-LC-Prod: 1" \
-       -d '{"checkId":"58ba2bd0-2c5f-11e6-a0fc-5ff4ef9cd356", "comment":"这个医生不错1111","score":4}' \
+       -d '{"check":"575d3d0f816dfa0056c073f6", "score":4, "comment":"哎呦，不错哦！！"}' \
 https://leancloud.cn/1.1/functions/CommentByUser
 ```
 
