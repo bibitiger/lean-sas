@@ -93,6 +93,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 												type: 'ReportCheck',
 												checkID: [check.get('objectId')],
 												state: "NoticeDocAccp"
+												alert: "有新订单来了！"
 											}
 										});
 
