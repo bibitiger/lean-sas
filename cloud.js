@@ -1119,20 +1119,46 @@ AV.Cloud.define('CommentByDoctor', function(request, response) {
  */
 AV.Cloud.define('_receiversOffline', function(request, response) {
     var params = request.params;
+    var sendName = "";
+    if(params.convId && params.fromPeer){
+		var checks = new AV.Query('Check');
+		checks.equalTo('Conversation', params.convId);
+		checks.include(['Doctor.CreateBy']);
+		checks.include(['Patient.user']);
+		checks.find().then(function(listChecks){
+			if(listChecks.length == 1){
+				if(listChecks[0].get('Doctor').get('CreateBy').get('objectId') == params.fromPeer){
+					sendName = listChecks[0].get('Doctor').get('Name');
+				}
 
-    var lctext = "您有一条新消息";
-        if(params.content._lctext)
-        	lctext = params.content._lctext;
-    var json = {
-        // 自增未读消息的数目，不想自增就设为数字
-        badge: "Increment",
-        // content 为消息的实际内容
-    	alert: lctext
-    };
+				if(listChecks[0].get('Patient').get('user').get('objectId') == params.fromPeer){
+					sendName = listChecks[0].get('Patient').get('name');
+				}
 
-    var pushMessage = JSON.stringify(json);
+				console.log(sendName);
 
-    response.success({"pushMessage": pushMessage});
+			    var lctext = "您有一条新消息";
+			    var con = JSON.parse(params.content);
+			    if(con._lctext)
+			    	lctext = con._lctext;
+			    var json = {
+			        // 自增未读消息的数目，不想自增就设为数字
+			        badge: "Increment",
+			        // content 为消息的实际内容
+			    	alert: sendName + ":" + lctext
+			    };
+
+			    var pushMessage = JSON.stringify(json);
+
+			    response.success({"pushMessage": pushMessage});
+			    return;
+			}
+		}, function(e){
+			console.log(JSON.stringify(e));
+			response.error(e);
+			return;
+		})
+    }else response.success();
 })
 
 /**
