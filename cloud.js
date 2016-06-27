@@ -92,7 +92,7 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 												action: "com.zhaoguan.huxikang",
 												type: 'ReportCheck',
 												checkID: [check.get('objectId')],
-												state: "NoticeDocAccp"
+												state: "NoticeDocAccp",
 												alert: "有新订单来了！"
 											}
 										});
