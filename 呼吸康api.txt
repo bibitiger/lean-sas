@@ -40,7 +40,7 @@ curl -X POST \
   -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
   -H "Content-Type: application/json" \
   -d '{
-  "ReportId":"575c275ea34131006148d44d",
+  "ReportId":"5760cef4207703006b87f7d9",
   "Type":"mengjia",
   "CreateBy": {
     "__type": "Pointer",

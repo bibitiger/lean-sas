@@ -1113,6 +1113,26 @@ AV.Cloud.define('CommentByDoctor', function(request, response) {
 });
 
 /**
+ * @Author   bibitiger
+ * @DateTime 2016-06-27T14:46:31+0800
+ * @description 
+ */
+AV.Cloud.define('_receiversOffline', function(request, response) {
+    var params = request.params;
+
+    var json = {
+        // 自增未读消息的数目，不想自增就设为数字
+        badge: "Increment",
+        // content 为消息的实际内容
+        alert: params.content
+    };
+
+    var pushMessage = JSON.stringify(json);
+
+    response.success({"pushMessage": pushMessage});
+})
+
+/**
  * create a info for find report ,used by findReportByReportAndEntity
  *
  * @method createFindReportInfo
