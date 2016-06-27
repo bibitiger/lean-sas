@@ -1120,11 +1120,14 @@ AV.Cloud.define('CommentByDoctor', function(request, response) {
 AV.Cloud.define('_receiversOffline', function(request, response) {
     var params = request.params;
 
+    var lctext = "您有一条新消息";
+        if(params.content._lctext)
+        	lctext = params.content._lctext;
     var json = {
         // 自增未读消息的数目，不想自增就设为数字
         badge: "Increment",
         // content 为消息的实际内容
-        alert: params.content
+    	alert: lctext
     };
 
     var pushMessage = JSON.stringify(json);
