@@ -877,11 +877,20 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 					history.set('Check', listCheck[i]);
 					history.set('state', historyState);
 					arrayHistory.push(history);
+					console.log(JSON.stringify(listCheck[i]));
+					console.log("needClose end");
 
-					arrayPush.push(listCheck[i].get('Patient').get('user').get('objectId'));
-					if(listCheck[i].get('Doctor')){
-						arrayPush.push(listCheck[i].get('Doctor').get('CreateBy').get('objectId'));
+					if(listCheck[i].get('Patient')){
+						if(listCheck[i].get('Patient').get('user')){
+							arrayPush.push(listCheck[i].get('Patient').get('user').get('objectId'));
+						}
 					}
+					if(listCheck[i].get('Doctor')){
+						if(listCheck[i].get('Doctor').get('CreateBy')){
+							arrayPush.push(listCheck[i].get('Doctor').get('CreateBy').get('objectId'));
+						}
+					}
+
 				}
 
 				if(needAssigned){
@@ -905,9 +914,15 @@ AV.Cloud.define('CheckCheckingForCloseOrRefuse', function(request, response) {
 					history.set('state', historyState);
 					arrayHistory.push(history);
 
-					arrayPush.push(listCheck[i].get('Patient').get('user').get('objectId'));
+					if(listCheck[i].get('Patient')){
+						if(listCheck[i].get('Patient').get('user')){
+							arrayPush.push(listCheck[i].get('Patient').get('user').get('objectId'));
+						}
+					}
 					if(listCheck[i].get('Doctor')){
-						arrayPush.push(listCheck[i].get('Doctor').get('CreateBy').get('objectId'));
+						if(listCheck[i].get('Doctor').get('CreateBy')){
+							arrayPush.push(listCheck[i].get('Doctor').get('CreateBy').get('objectId'));
+						}
 					}
 				}
 			};
