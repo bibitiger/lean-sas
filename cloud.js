@@ -346,7 +346,14 @@ AV.Cloud.define('register', function(request, response) {
 
 	    patient.save().then(function(patient) {
 	        
-	        response.success(user);
+            data['userId'] = user.id;
+            data['profileId'] = patient.id;
+            data['sessionToken'] = user._sessionToken;
+            data['user'] = user;
+            data['name'] = user.get('username');
+            //...
+            response.success(data);
+            
 	    }, function(err) {
 	        
 	        console.log('Failed to create new object, with error message: ' + err.message);
