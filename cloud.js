@@ -346,14 +346,7 @@ AV.Cloud.define('register', function(request, response) {
 
 	    patient.save().then(function(patient) {
 	        
-            data['userId'] = user.id;
-            data['profileId'] = patient.id;
-            data['sessionToken'] = user._sessionToken;
-            data['user'] = user;
-            data['name'] = user.get('username');
-            //...
-            response.success(data);
-            
+	        response.success(user);
 	    }, function(err) {
 	        
 	        console.log('Failed to create new object, with error message: ' + err.message);
@@ -1185,6 +1178,50 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 })
 
 /**
+ * @Author   xiaoqiang
+ * @DateTime 2016-07-01T16:27:31+0800
+ * @description 
+ */
+AV.Cloud.define('imgClipper', function(request, response) {
+	var params = request.params;
+	var url = params.url;
+	var _x = params.x;
+	var _y = params.y;
+	var _w = params.w;
+	var _h = params.h;
+	var div_w = params.div_w;
+	var http = require('http');
+	var fs = require('fs');
+	var __dirname='.';
+	http.get(
+	  url,
+	  function (res) {
+	    var bufList = [];    
+	    res.on('data', function (c) {
+	      bufList.push(c);
+	    });
+	    res.on('end', function () {
+	      var images = require('images');
+	      var img = images(Buffer.concat(bufList));
+	      var initial_w = img.width();
+	      var scale = initial_w / div_w;
+	      var x = +(_x * scale).toFixed(2);
+	      var y = +(_y * scale).toFixed(2);
+	      var w = +(_w * scale).toFixed(2);
+	      var h = +(_h * scale).toFixed(2);
+	      var imgs = images(img,x, y, w, h);
+	      imgs.save(__dirname + '/test_resize.png');
+
+		  var imageBuf = fs.readFileSync(__dirname + '/test_resize.png');
+		  var base64Str = imageBuf.toString("base64");
+		  fs.unlink(__dirname + '/test_resize.png');
+		  response.success({url : base64Str})
+	    })
+	  }
+	);	
+});
+
+/**
  * create a info for find report ,used by findReportByReportAndEntity
  *
  * @method createFindReportInfo
@@ -1203,7 +1240,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
  * @param {string} reportDepend [description]
  *
  * @return {object} [description]
- */
+ 
 function createFindReportInfo(entityType, entityDepend, entityFindError, reportDepend){
 	var info = {};
 	info.entityType = entityType;
