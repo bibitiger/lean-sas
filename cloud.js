@@ -429,6 +429,7 @@ AV.Cloud.define('boundWX', function(request, response) {
 AV.Cloud.define('boundPhone', function(request, response) {
 	var sessionToken = request.params.token;
 	var phoneNumber = request.params.phoneNumber;
+	var password = request.params.password;
 
 	var query = new AV.Query(AV.User);
 	query.equalTo('mobilePhoneNumber', phoneNumber); 
