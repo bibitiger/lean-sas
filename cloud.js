@@ -346,7 +346,13 @@ AV.Cloud.define('register', function(request, response) {
 
 	    patient.save().then(function(patient) {
 	        
-	        response.success(user);
+            data['userId'] = user.id;
+            data['profileId'] = patient.id;
+            data['sessionToken'] = user._sessionToken;
+            data['user'] = user;
+            data['name'] = user.get('username');
+            //...
+            response.success(data);
 	    }, function(err) {
 	        
 	        console.log('Failed to create new object, with error message: ' + err.message);
@@ -423,6 +429,7 @@ AV.Cloud.define('boundWX', function(request, response) {
 AV.Cloud.define('boundPhone', function(request, response) {
 	var sessionToken = request.params.token;
 	var phoneNumber = request.params.phoneNumber;
+	var password = request.params.password;
 
 	var query = new AV.Query(AV.User);
 	query.equalTo('mobilePhoneNumber', phoneNumber); 
@@ -434,10 +441,13 @@ AV.Cloud.define('boundPhone', function(request, response) {
 	          // The current user is changed.
 	          
 	            user.set('mobilePhoneNumber',phoneNumber);
+	            user.set('password',password);
+	            console.log('password: ' + password);
 	            user.save().then(function() {
 	              // 成功
-	              user.set('mobilePhoneVerified',true);
-	              user.save().then(function() {
+	             	user.set('mobilePhoneVerified',true);
+
+	              	user.save().then(function() {
 	                response.success(user);
 	              }, function (error){
 	                response.error(error);
@@ -1179,52 +1189,36 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 
 /**
  * @Author   xiaoqiang
- * @DateTime 2016-07-01T16:27:31+0800
+ * @DateTime 2016-07-04T12:27:31+0800
  * @description 
  */
 AV.Cloud.define('imgClipper', function(request, response) {
+	console.log("imgClipper test");
 	var params = request.params;
-	var url = params.imgurl;
-	var id = params.imgid;
+	var imgData = params.base64.join('/');
 	var _x = params.x;
 	var _y = params.y;
 	var _w = params.w;
 	var _h = params.h;
 	var div_w = params.div_w;
-	var http = require('http');
-	var fs = require('fs');
-	var __dirname='.';
-	http.get(
-	  url,
-	  function (res) {
-	    var bufList = [];    
-	    res.on('data', function (c) {
-	      bufList.push(c);
-	    });
-	    res.on('end', function () {
-	      var images = require('images');
-	      var img = images(Buffer.concat(bufList));
-	      var initial_w = img.width();
-	      var scale = initial_w / div_w;
-	      var x = +(_x * scale).toFixed(2);
-	      var y = +(_y * scale).toFixed(2);
-	      var w = +(_w * scale).toFixed(2);
-	      var h = +(_h * scale).toFixed(2);
-	      var imgs = images(img,x, y, w, h);
-	      imgs.save(__dirname + '/test_resize.png');
-		  var imageBuf = fs.readFileSync(__dirname + '/test_resize.png');
-		  var base64Str = imageBuf.toString("base64");
-		  fs.unlink(__dirname + '/test_resize.png');
-		 var file = AV.File.createWithoutData(id);
-		  file.destroy().then(function (success) {
-		  	console.log("img delete success");
-		  }, function (error) {
-		  	console.log(error)
-		  });
-		  response.success({url : base64Str})
-	    })
-	  }
-	);	
+	//过滤data:URL
+	var base64Data = imgData.replace(/^data:image\/\w+;base64,/,"");
+	var dataBuffer = new Buffer(base64Data, 'base64');
+	var fs = require("fs");
+	var images = require('images');
+    var img = images(dataBuffer);
+    var initial_w = img.width();
+    var scale = initial_w / div_w;
+    var x = +(_x * scale).toFixed(2);
+    var y = +(_y * scale).toFixed(2);
+    var w = +(_w * scale).toFixed(2);
+    var h = +(_h * scale).toFixed(2);
+    var imgs = images(img,x, y, w, h);
+    imgs.save(__dirname + '/test_resize.png');
+    var imageBuf = fs.readFileSync(__dirname + '/test_resize.png');
+    var base64Str = imageBuf.toString("base64");
+    fs.unlink(__dirname + '/test_resize.png');
+    response.success({url : base64Str});
 });
 
 /**
