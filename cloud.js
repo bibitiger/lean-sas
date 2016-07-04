@@ -1193,6 +1193,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
  * @description 
  */
 AV.Cloud.define('imgClipper', function(request, response) {
+	console.log("imgClipper test");
 	var params = request.params;
 	var imgData = params.base64;
 	var _x = params.x;
