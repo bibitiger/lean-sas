@@ -60,5 +60,5 @@ curl -X GET \
   --data-urlencode 'password=123456' \
   https://api.leancloud.cn/1.1/login
 
-commit test
+commit test1 -m “2016/07/05”
 
