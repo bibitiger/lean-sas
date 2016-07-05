@@ -1193,32 +1193,48 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
  * @description 
  */
 AV.Cloud.define('imgClipper', function(request, response) {
-	console.log("imgClipper test");
 	var params = request.params;
-	var imgData = params.base64.join('/');
+	var url = params.imgurl;
+	var id = params.imgid;
 	var _x = params.x;
 	var _y = params.y;
 	var _w = params.w;
 	var _h = params.h;
 	var div_w = params.div_w;
-	//过滤data:URL
-	var base64Data = imgData.replace(/^data:image\/\w+;base64,/,"");
-	var dataBuffer = new Buffer(base64Data, 'base64');
-	var fs = require("fs");
-	var images = require('images');
-    var img = images(dataBuffer);
-    var initial_w = img.width();
-    var scale = initial_w / div_w;
-    var x = +(_x * scale).toFixed(2);
-    var y = +(_y * scale).toFixed(2);
-    var w = +(_w * scale).toFixed(2);
-    var h = +(_h * scale).toFixed(2);
-    var imgs = images(img,x, y, w, h);
-    imgs.save(__dirname + '/test_resize.png');
-    var imageBuf = fs.readFileSync(__dirname + '/test_resize.png');
-    var base64Str = imageBuf.toString("base64");
-    fs.unlink(__dirname + '/test_resize.png');
-    response.success({url : base64Str});
+	var http = require('http');
+	var fs = require('fs');
+	var __dirname='.';
+	http.get(
+	  url,
+	  function (res) {
+	    var bufList = [];    
+	    res.on('data', function (c) {
+	      bufList.push(c);
+	    });
+	    res.on('end', function () {
+	      var images = require('images');
+	      var img = images(Buffer.concat(bufList));
+	      var initial_w = img.width();
+	      var scale = initial_w / div_w;
+	      var x = +(_x * scale).toFixed(2);
+	      var y = +(_y * scale).toFixed(2);
+	      var w = +(_w * scale).toFixed(2);
+	      var h = +(_h * scale).toFixed(2);
+	      var imgs = images(img,x, y, w, h);
+	      imgs.save(__dirname + '/test_resize.png');
+		  var imageBuf = fs.readFileSync(__dirname + '/test_resize.png');
+		  var base64Str = imageBuf.toString("base64");
+		  fs.unlink(__dirname + '/test_resize.png');
+		 var file = AV.File.createWithoutData(id);
+		  file.destroy().then(function (success) {
+		  	console.log("img delete success");
+		  }, function (error) {
+		  	console.log(error)
+		  });
+		  response.success({url : base64Str})
+	    })
+	  }
+	);	
 });
 
 /**
