@@ -158,9 +158,11 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	    query.find().then(function(results) {
 	        
 	        if(results.length < 1){
-	                console.log('lenght0');
+
+	        		user.set('WXOpenId',openId);
+	        		user.save();
+
 	                var Patient = AV.Object.extend('Patients');
-	    
 	                var patient = new Patient();
 	                // patient.set('objectId',user.id);
 	                patient.set('user',user);
@@ -190,7 +192,6 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	                    response.error(err);
 	                });
 	        }else{
-	            console.log('lenght1');
 	            var profile = results[0];
 	            
 	            data['userId'] = user.id;
