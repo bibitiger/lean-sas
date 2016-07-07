@@ -143,9 +143,9 @@ type {string}:
 
 type {string}:
 
-| 梦加检测报告 | 自检报告  | 
-| :---: | :--------: |
-| "mengjia"  | "questionnaires_1"  |
+| 梦加检测报告 | STOP-bang问卷  | 柏林问卷 | Epworth嗜睡量表 |
+| :---: | :--------: | :---: | :---: |
+| "mengjia"  | "q_stopbang"  | "q_berlin" | "q_Epworth" |
 
 
 
@@ -406,6 +406,76 @@ curl -X POST -H "Content-Type: application/json; charset=utf-8" \
        -H "X-LC-Prod: 1" \
        -d '{"check":"575d3d0f816dfa0056c073f6", "score":4, "comment":"哎呦，不错哦！！"}' \
 https://leancloud.cn/1.1/functions/CommentByUser
+```
+
+
+* **创建报告**
+
+```
+curl -X POST \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "idReport": "HZ111605_0105",
+  "idPatient": {
+    "__type": "Pointer",
+    "className": "Patients",
+    "objectId": "5755126e816dfa005f7d2354"
+  },
+  "idDevice": {
+    "__type": "Pointer",
+    "className": "Device",
+    "objectId": "57305c281ea4930060a3fcb0"
+  }
+  https://api.leancloud.cn/1.1/classes/Reports
+```
+
+
+
+* **检测结束**
+
+```
+curl -X PUT \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "remSleepScore": 4,
+  "num": 105,
+  "totalSleepScore": 15,
+  "failSleepScore": 0,
+  "start": 1605120948,
+  "ahiScore": 6,
+  "wakeSleepScore": 0,
+  "deepSleepScore": 0,
+  "status": "5",
+  "end": 21780,
+  "visible": "1",
+   "sleepData": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  "AHI": 11,
+  "lightSleepScore": 1
+}' \
+  https://api.leancloud.cn/1.1/classes/Reports/5760cef4207703006b87f7d9
+  
+  
+  curl -X POST \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "ReportId":"5760cef4207703006b87f7d9",
+  "Type":"mengjia",
+  "CreateBy": {
+    "__type": "Pointer",
+    "className": "Patients",
+    "objectId": "5755126e816dfa005f7d2354"
+  }
+}' \
+  https://api.leancloud.cn/1.1/classes/BaseReports
 ```
 
 
