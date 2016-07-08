@@ -337,6 +337,7 @@ AV.Cloud.define('register', function(request, response) {
 	    var Patient = AV.Object.extend('Patients');
 	    var patient = new Patient();
 	    patient.set('user',user)
+	    patient.set('name',user.get('username'));
 	    
 	     // 新建一个 ACL 实例
 	    var acl = new AV.ACL();
