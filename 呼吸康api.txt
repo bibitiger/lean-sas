@@ -62,3 +62,38 @@ curl -X GET \
 
 commit test1 -m “2016/07/05”
 
+
+
+curl -X POST \
+  -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+  -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+  -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "Valued":false, "Des":"睡眠相关低氧血症特指由全身或神经系统疾病导致的睡眠低氧，此种低氧不能被其他睡眠相关呼吸疾病解释，多继发于气道疾病、肺实质疾病、胸壁疾病、肺血管疾病和神经肌肉疾病等，临床上表现为睡眠期间持续存在显著的血氧饱和度下降，不伴有睡眠相关低通气，通常由于通气/血流比失调、氧分压下降、动–静脉分流或上述综合因素所致。患者可无症状，也可出现睡眠憋气、胸闷、睡眠质量损害及疲劳，如存在日间低氧，睡眠时低氧程度会进一步加重",
+  "Title":"夜间低氧血症",
+  "Detail":"睡眠相关低氧血症特指
+  由全身或神经系统疾病导致的睡眠低氧",
+  "BackGround":{"__type": "File",
+    "id": "576119a2df0eea0062cdc5b2",
+    "name": "19.jpg",
+    "url": "http://ac-1UlsKsiU.clouddn.com/45ddb654763a42aafd62.jpg"},
+  "Type":"N-Hypoxemia"
+}' \
+  https://api.leancloud.cn/1.1/classes/Questionnare_Base_Type
+  
+  
+  curl -X POST \
+    -H "X-LC-Id: 1UlsKsiUTHpNkAyAKSWVW1oo-gzGzoHsz" \
+    -H "X-LC-Key: MeyXCB3GkeYmQkQFOacuTSMU" \
+    -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
+    -H "Content-Type: application/json" \
+    -d '{
+    "Valued":true,
+    "Title":"Epworth嗜睡量表",
+    "Detail":"Epworth嗜睡量表",
+  "Type":"q_Epworth",
+    "Base_type":"SAS"
+  }' \
+    https://api.leancloud.cn/1.1/classes/Questionnare_Type
+

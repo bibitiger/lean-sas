@@ -429,6 +429,7 @@ curl -X POST \
     "className": "Device",
     "objectId": "57305c281ea4930060a3fcb0"
   }
+  }' \
   https://api.leancloud.cn/1.1/classes/Reports
 ```
 
@@ -458,7 +459,7 @@ curl -X PUT \
   "AHI": 11,
   "lightSleepScore": 1
 }' \
-  https://api.leancloud.cn/1.1/classes/Reports/5760cef4207703006b87f7d9
+  https://api.leancloud.cn/1.1/classes/Reports/577f41f2c4c9710066c3a287
   
   
   curl -X POST \
@@ -467,7 +468,7 @@ curl -X PUT \
   -H "X-LC-Session: 0nngsb6hstar720l3jao8vsw2" \
   -H "Content-Type: application/json" \
   -d '{
-  "ReportId":"5760cef4207703006b87f7d9",
+  "ReportId":"577f41f2c4c9710066c3a287",
   "Type":"mengjia",
   "CreateBy": {
     "__type": "Pointer",
