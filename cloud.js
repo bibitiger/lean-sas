@@ -60,13 +60,13 @@ AV.Cloud.define('RquestDoctor', function(request, response) {
 							return;
 						} else {
 							console.log("RquestDoctor current report is " + JSON.stringify(listReport[0]));
-							if(listReport[0].get('Check')){
-								if("WaitDoc" == listReport[0].get('Check').get('State') || "WaitDocOfficial" == listReport[0].get('Check').get('State') || "InCheck" == listReport[0].get('Check').get('State')){
-									console.log("RequestDoctor report has in check, check state is " + JSON.stringify(listReport[0].get('Check').get('State')));
-									response.error("report has in check, check state is " + JSON.stringify(listReport[0].get('Check').get('State')));
-									return;
-								}
-							}
+							// if(listReport[0].get('Check')){
+							// 	if("WaitDoc" == listReport[0].get('Check').get('State') || "WaitDocOfficial" == listReport[0].get('Check').get('State') || "InCheck" == listReport[0].get('Check').get('State')){
+							// 		console.log("RequestDoctor report has in check, check state is " + JSON.stringify(listReport[0].get('Check').get('State')));
+							// 		response.error("report has in check, check state is " + JSON.stringify(listReport[0].get('Check').get('State')));
+							// 		return;
+							// 	}
+							// }
 
 							var check = AV.Object.new('Check');
 							check.set('ReportId', listReport[0].get('objectId'));
