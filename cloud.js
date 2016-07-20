@@ -1284,46 +1284,6 @@ AV.Cloud.define('imgClipper', function(request, response) {
 	);	
 });
 
-
-AV.Cloud.define('updateDevice', function(request, response){
-	/**
-	 *  用于设备端调用。
-	 *  功能：更新device 信息，并返回最新device数据
-	 *  更新：添加localIP和period 返回Device数据和leancloud保持一致 2016-07-15 15:20:17 李冬冬
-	 **/
-	var params = request.params;
-	var deviceSN = params.deviceSN;
-	var workStatus = params.workStatus;
-	var sleepStatus = params.sleepStatus;
-	var monitorStatus = params.monitorStatus;
-	var localIP = params.localIP;
-
-	var query = new AV.Query('Device');
-	query.equalTo('deviceSN', deviceSN);
-	query.find().then(function(dev) {
-	    if(dev.length === 0){
-	        response.error('can not find such device with deviceSN :'+deviceSN);
-	    }
-	    else {
-	        dev[0].set('workStatus',workStatus);
-	        dev[0].set('sleepStatus',sleepStatus);
-	        dev[0].set('monitorStatus',monitorStatus);
-	        dev[0].set('localIP',localIP);
-	        dev[0].save().then(function(newDev){
-	            response.success({
-	                "objectId" : newDev.id,
-	                "rawDataUpload" : newDev.get('rawDataUpload'),
-	                "idPatient" : newDev.get('idPatient'),
-	                "period" : newDev.get('period')
-	            });
-	        });
-	    }
-	},function(err) {
-	  console.log(err);
-	  response.error(err);
-	});
-});
-
 /**
  * create a info for find report ,used by findReportByReportAndEntity
  *
