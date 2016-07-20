@@ -38,12 +38,36 @@ AV.Cloud.define('updateDevice', function(request, response) {
 	var sleepStatus = params.sleepStatus;
 	var monitorStatus = params.monitorStatus;
 	var localIP = params.localIP;
+	var wifiName = params.wifiName;
 
 	var query = new AV.Query('Device');
 	query.equalTo('deviceSN', deviceSN);
 	query.find().then(function(dev) {
 	if(dev.length === 0){
-	    response.error('can not find such device with deviceSN :'+deviceSN);
+
+		var Device = AV.Object.extend('Device');
+	    var device = new Device();
+
+	    device.set('deviceSN',deviceSN);
+	    device.set('workStatus',workStatus);
+	    device.set('sleepStatus',sleepStatus);
+	    device.set('localIP',localIP);
+	    device.set('wifiName',wifiName);
+
+        device.save().then(function(device) { 
+           	response.success({
+	            "objectId" : device.id,
+	            "rawDataUpload" : device.get('rawDataUpload'),
+	            "idPatient" : device.get('idPatient'),
+	            "period" : device.get('period')
+	        });
+        }, function(err) {
+            // 失败之后执行其他逻辑
+            // error 是 AV.Error 的实例，包含有错误码和描述信息.
+            // console.log('Failed to create new object, with error message: ' + err.message);
+           	// response.error('can not find such device with deviceSN :'+deviceSN);
+            response.error(err);
+        });
 	}
 	else {
 	    dev[0].set('workStatus',workStatus);
