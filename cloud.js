@@ -21,7 +21,55 @@ AV.Cloud.define('hello', function(request, response) {
 
   	response.success('Hello world!');
 });
+/*
+	设备绑定患者id时使用
+	deviceSN:设备deviceSN
+	patientId:用户的patientId
+*/
+AV.Cloud.define('boundDevice', function(request, response) {
 
+	var params = request.params;
+	var deviceSN = params.deviceSN;
+	var patientId = params.patientId;
+
+
+	var query = new AV.Query('Device');
+	query.equalTo('deviceSN', deviceSN);
+	query.find().then(function(dev) {
+
+		if(dev.length === 0){
+			//add
+			var Device = AV.Object.extend('Device');
+		    var device = new Device();
+
+		    device.set('deviceSN',deviceSN);
+			var pointPatient = AV.object.createWithoutData('Patients',patientId);
+			device.set('idPatient',pointPatient);
+
+	        device.save().then(function(device) { 
+	           	response.success({
+		            "objectId" : device.id
+		        });
+	        }, function(err) {
+	            response.error(err);
+	        });
+		}else {
+			//bound
+			var targetTodoFolder = AV.Object.createWithoutData('Patients', patientId);
+			dev[0].set('idPatient',targetTodoFolder);
+			dev[0].save().then(function(newDev){
+		        response.success({
+		            "objectId" : newDev.id
+		        });
+		    }, function(err) {
+	            response.error(err);
+	        });
+		}
+	},function(err) {
+		console.log(err);
+		response.error(err);
+	});
+});
 /*
 	create by chengchao
 	write by lidongdong
@@ -43,49 +91,49 @@ AV.Cloud.define('updateDevice', function(request, response) {
 	var query = new AV.Query('Device');
 	query.equalTo('deviceSN', deviceSN);
 	query.find().then(function(dev) {
-	if(dev.length === 0){
+		if(dev.length === 0){
 
-		var Device = AV.Object.extend('Device');
-	    var device = new Device();
+			var Device = AV.Object.extend('Device');
+		    var device = new Device();
 
-	    device.set('deviceSN',deviceSN);
-	    device.set('workStatus',workStatus);
-	    device.set('sleepStatus',sleepStatus);
-	    device.set('localIP',localIP);
-	    device.set('wifiName',wifiName);
+		    device.set('deviceSN',deviceSN);
+		    device.set('workStatus',workStatus);
+		    device.set('sleepStatus',sleepStatus);
+		    device.set('localIP',localIP);
+		    device.set('wifiName',wifiName);
 
-        device.save().then(function(device) { 
-           	response.success({
-	            "objectId" : device.id,
-	            "rawDataUpload" : device.get('rawDataUpload'),
-	            "idPatient" : device.get('idPatient'),
-	            "period" : device.get('period')
+	        device.save().then(function(device) { 
+	           	response.success({
+		            "objectId" : device.id,
+		            "rawDataUpload" : device.get('rawDataUpload'),
+		            "idPatient" : device.get('idPatient'),
+		            "period" : device.get('period')
+		        });
+	        }, function(err) {
+	            // 失败之后执行其他逻辑
+	            // error 是 AV.Error 的实例，包含有错误码和描述信息.
+	            // console.log('Failed to create new object, with error message: ' + err.message);
+	           	// response.error('can not find such device with deviceSN :'+deviceSN);
+	            response.error(err);
 	        });
-        }, function(err) {
-            // 失败之后执行其他逻辑
-            // error 是 AV.Error 的实例，包含有错误码和描述信息.
-            // console.log('Failed to create new object, with error message: ' + err.message);
-           	// response.error('can not find such device with deviceSN :'+deviceSN);
-            response.error(err);
-        });
-	}
-	else {
-	    dev[0].set('workStatus',workStatus);
-	    dev[0].set('sleepStatus',sleepStatus);
-	    dev[0].set('monitorStatus',monitorStatus);
-	    dev[0].set('localIP',localIP);
-	    dev[0].save().then(function(newDev){
-	        response.success({
-	            "objectId" : newDev.id,
-	            "rawDataUpload" : newDev.get('rawDataUpload'),
-	            "idPatient" : newDev.get('idPatient'),
-	            "period" : newDev.get('period')
-	        });
-	    });
-	}
+		}
+		else {
+		    dev[0].set('workStatus',workStatus);
+		    dev[0].set('sleepStatus',sleepStatus);
+		    dev[0].set('monitorStatus',monitorStatus);
+		    dev[0].set('localIP',localIP);
+		    dev[0].save().then(function(newDev){
+		        response.success({
+		            "objectId" : newDev.id,
+		            "rawDataUpload" : newDev.get('rawDataUpload'),
+		            "idPatient" : newDev.get('idPatient'),
+		            "period" : newDev.get('period')
+		        });
+		    });
+		}
 	},function(err) {
-	console.log(err);
-	response.error(err);
+		console.log(err);
+		response.error(err);
 	});
 });
 
