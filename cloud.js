@@ -122,6 +122,7 @@ AV.Cloud.define('updateDevice', function(request, response) {
 		    dev[0].set('sleepStatus',sleepStatus);
 		    dev[0].set('monitorStatus',monitorStatus);
 		    dev[0].set('localIP',localIP);
+		    dev[0].set('wifiName',wifiName);
 		    dev[0].save().then(function(newDev){
 		        response.success({
 		            "objectId" : newDev.id,
