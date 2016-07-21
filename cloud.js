@@ -43,7 +43,7 @@ AV.Cloud.define('boundDevice', function(request, response) {
 		    var device = new Device();
 
 		    device.set('deviceSN',deviceSN);
-			var pointPatient = AV.object.createWithoutData('Patients',patientId);
+			var pointPatient = AV.Object.createWithoutData('Patients', patientId);
 			device.set('idPatient',pointPatient);
 
 	        device.save().then(function(device) { 
