@@ -21,6 +21,75 @@ AV.Cloud.define('hello', function(request, response) {
 
   	response.success('Hello world!');
 });
+
+
+
+AV.Cloud.define('monitorDevice', function(request, response) {
+	/**
+	 * 开启状态下的设备，其updatedAt时间设备端会每隔1min刷新一次，加上网络延迟什么的，至少会和当前网络时间不同，
+	 * 理论上来讲当前时间若大于updatedAt时间1min，则设备肯定是断网了。
+	 * 而实际上，其实是最大要每隔2min才能判断设备是否真正的断网。（定时任务每隔1min监测一次）
+	 **/
+	var now = new Date();
+
+	var query = new AV.Query('Device');
+	query.equalTo("workStatus","1"); //表明设备为在线状态
+	/*query.equalTo("monitorStatus","1"); //表明设备为检测中的状态*/
+	query.find().then(function (data) {
+	    for(var i = 0,len = data.length; i < len;i++){
+	        var obj = data[i];
+	        var time = obj.updatedAt;
+	        var during = now - time ;
+	        var monitorStatus = obj.get("monitorStatus");
+	        if( monitorStatus == "1"){      //上线检测中
+	            if( during > 1 * 60 * 1000 ){    //状态未及时更新，需要报警处理
+	                console.log(obj.get('roomNumber')+"号房兆观睡眠评估设备断网，请及时关注。");
+	                AV.Cloud.requestSmsCode({
+	                    mobilePhoneNumber: obj.get('mobilePhoneNumber')[0].toString(),
+	                    template: 'wifiBroken',
+	                    roomNumber:obj.get('roomNumber')
+	                }).then(function(){
+	                    //发送成功
+	                    console.log("sms1 send success")
+	                }, function(err){
+	                    //发送失败,则给备用号码发送信息
+	                    console.log(err)
+	                    AV.Cloud.requestSmsCode({
+	                        mobilePhoneNumber: obj.get('mobilePhoneNumber')[1].toString(),
+	                        template: 'wifiBroken',
+	                        roomNumber:obj.get('roomNumber')
+	                    }).then(function(){
+	                        //发送成功
+	                        console.log("sms2 send success")
+	                    }, function(err){
+	                        //发送失败
+	                        console.log(err)
+	                        console.log("备用手机号码发送也失败，请检查！")
+	                    });
+	                });
+	                obj.set("workStatus","2");   //状态置为2，即异常状态
+	                obj.save();
+	            }
+	            else {    //正常
+	            }
+	        }
+	        else if(monitorStatus == "0") {   //报告已经上传
+	            if( during > 1 * 60 * 1000 ) {    //状态未及时更新，表明下线了。
+	                obj.set("workStatus","0");
+	                obj.save();
+	            }
+	            else {    //报告已经上传但是没有下线
+
+	            }
+	        }
+
+	    }
+	    response.success("监测功能正常");
+	}, function (error) {
+	    console.log(error)
+	    response.error("监测功能出现异常");
+	});
+});
 /*
 	设备绑定患者id时使用
 	deviceSN:设备deviceSN
