@@ -40,48 +40,10 @@ AV.Cloud.define('monitorDevice', function(request, response) {
 	        var obj = data[i];
 	        var time = obj.updatedAt;
 	        var during = now - time ;
-	        var monitorStatus = obj.get("monitorStatus");
-	        if( monitorStatus == "1"){      //上线检测中
-	            if( during > 1 * 60 * 1000 ){    //状态未及时更新，需要报警处理
-	                console.log(obj.get('roomNumber')+"号房兆观睡眠评估设备断网，请及时关注。");
-	                AV.Cloud.requestSmsCode({
-	                    mobilePhoneNumber: obj.get('mobilePhoneNumber')[0].toString(),
-	                    template: 'wifiBroken',
-	                    roomNumber:obj.get('roomNumber')
-	                }).then(function(){
-	                    //发送成功
-	                    console.log("sms1 send success")
-	                }, function(err){
-	                    //发送失败,则给备用号码发送信息
-	                    console.log(err)
-	                    AV.Cloud.requestSmsCode({
-	                        mobilePhoneNumber: obj.get('mobilePhoneNumber')[1].toString(),
-	                        template: 'wifiBroken',
-	                        roomNumber:obj.get('roomNumber')
-	                    }).then(function(){
-	                        //发送成功
-	                        console.log("sms2 send success")
-	                    }, function(err){
-	                        //发送失败
-	                        console.log(err)
-	                        console.log("备用手机号码发送也失败，请检查！")
-	                    });
-	                });
-	                obj.set("workStatus","2");   //状态置为2，即异常状态
-	                obj.save();
-	            }
-	            else {    //正常
-	            }
-	        }
-	        else if(monitorStatus == "0") {   //报告已经上传
-	            if( during > 1 * 60 * 1000 ) {    //状态未及时更新，表明下线了。
-	                obj.set("workStatus","0");
-	                obj.save();
-	            }
-	            else {    //报告已经上传但是没有下线
-
-	            }
-	        }
+            if( during > 2 * 60 * 1000 ) {    //状态未及时更新，表明下线了。
+                obj.set("workStatus","0");
+                obj.save();
+            }
 
 	    }
 	    response.success("监测功能正常");
