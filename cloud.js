@@ -1316,14 +1316,17 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 		checks.include(['Patient.user']);
 		checks.find().then(function(listChecks){
 			if(listChecks.length == 1){
+				var patientId;
+				var patientId1;
 				if(listChecks[0].get('Doctor').get('CreateBy').get('objectId') == params.fromPeer){
 					sendName = listChecks[0].get('Doctor').get('Name');
+					patientId = listChecks[0].get('Patient').id;
+					patientId1 = listChecks[0].get('Patient').get('objectId');
 				}
 
- 				var patientId;
+ 				
 				if(listChecks[0].get('Patient').get('user').get('objectId') == params.fromPeer){
 					sendName = listChecks[0].get('Patient').get('name');
-					patientId = listChecks[0].get('Patient').id;
 				}
 
 				console.log(sendName);
@@ -1341,7 +1344,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 				    	//conversionId
 				    	conversionId: params.convId,
 				    	//patientId
-				    	patientId: patientId,
+				    	patientId: patientId + patientId1
 			    	}
 			    };
 
