@@ -1320,8 +1320,10 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 					sendName = listChecks[0].get('Doctor').get('Name');
 				}
 
+ 				var patientId;
 				if(listChecks[0].get('Patient').get('user').get('objectId') == params.fromPeer){
 					sendName = listChecks[0].get('Patient').get('name');
+					patientId = listChecks[0].get('Patient').get('objectId');
 				}
 
 				console.log(sendName);
@@ -1334,7 +1336,11 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 			        // 自增未读消息的数目，不想自增就设为数字
 			        badge: "Increment",
 			        // content 为消息的实际内容
-			    	alert: sendName + ":" + lctext
+			    	alert: sendName + ":" + lctext,
+			    	//conversionId
+			    	conversionId: params.convId,
+			    	//patientId
+			    	patientId: patientId
 			    };
 
 			    var pushMessage = JSON.stringify(json);
