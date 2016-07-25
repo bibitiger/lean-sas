@@ -1341,8 +1341,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 				    	//conversionId
 				    	conversionId: params.convId,
 				    	//patientId
-				    	patientId: 'patientId',
-				    	patient:listChecks[0].get('Patient')
+				    	patientId: patientId,
 			    	}
 			    };
 
