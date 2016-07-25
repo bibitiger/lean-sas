@@ -62,6 +62,10 @@ AV.Cloud.define('boundDevice', function(request, response) {
 	var params = request.params;
 	var deviceSN = params.deviceSN;
 	var patientId = params.patientId;
+	var localIP = params.localIP;
+	var monitorStatus = params.monitorStatus;
+	var wifiName = params.wifiName;
+	var workStatus = params.workStatus;
 
 
 	var query = new AV.Query('Device');
@@ -76,6 +80,10 @@ AV.Cloud.define('boundDevice', function(request, response) {
 		    device.set('deviceSN',deviceSN);
 			var pointPatient = AV.Object.createWithoutData('Patients', patientId);
 			device.set('idPatient',pointPatient);
+			device.set('localIP',localIP);
+			device.set('monitorStatus',monitorStatus);
+			device.set('wifiName',wifiName);
+			device.set('workStatus',workStatus);
 
 	        device.save().then(function(device) { 
 	           	response.success({
@@ -88,6 +96,10 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			//bound
 			var targetTodoFolder = AV.Object.createWithoutData('Patients', patientId);
 			dev[0].set('idPatient',targetTodoFolder);
+			dev[0].set('localIP',localIP);
+			dev[0].set('monitorStatus',monitorStatus);
+			dev[0].set('wifiName',wifiName);
+			dev[0].set('workStatus',workStatus);
 			dev[0].save().then(function(newDev){
 		        response.success({
 		            "objectId" : newDev.id
