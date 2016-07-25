@@ -1323,7 +1323,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
  				var patientId;
 				if(listChecks[0].get('Patient').get('user').get('objectId') == params.fromPeer){
 					sendName = listChecks[0].get('Patient').get('name');
-					patientId = listChecks[0].get('Patient').get('objectId');
+					patientId = listChecks[0].get('Patient').id;
 				}
 
 				console.log(sendName);
@@ -1341,7 +1341,8 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 				    	//conversionId
 				    	conversionId: params.convId,
 				    	//patientId
-				    	patientId: 'patientId'
+				    	patientId: 'patientId',
+				    	patient:listChecks[0].get('Patient')
 			    	}
 			    };
 
