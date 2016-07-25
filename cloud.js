@@ -1337,10 +1337,12 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 			        badge: "Increment",
 			        // content 为消息的实际内容
 			    	alert: sendName + ":" + lctext,
-			    	//conversionId
-			    	conversionId: params.convId,
-			    	//patientId
-			    	patientId: patientId
+			    	data:{
+				    	//conversionId
+				    	conversionId: params.convId,
+				    	//patientId
+				    	patientId: patientId
+			    	}
 			    };
 
 			    var pushMessage = JSON.stringify(json);
