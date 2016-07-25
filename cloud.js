@@ -1338,6 +1338,8 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 			        badge: "Increment",
 			        // content 为消息的实际内容
 			    	alert: sendName + ":" + lctext,
+			    	//music
+			    	"sound":'sound.wav',
 			    	data:{
 				    	//conversionId
 				    	conversionId: params.convId,
