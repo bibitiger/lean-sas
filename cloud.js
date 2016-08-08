@@ -23,6 +23,34 @@ AV.Cloud.define('hello', function(request, response) {
 });
 
 
+//Hook
+AV.Cloud.beforeSave('Reports', function(request, response) {
+  var deviceId = request.object.get('idDevice').id;
+  var patientId = request.object.get('idPatient').id;
+  var tempSleepId = request.object.get('tempSleepId');
+
+	var query = new AV.Query('Reports');
+	var pointPatient = AV.Object.createWithoutData('Patients', patientId);
+	query.equalTo("idPatient",pointPatient); 
+	query.find().then(function (reports) {
+	    for(var i = 0; i < len;i++){
+	        var obj = reports[i];
+	        if ((obj.get('idDevice').id === deviceId) && (obj.get('tempSleepId') === tempSleepId)) {
+	        	obj.set('idPatient',pointPatient);
+	        	/*
+				update
+	        	*/
+	        	obj.save();
+	        }
+	    }
+	    response.success("监测功能正常");
+	}, function (error) {
+	    console.log(error)
+	    response.error("监测功能出现异常");
+	});
+});
+
+
 
 AV.Cloud.define('monitorDevice', function(request, response) {
 	/**
@@ -66,6 +94,8 @@ AV.Cloud.define('boundDevice', function(request, response) {
 	var monitorStatus = params.monitorStatus;
 	var wifiName = params.wifiName;
 	var workStatus = params.workStatus;
+	var versionNO = params.versionNO;
+	var romVersion = params.romVersion;
 
 
 	var query = new AV.Query('Device');
@@ -84,6 +114,8 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			device.set('monitorStatus',monitorStatus);
 			device.set('wifiName',wifiName);
 			device.set('workStatus',workStatus);
+			device.set('versionNO',versionNO);
+			device.set('romVersion',romVersion);
 
 	        device.save().then(function(device) { 
 	           	response.success({
@@ -100,6 +132,9 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			dev[0].set('monitorStatus',monitorStatus);
 			dev[0].set('wifiName',wifiName);
 			dev[0].set('workStatus',workStatus);
+			dev[0].set('versionNO',versionNO);
+			dev[0].set('romVersion',romVersion);
+			
 			dev[0].save().then(function(newDev){
 		        response.success({
 		            "objectId" : newDev.id
