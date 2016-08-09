@@ -24,31 +24,31 @@ AV.Cloud.define('hello', function(request, response) {
 
 
 //Hook
-AV.Cloud.beforeSave('Reports', function(request, response) {
-  var deviceId = request.object.get('idDevice').id;
-  var patientId = request.object.get('idPatient').id;
-  var tempSleepId = request.object.get('tempSleepId');
+// AV.Cloud.beforeSave('Reports', function(request, response) {
+//   var deviceId = request.object.get('idDevice').id;
+//   var patientId = request.object.get('idPatient').id;
+//   var tempSleepId = request.object.get('tempSleepId');
 
-	var query = new AV.Query('Reports');
-	var pointPatient = AV.Object.createWithoutData('Patients', patientId);
-	query.equalTo("idPatient",pointPatient); 
-	query.find().then(function (reports) {
-	    for(var i = 0; i < len;i++){
-	        var obj = reports[i];
-	        if ((obj.get('idDevice').id === deviceId) && (obj.get('tempSleepId') === tempSleepId)) {
-	        	obj.set('idPatient',pointPatient);
-	        	/*
-				update
-	        	*/
-	        	obj.save();
-	        }
-	    }
-	    response.success("监测功能正常");
-	}, function (error) {
-	    console.log(error)
-	    response.error("监测功能出现异常");
-	});
-});
+// 	var query = new AV.Query('Reports');
+// 	var pointPatient = AV.Object.createWithoutData('Patients', patientId);
+// 	query.equalTo("idPatient",pointPatient); 
+// 	query.find().then(function (reports) {
+// 	    for(var i = 0; i < len;i++){
+// 	        var obj = reports[i];
+// 	        if ((obj.get('idDevice').id === deviceId) && (obj.get('tempSleepId') === tempSleepId)) {
+// 	        	obj.set('idPatient',pointPatient);
+// 	        	/*
+// 				update
+// 	        	*/
+// 	        	obj.save();
+// 	        }
+// 	    }
+// 	    response.success("监测功能正常");
+// 	}, function (error) {
+// 	    console.log(error)
+// 	    response.error("监测功能出现异常");
+// 	});
+// });
 
 
 
