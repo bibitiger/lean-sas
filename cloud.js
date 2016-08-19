@@ -365,11 +365,11 @@ AV.Cloud.define('WXLogin', function(request, response) {
 	                patient.set('name',user.get('username'));
 	                
 	                // 新建一个 ACL 实例
-	                var acl = new AV.ACL();
-	                acl.setPublicReadAccess(true);
-	                acl.setWriteAccess(user,true);
-	                  // 将 ACL 实例赋予 patient 对象
-	                patient.setACL(acl);
+	                // var acl = new AV.ACL();
+	                // acl.setPublicReadAccess(true);
+	                // acl.setWriteAccess(user,true);
+	                //   // 将 ACL 实例赋予 patient 对象
+	                // patient.setACL(acl);
 	                
 	                patient.save().then(function(patient) {
 	                    // 成功保存之后，执行其他逻辑.
