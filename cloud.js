@@ -97,7 +97,6 @@ AV.Cloud.define('boundDevice', function(request, response) {
 	var versionNO = params.versionNO;
 	var romVersion = params.romVersion;
 
-
 	var query = new AV.Query('Device');
 	query.equalTo('deviceSN', deviceSN);
 	query.find().then(function(dev) {
@@ -118,6 +117,25 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			device.set('romVersion',romVersion);
 
 	        device.save().then(function(device) { 
+
+				var queryPatient = new AV.Query("Device");
+				queryPatient.equalTo('idPatient',pointPatient);
+				queryPatient.find().then(function(device){
+					for (var i = 0; i < device.length; i++) {
+						if (newDev.id == device[i].id) {
+							device[i].set('active',true);
+						}else{
+							device[i].set('active',false);
+						}
+
+						device[i].save().then(function(saveDevice){
+							// console.log("deviceId:" + saveDevice.id);
+						},function(error){
+							// console.log("save error:" + saveDevice.id);
+						});
+					}
+				});
+
 	           	response.success({
 		            "objectId" : device.id
 		        });
@@ -136,6 +154,25 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			dev[0].set('romVersion',romVersion);
 			
 			dev[0].save().then(function(newDev){
+
+				var queryPatient = new AV.Query("Device");
+				queryPatient.equalTo('idPatient',pointPatient);
+				queryPatient.find().then(function(device){
+					for (var i = 0; i < device.length; i++) {
+						if (newDev.id == device[i].id) {
+							device[i].set('active',true);
+						}else{
+							device[i].set('active',false);
+						}
+
+						device[i].save().then(function(saveDevice){
+							// console.log("deviceId:" + saveDevice.id);
+						},function(error){
+							// console.log("save error:" + saveDevice.id);
+						});
+					}
+				});
+
 		        response.success({
 		            "objectId" : newDev.id
 		        });
