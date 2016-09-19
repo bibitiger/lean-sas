@@ -116,13 +116,13 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			device.set('versionNO',versionNO);
 			device.set('romVersion',romVersion);
 
-	        device.save().then(function(device) { 
+	        device.save().then(function(deviceAfter) { 
 
 				var queryPatient = new AV.Query("Device");
 				queryPatient.equalTo('idPatient',pointPatient);
 				queryPatient.find().then(function(deviceList){
 					for (var i = 0; i < deviceList.length; i++) {
-						if (device.id == deviceList[i].id) {
+						if (deviceAfter.id == deviceList[i].id) {
 							deviceList[i].set('active',true);
 						}else{
 							deviceList[i].set('active',false);
