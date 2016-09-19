@@ -120,15 +120,15 @@ AV.Cloud.define('boundDevice', function(request, response) {
 
 				var queryPatient = new AV.Query("Device");
 				queryPatient.equalTo('idPatient',pointPatient);
-				queryPatient.find().then(function(device){
-					for (var i = 0; i < device.length; i++) {
-						if (newDev.id == device[i].id) {
-							device[i].set('active',true);
+				queryPatient.find().then(function(deviceList){
+					for (var i = 0; i < deviceList.length; i++) {
+						if (device.id == deviceList[i].id) {
+							deviceList[i].set('active',true);
 						}else{
-							device[i].set('active',false);
+							deviceList[i].set('active',false);
 						}
 
-						device[i].save().then(function(saveDevice){
+						deviceList[i].save().then(function(saveDevice){
 							// console.log("deviceId:" + saveDevice.id);
 						},function(error){
 							// console.log("save error:" + saveDevice.id);
