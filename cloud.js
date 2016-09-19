@@ -159,6 +159,9 @@ AV.Cloud.define('boundDevice', function(request, response) {
 
 				var queryPatient = new AV.Query("Device");
 				queryPatient.equalTo('idPatient',pointPatient);
+				console.log("*******patientId******:" + patientId);
+				console.log("*******patientIdQueryPatient******:" + pointPatient);
+
 				queryPatient.find().then(function(device){
 					for (var i = 0; i < device.length; i++) {
 						console.log("---list--deviceId:" + device[i].id);
