@@ -161,6 +161,7 @@ AV.Cloud.define('boundDevice', function(request, response) {
 				queryPatient.equalTo('idPatient',pointPatient);
 				console.log("*******patientId******:" + patientId);
 				console.log("*******patientIdQueryPatient******:" + pointPatient);
+				console.log("*******patientIdQueryPatient******为什么不显示!!!");
 
 				queryPatient.find().then(function(device){
 					for (var i = 0; i < device.length; i++) {
