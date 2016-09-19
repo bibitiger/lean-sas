@@ -155,10 +155,13 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			
 			dev[0].save().then(function(newDev){
 
+				console.log("deviceId:" + dev[0].id + "newSaveDeviceId:" + newDev.id);
+
 				var queryPatient = new AV.Query("Device");
 				queryPatient.equalTo('idPatient',pointPatient);
 				queryPatient.find().then(function(device){
 					for (var i = 0; i < device.length; i++) {
+						console.log("---list--deviceId:" + device[i].id);
 						if (newDev.id == device[i].id) {
 							device[i].set('active',true);
 						}else{
@@ -166,7 +169,7 @@ AV.Cloud.define('boundDevice', function(request, response) {
 						}
 
 						device[i].save().then(function(saveDevice){
-							// console.log("deviceId:" + saveDevice.id);
+							console.log("---save--deviceId:" + saveDevice.id);
 						},function(error){
 							// console.log("save error:" + saveDevice.id);
 						});
