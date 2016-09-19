@@ -158,7 +158,7 @@ AV.Cloud.define('boundDevice', function(request, response) {
 				console.log("deviceId:" + dev[0].id + "newSaveDeviceId:" + newDev.id);
 
 				var queryPatient = new AV.Query("Device");
-				queryPatient.equalTo('idPatient',pointPatient);
+				queryPatient.equalTo('idPatient',targetTodoFolder);
 				console.log("*******patientId******:" + patientId);
 				console.log("*******patientIdQueryPatient******:" + pointPatient);
 				console.log("*******patientIdQueryPatient******为什么不显示!!!");
