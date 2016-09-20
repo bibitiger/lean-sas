@@ -125,17 +125,19 @@ AV.Cloud.define('boundDevice', function(request, response) {
 						if (deviceAfter.id == deviceList[i].id) {
 							deviceList[i].set('active',true);
 							deviceList[i].save().then(function(saveDevice){
-								// console.log("deviceId:" + saveDevice.id);
+								console.log("save_deviceId:" + saveDevice.id);
 							},function(error){
-								// console.log("save error:" + saveDevice.id);
+								console.log("save error:" + saveDevice.id);
 							});
 						}else{
 							//删除对象
 						 	var deleteDevice = AV.Object.createWithoutData('Device', deviceList[i].id);
 							deleteDevice.destroy().then(function (success) {
 							// 删除成功
+								console.log("delete_deviceId:" + deleteDevice.id);
 							}, function (error) {
 							// 删除失败
+								console.log("delete error:" + deleteDevice.id);
 							});
 						}
 					}
@@ -168,17 +170,19 @@ AV.Cloud.define('boundDevice', function(request, response) {
 						if (newDev.id == device[i].id) {
 							device[i].set('active',true);
 							device[i].save().then(function(saveDevice){
-
+								console.log("save_deviceId:" + saveDevice.id);
 							},function(error){
-								// console.log("save error:" + saveDevice.id);
+								console.log("save error:" + saveDevice.id);
 							});
 						}else{
 							//删除对象
 						 	var deleteDevice = AV.Object.createWithoutData('Device', device[i].id);
 							deleteDevice.destroy().then(function (success) {
 							// 删除成功
+								console.log("delete_deviceId:" + deleteDevice.id);
 							}, function (error) {
 							// 删除失败
+								console.log("delete error:" + deleteDevice.id);
 							});
 						}
 					}
