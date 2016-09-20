@@ -124,15 +124,20 @@ AV.Cloud.define('boundDevice', function(request, response) {
 					for (var i = 0; i < deviceList.length; i++) {
 						if (deviceAfter.id == deviceList[i].id) {
 							deviceList[i].set('active',true);
+							deviceList[i].save().then(function(saveDevice){
+								// console.log("deviceId:" + saveDevice.id);
+							},function(error){
+								// console.log("save error:" + saveDevice.id);
+							});
 						}else{
-							deviceList[i].set('active',false);
+							//删除对象
+						 	var deleteDevice = AV.Object.createWithoutData('Device', deviceList[i].id);
+							deleteDevice.destroy().then(function (success) {
+							// 删除成功
+							}, function (error) {
+							// 删除失败
+							});
 						}
-
-						deviceList[i].save().then(function(saveDevice){
-							// console.log("deviceId:" + saveDevice.id);
-						},function(error){
-							// console.log("save error:" + saveDevice.id);
-						});
 					}
 				});
 
@@ -155,28 +160,27 @@ AV.Cloud.define('boundDevice', function(request, response) {
 			
 			dev[0].save().then(function(newDev){
 
-				console.log("deviceId:" + dev[0].id + "newSaveDeviceId:" + newDev.id);
-
 				var queryPatient = new AV.Query("Device");
 				queryPatient.equalTo('idPatient',targetTodoFolder);
-				console.log("*******patientId******:" + patientId);
-				console.log("*******patientIdQueryPatient******:" + pointPatient);
-				console.log("*******patientIdQueryPatient******为什么不显示!!!");
 
 				queryPatient.find().then(function(device){
 					for (var i = 0; i < device.length; i++) {
-						console.log("---list--deviceId:" + device[i].id);
 						if (newDev.id == device[i].id) {
 							device[i].set('active',true);
-						}else{
-							device[i].set('active',false);
-						}
+							device[i].save().then(function(saveDevice){
 
-						device[i].save().then(function(saveDevice){
-							console.log("---save--deviceId:" + saveDevice.id);
-						},function(error){
-							// console.log("save error:" + saveDevice.id);
-						});
+							},function(error){
+								// console.log("save error:" + saveDevice.id);
+							});
+						}else{
+							//删除对象
+						 	var deleteDevice = AV.Object.createWithoutData('Device', device[i].id);
+							deleteDevice.destroy().then(function (success) {
+							// 删除成功
+							}, function (error) {
+							// 删除失败
+							});
+						}
 					}
 				});
 
