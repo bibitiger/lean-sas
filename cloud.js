@@ -241,10 +241,6 @@ AV.Cloud.define('updateDevice', function(request, response) {
 		            "ledOnTime" : device.get('ledOnTime')
 		        });
 	        }, function(err) {
-	            // 失败之后执行其他逻辑
-	            // error 是 AV.Error 的实例，包含有错误码和描述信息.
-	            // console.log('Failed to create new object, with error message: ' + err.message);
-	           	// response.error('can not find such device with deviceSN :'+deviceSN);
 	            response.error(err);
 	        });
 		}
@@ -259,8 +255,8 @@ AV.Cloud.define('updateDevice', function(request, response) {
 		            "objectId" : newDev.id,
 		            "rawDataUpload" : newDev.get('rawDataUpload'),
 		            "idPatient" : newDev.get('idPatient'),
-					"period" : device.get('period'),
-		            "ledOnTime" : device.get('ledOnTime')    
+					"period" : newDev.get('period'),
+		            "ledOnTime" : newDev.get('ledOnTime')    
 				});
 		    });
 		}
