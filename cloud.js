@@ -237,7 +237,8 @@ AV.Cloud.define('updateDevice', function(request, response) {
 		            "objectId" : device.id,
 		            "rawDataUpload" : device.get('rawDataUpload'),
 		            "idPatient" : device.get('idPatient'),
-		            "period" : device.get('period')
+		             "period" : device.get('period'),
++		            "ledOnTime" : device.get('ledOnTime')
 		        });
 	        }, function(err) {
 	            // 失败之后执行其他逻辑
@@ -258,8 +259,9 @@ AV.Cloud.define('updateDevice', function(request, response) {
 		            "objectId" : newDev.id,
 		            "rawDataUpload" : newDev.get('rawDataUpload'),
 		            "idPatient" : newDev.get('idPatient'),
-		            "period" : newDev.get('period')
-		        });
+					 "period" : device.get('period'),
++		            "ledOnTime" : device.get('ledOnTime')	        
+				});
 		    });
 		}
 	},function(err) {
