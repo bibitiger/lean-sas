@@ -740,15 +740,15 @@ AV.Cloud.define('confirmCheckByDoc', function(request, response) {
 			return;
 		}
 
-		if("WaitDoc" != check.get('State') && "WaitDocOfficial" != check.get('State')){
-			console.log("confirmReportByDoc this check state error");
-			response.error("this check state error");
-			return;
-		}
-
 		if(check.get('Doctor')){
 			console.log("confirmReportByDoc this check has doctor already");
 			response.error("this check has doctor already");
+			return;
+		}
+
+		if("WaitDoc" != check.get('State') && "WaitDocOfficial" != check.get('State')){
+			console.log("confirmReportByDoc this check state error");
+			response.error("this check state error");
 			return;
 		}
 
