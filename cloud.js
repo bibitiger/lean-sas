@@ -1412,7 +1412,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 					sendName = listChecks[0].get('Patient').get('name');
 				}
 
-				console.log(sendName);
+				console.log("_receiversOffline" + sendName);
 
 			    var lctext = "您有一条新消息";
 			    var con = JSON.parse(params.content);
@@ -1434,6 +1434,7 @@ AV.Cloud.define('_receiversOffline', function(request, response) {
 			    };
 
 			    var pushMessage = JSON.stringify(json);
+			    console.log(pushMessage);
 
 			    response.success({"pushMessage": pushMessage});
 			    return;
