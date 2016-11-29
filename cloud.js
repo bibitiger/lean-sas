@@ -245,7 +245,7 @@ AV.Cloud.define('ota', function(request, response) {
     endAppQuery.find().then(function(devVerResult) {
         var endAppVer = devVerResult[0].get("versionNum");
         var appMD5 = devVerResult[0].get("md5");
-        var appPatchURL =  devVerResult[0].get("patchUrl");
+        var appPatchURL =  devVerResult[0].get("pathUrl");
         var appSize = devVerResult[0].get("size");
         // get the latest version full package info - to get latest ROM ver
         var latestVerQuery= new AV.Query("DeviceRomVersion");
@@ -277,7 +277,7 @@ AV.Cloud.define('ota', function(request, response) {
                     mainQuery.find().then(function(difResult) {
                         if (difResult.length > 0) {
                             var OTAtype = difResult[0].get("otaType");
-                            var PatchURL = difResult[0].get("patchUrl");
+                            var PatchURL = difResult[0].get("pathUrl");
                             var EndVer = difResult[0].get("endVer");
                             var MD5 = difResult[0].get("md5");
                             var size = difResult[0].get("size");
@@ -304,7 +304,7 @@ AV.Cloud.define('ota', function(request, response) {
                             query.find().then(function(fullResult) {
                                 if (fullResult.length > 0) {
                                     var OTAtype = fullResult[0].get("otaType");
-                                    var PatchURL = fullResult[0].get("patchUrl");
+                                    var PatchURL = fullResult[0].get("pathUrl");
                                     var EndVer = fullResult[0].get("endVer");
                                     var MD5 = fullResult[0].get("md5");
                                     var size = fullResult[0].get("size");
