@@ -228,11 +228,12 @@ AV.Cloud.define('ota', function(request, response) {
  */
 
 // handle client's input(device ROM version) to find patches
-function findPatch() {
+// function findPatch() {
     
     var deviceVer = request.params.deviceVer;
     var deviceAppVer = request.params.deviceAppVer;
-    
+ 
+
     var startQuery = new AV.Query("DeviceRomDifPackageList");
     startQuery.equalTo("startVer", deviceVer);
     
@@ -240,13 +241,12 @@ function findPatch() {
     
     // get the latest APP Version
     var endAppQuery = new AV.Query("DeviceVersion");
-    endAppQuery.exists("VersionNO");
+    endAppQuery.exists("versionNum");
     endAppQuery.find().then(function(devVerResult) {
-        var endAppVer = devVerResult[0].get("VersionNum");
+        var endAppVer = devVerResult[0].get("versionNum");
         var appMD5 = devVerResult[0].get("md5");
         var appPatchURL =  devVerResult[0].get("patchUrl");
         var appSize = devVerResult[0].get("size");
-        
         // get the latest version full package info - to get latest ROM ver
         var latestVerQuery= new AV.Query("DeviceRomVersion");
         latestVerQuery.exists("version");
@@ -340,9 +340,9 @@ function findPatch() {
     });
     
     
-}
+// }
 
-findPatch();
+// findPatch();
               
 })
 
