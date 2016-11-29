@@ -200,6 +200,152 @@ AV.Cloud.define('boundDevice', function(request, response) {
 		response.error(err);
 	});
 });
+
+/*
+OTA升级
+add by chengchao
+date 2016-11-29
+*/
+
+AV.Cloud.define('ota', function(request, response) {
+/*
+ * API Input:   deviceVer                    //当前rom版本
+ *              deviceAppVer                 //当前固件版本
+ * API Output: {"result":{"OTAtype":"F",    //F为完整包，D为差分包
+ *              "patchURL":"<URL>",         //rom的ftp地址，同服务器
+ *              "endVer":"ROM160110_V1.1.4",//ROM版本最新版本号，如当前为最新则显示“NULL”
+ *              "StartVer":"",				//输入时，给出的当前rom版本号  deviceVer
+ *              "MD5":"",					//给出的差分包或者完整包的MD5码
+                "size":"",                  //给出升级包的文件大小
+ *              "AppPatchURL":"<URL>",      //固件的ftp地址，同服务器
+ *              "EndAppVer":"1.1.4",		//固件版本最新版本号，ps：rom有更新时始终给出最新固件的信息
+ *              "StartAppVer":"1.1.4",		//输入时，给出的当前固件版本号  deviceAppVer
+ *              "AppMD5":"",				//给出的最新固件包的MD5码
+                "AppSize":"",               //给出最新固件包的文件大小
+ *              "objectId":"5693678160b2638510a51bbd",
+ *              "createdAt":"2016-01-11T08:27:45.063Z",
+ *              "updatedAt":"2016-01-11T08:28:05.768Z"}} 
+ */
+
+// handle client's input(device ROM version) to find patches
+function findPatch() {
+    
+    var deviceVer = request.params.deviceVer;
+    var deviceAppVer = request.params.deviceAppVer;
+    
+    var startQuery = new AV.Query("DeviceRomDifPackageList");
+    startQuery.equalTo("startVer", deviceVer);
+    
+    var data = {};
+    
+    // get the latest APP Version
+    var endAppQuery = new AV.Query("DeviceVersion");
+    endAppQuery.exists("VersionNO");
+    endAppQuery.find().then(function(devVerResult) {
+        var endAppVer = devVerResult[0].get("VersionNum");
+        var appMD5 = devVerResult[0].get("md5");
+        var appPatchURL =  devVerResult[0].get("patchUrl");
+        var appSize = devVerResult[0].get("size");
+        
+        // get the latest version full package info - to get latest ROM ver
+        var latestVerQuery= new AV.Query("DeviceRomVersion");
+        latestVerQuery.exists("version");
+        latestVerQuery.find().then(function(result) {
+            if (result) {
+                var endVer = result[0].get("version");
+                
+                if (deviceVer === endVer || deviceVer > endVer) {             // already the latest version
+                    data["patchURL"] = "NULL";
+                    
+                     // check if app version needs to be updated
+                    if (deviceAppVer === endAppVer || endAppVer.indexOf(deviceAppVer) > -1 || deviceAppVer.indexOf(endAppVer) > -1) {
+                        data["EndAppVer"] = "NULL";
+                    } else {
+                        data["AppPatchURL"] = appPatchURL;
+                        data["EndAppVer"] = endAppVer;
+                        data["AppMD5"] = appMD5;
+                        data["StartAppVer"] = deviceAppVer;
+                        data["AppSize"] = appSize;
+                    }
+                    
+                    response.success(data);
+                } else {                                // need to return an update package
+                    var endQuery = new AV.Query("DeviceRomDifPackageList");
+                    endQuery.equalTo("endVer", endVer);
+                    var mainQuery = new AV.Query.and(startQuery, endQuery);
+                    
+                    mainQuery.find().then(function(difResult) {
+                        if (difResult.length > 0) {
+                            var OTAtype = difResult[0].get("otaType");
+                            var PatchURL = difResult[0].get("patchUrl");
+                            var EndVer = difResult[0].get("endVer");
+                            var MD5 = difResult[0].get("md5");
+                            var size = difResult[0].get("size");
+                            
+                            // return APP update if ROM needs updadting
+                            data["AppPatchURL"] = appPatchURL;
+                            data["EndAppVer"] = endAppVer;
+                            data["AppMD5"] = appMD5;
+                            data["StartAppVer"] = deviceAppVer;
+                            data["AppSize"] = appSize;
+                            
+                            data["OTAtype"] = OTAtype;
+                            data["patchURL"] = PatchURL;
+                            data["endVer"] = endVer;
+                            data["startVer"] = deviceVer;
+                            data["MD5"] = MD5;
+                            data["size"] = size;
+                            response.success(data);
+                        } else {
+                            // no diff package is found, look for full package
+                            var startQuery2 = new AV.Query("DeviceRomDifPackageList");
+                            startQuery2.equalTo("startVer", "");
+                            var query = new AV.Query.and(startQuery2, endQuery);
+                            query.find().then(function(fullResult) {
+                                if (fullResult.length > 0) {
+                                    var OTAtype = fullResult[0].get("otaType");
+                                    var PatchURL = fullResult[0].get("patchUrl");
+                                    var EndVer = fullResult[0].get("endVer");
+                                    var MD5 = fullResult[0].get("md5");
+                                    var size = fullResult[0].get("size");
+                                    
+                                    // return APP update if ROM needs updadting
+                                    data["AppPatchURL"] = appPatchURL;
+                                    data["EndAppVer"] = endAppVer;
+                                    data["AppMD5"] = appMD5;
+                                    data["StartAppVer"] = deviceAppVer;
+                                    data["AppSize"] = appSize;
+                                    
+                                    data["OTAtype"] = OTAtype;
+                                    data["patchURL"] = PatchURL;
+                                    data["endVer"] = endVer;
+                                    data["startVer"] = deviceVer;
+                                    data["MD5"] = MD5;
+                                    data["size"] = size;
+                                    response.success(data);
+                                } else {
+                                    // Dose not have available ROM update packages
+                                    data["patchURL"] = "NULL";
+                                    data["EndAppVer"] = "NULL";
+                                    response.success(data);
+                                }
+                            });
+                        }
+                    });
+                }
+            
+            }
+        });   
+    
+    });
+    
+    
+}
+
+findPatch();
+              
+})
+
 /*
 	create by chengchao
 	write by lidongdong
