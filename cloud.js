@@ -23,35 +23,6 @@ AV.Cloud.define('hello', function(request, response) {
 });
 
 
-//Hook
-// AV.Cloud.beforeSave('Reports', function(request, response) {
-//   var deviceId = request.object.get('idDevice').id;
-//   var patientId = request.object.get('idPatient').id;
-//   var tempSleepId = request.object.get('tempSleepId');
-
-// 	var query = new AV.Query('Reports');
-// 	var pointPatient = AV.Object.createWithoutData('Patients', patientId);
-// 	query.equalTo("idPatient",pointPatient); 
-// 	query.find().then(function (reports) {
-// 	    for(var i = 0; i < len;i++){
-// 	        var obj = reports[i];
-// 	        if ((obj.get('idDevice').id === deviceId) && (obj.get('tempSleepId') === tempSleepId)) {
-// 	        	obj.set('idPatient',pointPatient);
-// 	        	/*
-// 				update
-// 	        	*/
-// 	        	obj.save();
-// 	        }
-// 	    }
-// 	    response.success("监测功能正常");
-// 	}, function (error) {
-// 	    console.log(error)
-// 	    response.error("监测功能出现异常");
-// 	});
-// });
-
-
-
 AV.Cloud.define('monitorDevice', function(request, response) {
 	/**
 	 * 开启状态下的设备，其updatedAt时间设备端会每隔1min刷新一次，加上网络延迟什么的，至少会和当前网络时间不同，
@@ -253,14 +224,15 @@ AV.Cloud.define('ota', function(request, response) {
         latestVerQuery.find().then(function(result) {
             if (result) {
                 var endVer = result[0].get("version");
-                
+                //如果rom版本等于或者大于最新版本
                 if (deviceVer === endVer || deviceVer > endVer) {             // already the latest version
                     data["patchURL"] = "NULL";
-                    
-                     // check if app version needs to be updated
+
                     if (deviceAppVer === endAppVer || endAppVer.indexOf(deviceAppVer) > -1 || deviceAppVer.indexOf(endAppVer) > -1) {
+                    	// 如果固件版本等于最新版本，则不需要更新
                         data["EndAppVer"] = "NULL";
                     } else {
+                    	//固件版本不想等则返回最新的固件版本信息
                         data["AppPatchURL"] = appPatchURL;
                         data["EndAppVer"] = endAppVer;
                         data["AppMD5"] = appMD5;
@@ -269,7 +241,8 @@ AV.Cloud.define('ota', function(request, response) {
                     }
                     
                     response.success(data);
-                } else {                                // need to return an update package
+                } else {       
+                	//查找
                     var endQuery = new AV.Query("DeviceRomDifPackageList");
                     endQuery.equalTo("endVer", endVer);
                     var mainQuery = new AV.Query.and(startQuery, endQuery);
@@ -295,11 +268,14 @@ AV.Cloud.define('ota', function(request, response) {
                             data["startVer"] = deviceVer;
                             data["MD5"] = MD5;
                             data["size"] = size;
+
                             response.success(data);
                         } else {
                             // no diff package is found, look for full package
                             var startQuery2 = new AV.Query("DeviceRomDifPackageList");
                             startQuery2.equalTo("startVer", "");
+                            //测试日志
+                            console.log("endVer:" + endVer);
                             var query = new AV.Query.and(startQuery2, endQuery);
                             query.find().then(function(fullResult) {
                                 if (fullResult.length > 0) {
@@ -322,11 +298,13 @@ AV.Cloud.define('ota', function(request, response) {
                                     data["startVer"] = deviceVer;
                                     data["MD5"] = MD5;
                                     data["size"] = size;
+
                                     response.success(data);
                                 } else {
                                     // Dose not have available ROM update packages
                                     data["patchURL"] = "NULL";
                                     data["EndAppVer"] = "NULL";
+
                                     response.success(data);
                                 }
                             });
@@ -1642,6 +1620,52 @@ AV.Cloud.define('imgClipper', function(request, response) {
 	  }
 	);	
 });
+
+var qiniu = require('qiniu');
+
+//七牛云
+qiniu.conf.ACCESS_KEY = '5PRVV0HW-zkXawyKRN3s_GS4_fM2pYXUd3XyKSzY';
+qiniu.conf.SECRET_KEY = 'j3ZJGsJ7kQ6G9UVyud_CEv4KQvmFc9-QUZsEGBYJ';
+var bucket = 'bhealth';
+
+//返回上传uptoken
+AV.Cloud.define('uptoken', function(request, response) {
+    var key = request.params.key;
+    console.log(key)
+	var token = uptoken(bucket,key);
+    response.success(token);
+});
+//返回七牛图片的url地址
+AV.Cloud.define('downloadUrl', function(request, response) {
+    var key = request.params.key;
+    var hash = request.params.hash;
+    console.log(key,hash)
+    var picUrl = downloadUrl(hash,key);
+    response.success(picUrl);
+});
+
+//构建上传策略函数
+function uptoken(bucket, key) {
+  var putPolicy = new qiniu.rs.PutPolicy(bucket+":"+key);
+  return putPolicy.token();
+}
+
+function downloadUrl(hash,key){
+    console.log(key)
+
+    //构建私有空间的链接
+    var url = 'http://ohsr1nvzw.bkt.clouddn.com/'+key;
+    var policy = new qiniu.rs.GetPolicy();
+
+    //生成下载链接url
+    var downloadUrl = policy.makeRequest(url);
+
+    //打印下载的url
+    console.log(downloadUrl);
+    return downloadUrl;
+}
+//***********************************************
+
 
 /**
  * create a info for find report ,used by findReportByReportAndEntity
