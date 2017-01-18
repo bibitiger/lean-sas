@@ -420,27 +420,27 @@ AV.Cloud.define('updateDevice', function(request, response) {
 	query.equalTo('deviceSN', deviceSN);
 	query.find().then(function(dev) {
 		if(dev.length === 0){
+			response.error("can not find device");
+			// var Device = AV.Object.extend('Device');
+		 //    var device = new Device();
 
-			var Device = AV.Object.extend('Device');
-		    var device = new Device();
+		 //    device.set('deviceSN',deviceSN);
+		 //    device.set('workStatus',workStatus);
+		 //    device.set('sleepStatus',sleepStatus);
+		 //    device.set('localIP',localIP);
+		 //    device.set('wifiName',wifiName);
 
-		    device.set('deviceSN',deviceSN);
-		    device.set('workStatus',workStatus);
-		    device.set('sleepStatus',sleepStatus);
-		    device.set('localIP',localIP);
-		    device.set('wifiName',wifiName);
-
-	        device.save().then(function(device) { 
-	           	response.success({
-		            "objectId" : device.id,
-		            "rawDataUpload" : device.get('rawDataUpload'),
-		            "idPatient" : device.get('idPatient'),
-		            "period" : device.get('period'),
-		            "ledOnTime" : device.get('ledOnTime')
-		        });
-	        }, function(err) {
-	            response.error(err);
-	        });
+	  //       device.save().then(function(device) { 
+	  //          	response.success({
+		 //            "objectId" : device.id,
+		 //            "rawDataUpload" : device.get('rawDataUpload'),
+		 //            "idPatient" : device.get('idPatient'),
+		 //            "period" : device.get('period'),
+		 //            "ledOnTime" : device.get('ledOnTime')
+		 //        });
+	  //       }, function(err) {
+	  //           response.error(err);
+	  //       });
 		}
 		else {
 		    dev[0].set('workStatus',workStatus);
