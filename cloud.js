@@ -172,6 +172,80 @@ AV.Cloud.define('boundDevice', function(request, response) {
 	});
 });
 
+
+/*
+	phone client use when checked device has connect internet
+	deviceSN:设备deviceSN
+	patientId:用户的patientId
+*/
+AV.Cloud.define('boundDeviceForClient', function(request, response) {
+
+	var params = request.params;
+	var deviceID = params.deviceID;
+	var deviceSN = params.deviceSN;
+	var patientId = params.patientId;
+
+	var query = new AV.Query('Device');
+	query.equalTo('deviceSN', deviceSN);
+	query.find().then(function(dev) {
+		if (dev.length <= 0) {
+			response.error("没有找到对应设备");
+		} else {
+			//bound
+			var dev1 = [];
+			for (var i = 0; i < dev.length; i++) {
+				if(dev[i].id == deviceID) {
+					continue;
+				}
+				dev1.push(dev[i]);
+			};
+			console.log(dev1.length);
+			console.log(dev.length);
+			for (var i = 0; i < dev.length; i++) {
+				if (dev[i].id == deviceID) {
+					var targetTodoFolder = AV.Object.createWithoutData('Patients', patientId);
+					dev[i].set('idPatient',targetTodoFolder);
+					dev[i].set('active',true);
+					dev[i].save().then(function(newDev){
+						AV.Object.destroyAll(dev1).then(function(){
+							var queryPatient = new AV.Query("Device");
+							var targetTodoFolder = AV.Object.createWithoutData('Patients', patientId);
+							if (targetTodoFolder == null) {
+								response.error("拥有者不存在");
+							}
+							queryPatient.equalTo('idPatient',targetTodoFolder);
+							queryPatient.notEqualTo('objectId', deviceID);
+							queryPatient.find().then(function(devices){
+								console.log(devices.length);
+								devices.map(function(device) {
+									device.set('active',false);
+								});
+								AV.Object.saveAll(devices).then(function(savedevices){
+									response.success({
+							            "objectId" : deviceID
+							        });
+								},function(e){
+									console.log(e);
+									response.error(e);
+								});
+							}, function(e){
+								console.log(e);
+								response.error(e);
+							})
+				    }, function(err) {
+						console.log(err);
+			            response.error(err);
+			        });
+				});
+			};
+		}
+		}
+	},function(err) {
+		console.log(err);
+		response.error(err);
+	});
+});
+
 /*
 OTA升级
 add by chengchao
