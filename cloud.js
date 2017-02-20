@@ -217,10 +217,10 @@ AV.Cloud.define('boundDeviceForClient', function(request, response) {
 							queryPatient.notEqualTo('objectId', deviceID);
 							queryPatient.find().then(function(devices){
 								console.log(devices.length);
-								devices.map(function(device) {
-									device.set('active',false);
-								});
-								AV.Object.saveAll(devices).then(function(savedevices){
+								// devices.map(function(device) {
+								// 	device.set('active',false);
+								// });
+								AV.Object.destroyAll(devices).then(function(savedevices){
 									response.success({
 							            "objectId" : deviceID
 							        });
