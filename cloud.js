@@ -279,7 +279,7 @@ AV.Cloud.define('ota', function(request, response) {
     var user = request.user
     var deviceVer = request.params.deviceVer;
     var deviceAppVer = request.params.deviceAppVer;
-    var userType = "tester"
+    var userType = "customer"
     if (user != null) {
 		userType = user.get("UserType");
     };
