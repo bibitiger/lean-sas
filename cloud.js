@@ -249,6 +249,7 @@ AV.Cloud.define('boundDeviceForClient', function(request, response) {
 /*
 OTA升级
 add by chengchao
+change by fanxu 2017-4-20
 date 2016-11-29
 */
 
@@ -275,8 +276,17 @@ AV.Cloud.define('ota', function(request, response) {
 // handle client's input(device ROM version) to find patches
 // function findPatch() {
     
+    var user = request.user
     var deviceVer = request.params.deviceVer;
     var deviceAppVer = request.params.deviceAppVer;
+    var userType = "tester"
+    if (user != null) {
+		userType = user.get("UserType");
+    };
+    
+    var url = "DeviceVersion"
+    if(userType == "tester")
+    	url = "DeviceVersionForTest"
  
 
     var startQuery = new AV.Query("DeviceRomDifPackageList");
@@ -285,7 +295,7 @@ AV.Cloud.define('ota', function(request, response) {
     var data = {};
     
     // get the latest APP Version
-    var endAppQuery = new AV.Query("DeviceVersion");
+    var endAppQuery = new AV.Query(url);
     endAppQuery.exists("versionNum");
     endAppQuery.find().then(function(devVerResult) {
         var endAppVer = devVerResult[0].get("versionNum");
