@@ -302,6 +302,7 @@ AV.Cloud.define('ota', function(request, response) {
         var appMD5 = devVerResult[0].get("md5");
         var appPatchURL =  devVerResult[0].get("pathUrl");
         var appSize = devVerResult[0].get("size");
+        var updateStr = devVerResult[0].get("updateStr");
         // get the latest version full package info - to get latest ROM ver
         var latestVerQuery= new AV.Query("DeviceRomVersion");
         latestVerQuery.exists("version");
@@ -322,6 +323,7 @@ AV.Cloud.define('ota', function(request, response) {
                         data["AppMD5"] = appMD5;
                         data["StartAppVer"] = deviceAppVer;
                         data["AppSize"] = appSize;
+                        data["updateStr"] = updateStr;
                     }
                     
                     response.success(data);
@@ -345,6 +347,7 @@ AV.Cloud.define('ota', function(request, response) {
                             data["AppMD5"] = appMD5;
                             data["StartAppVer"] = deviceAppVer;
                             data["AppSize"] = appSize;
+                        	data["updateStr"] = updateStr;
                             
                             data["OTAtype"] = OTAtype;
                             data["patchURL"] = PatchURL;
@@ -375,6 +378,7 @@ AV.Cloud.define('ota', function(request, response) {
                                     data["AppMD5"] = appMD5;
                                     data["StartAppVer"] = deviceAppVer;
                                     data["AppSize"] = appSize;
+                        			data["updateStr"] = updateStr;
                                     
                                     data["OTAtype"] = OTAtype;
                                     data["patchURL"] = PatchURL;
