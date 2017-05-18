@@ -225,7 +225,26 @@ AV.Cloud.define('boundDeviceForClient', function(request, response) {
 									if (uuid != null) {
 										var queryUUID = new AV.Query("Device");
 										queryUUID.equalTo('UUID',uuid);
-										queryUUID.does_not_exist('idPatient');
+										queryUUID.doesNotExist('idPatient');
+										queryUUID.find().then(function(devicesUUID){
+											if (devicesUUID.length > 0) {
+												AV.Object.destroyAll(devicesUUID).then(function(){
+													response.success({
+								            			"objectId" : deviceID
+								        			});
+												}, function(e){
+													console.log(e);
+													response.error(e);
+												})
+											} else {
+												response.success({
+								            		"objectId" : deviceID
+								        		});
+											}
+										},function(e){
+											console.log(e);
+											response.error(e);
+										})
 									} else {
 										response.success({
 								            "objectId" : deviceID
