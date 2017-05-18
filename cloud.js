@@ -184,6 +184,7 @@ AV.Cloud.define('boundDeviceForClient', function(request, response) {
 	var deviceID = params.deviceID;
 	var deviceSN = params.deviceSN;
 	var patientId = params.patientId;
+	var uuid = params.uuid;
 
 	var query = new AV.Query('Device');
 	query.equalTo('deviceSN', deviceSN);
@@ -221,9 +222,15 @@ AV.Cloud.define('boundDeviceForClient', function(request, response) {
 								// 	device.set('active',false);
 								// });
 								AV.Object.destroyAll(devices).then(function(savedevices){
-									response.success({
-							            "objectId" : deviceID
-							        });
+									if (uuid != null) {
+										var queryUUID = new AV.Query("Device");
+										queryUUID.equalTo('UUID',uuid);
+										queryUUID.does_not_exist('idPatient');
+									} else {
+										response.success({
+								            "objectId" : deviceID
+								        });
+									}
 								},function(e){
 									console.log(e);
 									response.error(e);
