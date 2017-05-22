@@ -173,6 +173,122 @@ AV.Cloud.define('boundDevice', function(request, response) {
 });
 
 
+
+
+AV.Cloud.define('addOrUpdateDevice', function(request, response){
+
+	var uuid = request.uuid;
+	var deviceSN = request.deviceSN;
+	var localIP = request.localIP;
+	var wifiName = request.wifiName;
+	var monitorStatus = request.monitorStatus;
+	var romVersion = request.romVersion;
+	var versionNO = request.versionNO;
+	var workStatus = request.workStatus;
+
+	var query = new AV.Query('Device');
+	query.equalTo('deviceSN', deviceSN);
+	query.find().then(function(dev){
+		if(dev.length > 0){
+			var deleteDevs = [];
+			var position = 0;
+			for(var i=0;i<dev.length;i++){
+				if(dev[i].get("active") == true){
+					position = i;
+				}
+			}
+			for(var i = 0; i< dev.length;i++){
+				if(i != position){
+					deleteDevs.push(dev[i]);
+				}
+			}
+			dev[position].set('UUID', uuid);
+			dev[position].set('deviceSN', deviceSN);
+			dev[position].set('localIP', localIP);
+			dev[position].set('wifiName', wifiName);
+			dev[position].set('monitorStatus', monitorStatus);
+			dev[position].set('romVersion', romVersion);
+			dev[position].set('versionNO', versionNO);
+			dev[position].set('workStatus', workStatus);
+			// dev[0].set('active', true);
+
+			dev[position].save().then(new function(dev1){
+				if(deleteDevs.length > 0){
+					AV.Object.destroyAll(deleteDevs).then(function(){
+						response.success({
+							"objectId": dev1.id
+						});
+					}, function(error){
+						console.log(error);
+						console.error(error);;
+					});
+				}else{
+					response.success({
+						"objectId": dev1.id
+					});
+				}
+			}, function(error){
+				console.log(error);
+				response.error(error);
+			});
+
+		}else{
+			var Device = AV.Object.extend('Device');
+			var device = new Device();
+			
+			device.set('UUID', uuid);
+			device.set('deviceSN', deviceSN);
+			device.set('localIP', localIP);
+			device.set('wifiName', wifiName);
+			device.set('monitorStatus', monitorStatus);
+			device.set('romVersion', romVersion);
+			device.set('versionNO', versionNO);
+			device.set('workStatus', workStatus);
+			device.set('active', true);
+
+			device.save().then(function(createDevice){
+				var query = new AV.Query('Device');
+				query.equalTo('UUID', uuid);
+				query.find().then(function(dev1){
+					var delDevice = [];
+					for(var i = 0; i< dev1.length;i++){
+						if(dev1[i].id == createDevice.id){
+							continue;
+						}
+						delDevice.push(dev1[i]);
+					}
+					if(delDevice.length > 0){
+						AV.Object.destroyAll(delDevice).then(function(){
+							response.success({
+								"objectId": createDevice.id
+							});
+						}, function(error){
+							console.log(error);
+							response.error(error);
+						});
+					}else{
+						response.success({
+							"objectId": createDevice.id
+						});
+					}
+				}, function(error){
+					console.log(error);
+					response.error(error);
+				});
+			}, function(error){
+				console.log(error);
+				response.error(error);
+			});
+		}
+	}, function(error){
+		console.log(error);
+		response.error(error);
+	});
+
+});
+
+
+
 /*
 	phone client use when checked device has connect internet
 	deviceSN:设备deviceSN
