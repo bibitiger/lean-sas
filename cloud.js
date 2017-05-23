@@ -179,24 +179,55 @@ AV.Cloud.define('boundDevice', function(request, response) {
  */
 AV.Cloud.define('addOrUpdateDevice', function(request, response){
 
-	var uuid = request.uuid;
-	var deviceSN = request.deviceSN;
-	var localIP = request.localIP;
-	var wifiName = request.wifiName;
-	var monitorStatus = request.monitorStatus;
-	var romVersion = request.romVersion;
-	var versionNO = request.versionNO;
-	var workStatus = request.workStatus;
+	var params = request.params;
 
+	var uuid = params.uuid;
+	var deviceSN = params.deviceSN;
+	var localIP = params.localIP;
+	var wifiName = params.wifiName;
+	var monitorStatus = params.monitorStatus;
+	var romVersion = params.romVersion;
+	var versionNO = params.versionNO;
+	var workStatus = params.workStatus;
+
+	console.log("addOrUpdateDevice uuid:" + uuid + "deviceSN:" + deviceSN);
+
+	if(uuid == null || uuid == "" || uuid == undefined){
+		console.log("uuid is null");
+		response.error("uuid is null");
+		return;
+	}
+
+	if(deviceSN == null || deviceSN == "" || uuid == undefined){
+		console.log("deviceSN is null");
+		response.error("deviceSN is null");
+		return;
+	}
 
 	var queryDevByUuid = new AV.Query('Device');
 	queryDevByUuid.equalTo('UUID', uuid);	
 	queryDevByUuid.find().then(function(dev3){
+
+		console.log("dev3 length:" + dev3.length);
+
+		if(dev3.length > 3){
+			console.log("dev3 system error");
+			response.error("dev3 system error");
+			return;
+		}
+		
 		if(dev3.length > 0){
 			
 			var query = new AV.Query('Device');
 			query.equalTo('deviceSN', deviceSN);
 			query.find().then(function(dev){
+				
+				if(dev.length > 9){
+					console.log("dev system error");
+					response.error("dev system error");
+					return;
+				}
+
 				if(dev.length > 0){
 					var deleteDevs = [];
 					var position = 0;
@@ -218,6 +249,8 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 						deleteDevs.push(dev3[i]);
 					}
 	
+					console.log("deleteDevs length:" + deleteDevs.length);
+
 					dev[position].set('UUID', uuid);
 					dev[position].set('deviceSN', deviceSN);
 					dev[position].set('localIP', localIP);
@@ -230,6 +263,18 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 
 					dev[position].save().then(new function(dev1){
 						if(deleteDevs.length > 0){
+
+							console.log("deleteDevs length:" + deleteDevs.length);
+							/**
+							 * 保留
+							 */
+
+							if(deleteDevs.length > 9){
+								console.log("deleteDevs system error");
+								response.error("deleteDevs system error");
+								return;
+							}
+
 							AV.Object.destroyAll(deleteDevs).then(function(){
 								response.success({
 									"objectId": dev1.id
@@ -238,6 +283,8 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 								console.log(error);
 								response.error(error);
 							});
+
+
 						}else{
 							response.success({
 								"objectId": dev1.id
@@ -249,7 +296,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 					});
 
 				}else{
-					
+
 					dev3[0].set('UUID', uuid);
 					dev3[0].set('deviceSN', deviceSN);
 					dev3[0].set('localIP', localIP);
@@ -269,7 +316,15 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 								}
 								delDevice.push(dev3[i]);
 							}
+							console.log("delDevice length:" + delDevice.length);
 							if(delDevice.length > 0){
+
+								if(delDevice.length > 3){
+									console.log("delDevice system error");
+									response.error("delDevice system error");
+									return;
+								}
+
 								AV.Object.destroyAll(delDevice).then(function(){
 									response.success({
 										"objectId": createDevice.id
@@ -278,6 +333,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 									console.log(error);
 									response.error(error);
 								});
+
 							}else{
 								response.success({
 									"objectId": createDevice.id
@@ -295,8 +351,12 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 			});
 
 		}else{
-			response.error("UUID is null");
+			console.log("not find uuid");
+			response.error("not find uuid");
 		}
+
+
+
 	}, function(error){
 		console.log(error);
 		response.error(error);
