@@ -250,8 +250,6 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 						}
 						deleteDevs.push(dev3[i]);
 					}
-	
-					console.log("deleteDevs length:" + deleteDevs.length);
 
 					dev[position].set('UUID', uuid);
 					dev[position].set('deviceSN', deviceSN);
@@ -265,7 +263,6 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 
 					dev[position].save().then(new function(dev1){
 						if(deleteDevs.length > 0){
-
 							console.log("deleteDevs length:" + deleteDevs.length);
 							/**
 							 * 保留
@@ -278,6 +275,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 							}
 
 							AV.Object.destroyAll(deleteDevs).then(function(){
+								console.log("deleteDevs success");
 								response.success({
 									"objectId": dev1.id
 								});
@@ -328,6 +326,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 								}
 
 								AV.Object.destroyAll(delDevice).then(function(){
+									console.log("delDevice success");
 									response.success({
 										"objectId": createDevice.id
 									});
