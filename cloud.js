@@ -190,8 +190,6 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 	var versionNO = params.versionNO;
 	var workStatus = params.workStatus;
 
-	console.log("addOrUpdateDevice uuid:" + uuid + "deviceSN:" + deviceSN);
-
 	if(uuid == null || uuid == "" || uuid == undefined){
 		console.log("uuid is null");
 		response.error("uuid is null");
@@ -208,8 +206,6 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 	queryDevByUuid.equalTo('UUID', uuid);	
 	queryDevByUuid.find().then(function(dev3){
 
-		console.log("dev3 length:" + dev3.length);
-
 		if(dev3.length > 3){
 			console.log("dev3 system error");
 			response.error("dev3 system error");
@@ -222,8 +218,6 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 			query.equalTo('deviceSN', deviceSN);
 			query.find().then(function(dev){
 				
-				console.log("dev length:" + dev.length);
-				
 				if(dev.length > 9){
 					console.log("dev system error");
 					response.error("dev system error");
@@ -231,7 +225,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 				}
 
 				if(dev.length > 0){
-					var deleteDevs = [];
+					// var deleteDevs = [];
 					var position = 0;
 					for(var i=0;i<dev.length;i++){
 						if(dev[i].get("active") == true){
@@ -239,17 +233,17 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 							break;
 						}
 					}
-					for(var i = 0; i< dev.length;i++){
-						if(i != position){
-							deleteDevs.push(dev[i]);
-						}
-					}
-					for(var i = 0; i< dev3.length;i++){
-						if(dev3[i].id == dev[position].id){
-							continue;
-						}
-						deleteDevs.push(dev3[i]);
-					}
+					// for(var i = 0; i< dev.length;i++){
+					// 	if(i != position){
+					// 		deleteDevs.push(dev[i]);
+					// 	}
+					// }
+					// for(var i = 0; i< dev3.length;i++){
+					// 	if(dev3[i].id == dev[position].id){
+					// 		continue;
+					// 	}
+					// 	deleteDevs.push(dev3[i]);
+					// }
 
 					dev[position].set('UUID', uuid);
 					dev[position].set('deviceSN', deviceSN);
@@ -262,20 +256,20 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 					// dev[0].set('active', true);
 
 					dev[position].save().then(new function(dev1){
-						if(deleteDevs.length > 0){
-							console.log("deleteDevs length:" + deleteDevs.length);
+						if(dev3.length > 0){
+							console.log("dev3 length:" + dev3.length);
 							/**
 							 * 保留
 							 */
 
-							if(deleteDevs.length > 9){
-								console.log("deleteDevs system error");
-								response.error("deleteDevs system error");
+							if(dev3.length > 2){
+								console.log("delete dev3 system error");
+								response.error("delete dev3 system error");
 								return;
 							}
 
-							AV.Object.destroyAll(deleteDevs).then(function(){
-								console.log("deleteDevs success");
+							AV.Object.destroyAll(dev3).then(function(){
+								console.log("delete dev3 success");
 								response.success({
 									"objectId": dev1.id
 								});
