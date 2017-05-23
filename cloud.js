@@ -174,7 +174,9 @@ AV.Cloud.define('boundDevice', function(request, response) {
 
 
 
-
+/**
+ * 完成设备状态更新或添加
+ */
 AV.Cloud.define('addOrUpdateDevice', function(request, response){
 
 	var uuid = request.uuid;
@@ -186,45 +188,105 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 	var versionNO = request.versionNO;
 	var workStatus = request.workStatus;
 
-	var query = new AV.Query('Device');
-	query.equalTo('deviceSN', deviceSN);
-	query.find().then(function(dev){
-		if(dev.length > 0){
-			var deleteDevs = [];
-			var position = 0;
-			for(var i=0;i<dev.length;i++){
-				if(dev[i].get("active") == true){
-					position = i;
-				}
-			}
-			for(var i = 0; i< dev.length;i++){
-				if(i != position){
-					deleteDevs.push(dev[i]);
-				}
-			}
-			dev[position].set('UUID', uuid);
-			dev[position].set('deviceSN', deviceSN);
-			dev[position].set('localIP', localIP);
-			dev[position].set('wifiName', wifiName);
-			dev[position].set('monitorStatus', monitorStatus);
-			dev[position].set('romVersion', romVersion);
-			dev[position].set('versionNO', versionNO);
-			dev[position].set('workStatus', workStatus);
-			// dev[0].set('active', true);
 
-			dev[position].save().then(new function(dev1){
-				if(deleteDevs.length > 0){
-					AV.Object.destroyAll(deleteDevs).then(function(){
-						response.success({
-							"objectId": dev1.id
-						});
+	var queryDevByUuid = new AV.Query('Device');
+	queryDevByUuid.equalTo('UUID', uuid);	
+	queryDevByUuid.find().then(function(dev3){
+		if(dev3.length > 0){
+			
+			var query = new AV.Query('Device');
+			query.equalTo('deviceSN', deviceSN);
+			query.find().then(function(dev){
+				if(dev.length > 0){
+					var deleteDevs = [];
+					var position = 0;
+					for(var i=0;i<dev.length;i++){
+						if(dev[i].get("active") == true){
+							position = i;
+							break;
+						}
+					}
+					for(var i = 0; i< dev.length;i++){
+						if(i != position){
+							deleteDevs.push(dev[i]);
+						}
+					}
+					for(var i = 0; i< dev3.length;i++){
+						if(dev3[i].id == dev[position].id){
+							continue;
+						}
+						deleteDevs.push(dev3[i]);
+					}
+	
+					dev[position].set('UUID', uuid);
+					dev[position].set('deviceSN', deviceSN);
+					dev[position].set('localIP', localIP);
+					dev[position].set('wifiName', wifiName);
+					dev[position].set('monitorStatus', monitorStatus);
+					dev[position].set('romVersion', romVersion);
+					dev[position].set('versionNO', versionNO);
+					dev[position].set('workStatus', workStatus);
+					// dev[0].set('active', true);
+
+					dev[position].save().then(new function(dev1){
+						if(deleteDevs.length > 0){
+							AV.Object.destroyAll(deleteDevs).then(function(){
+								response.success({
+									"objectId": dev1.id
+								});
+							}, function(error){
+								console.log(error);
+								response.error(error);
+							});
+						}else{
+							response.success({
+								"objectId": dev1.id
+							});
+						}
 					}, function(error){
 						console.log(error);
-						console.error(error);;
+						response.error(error);
 					});
+
 				}else{
-					response.success({
-						"objectId": dev1.id
+					
+					dev3[0].set('UUID', uuid);
+					dev3[0].set('deviceSN', deviceSN);
+					dev3[0].set('localIP', localIP);
+					dev3[0].set('wifiName', wifiName);
+					dev3[0].set('monitorStatus', monitorStatus);
+					dev3[0].set('romVersion', romVersion);
+					dev3[0].set('versionNO', versionNO);
+					dev3[0].set('workStatus', workStatus);
+					// device.set('active', true);
+
+					dev3[0].save().then(function(createDevice){
+
+							var delDevice = [];
+							for(var i = 0; i< dev3.length;i++){
+								if(dev3[i].id == createDevice.id){
+									continue;
+								}
+								delDevice.push(dev3[i]);
+							}
+							if(delDevice.length > 0){
+								AV.Object.destroyAll(delDevice).then(function(){
+									response.success({
+										"objectId": createDevice.id
+									});
+								}, function(error){
+									console.log(error);
+									response.error(error);
+								});
+							}else{
+								response.success({
+									"objectId": createDevice.id
+								});
+							}
+					
+					}, function(error){
+						console.log(error);
+						response.error(error);
 					});
 				}
 			}, function(error){
@@ -233,52 +295,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 			});
 
 		}else{
-			var Device = AV.Object.extend('Device');
-			var device = new Device();
-			
-			device.set('UUID', uuid);
-			device.set('deviceSN', deviceSN);
-			device.set('localIP', localIP);
-			device.set('wifiName', wifiName);
-			device.set('monitorStatus', monitorStatus);
-			device.set('romVersion', romVersion);
-			device.set('versionNO', versionNO);
-			device.set('workStatus', workStatus);
-			device.set('active', true);
-
-			device.save().then(function(createDevice){
-				var query = new AV.Query('Device');
-				query.equalTo('UUID', uuid);
-				query.find().then(function(dev1){
-					var delDevice = [];
-					for(var i = 0; i< dev1.length;i++){
-						if(dev1[i].id == createDevice.id){
-							continue;
-						}
-						delDevice.push(dev1[i]);
-					}
-					if(delDevice.length > 0){
-						AV.Object.destroyAll(delDevice).then(function(){
-							response.success({
-								"objectId": createDevice.id
-							});
-						}, function(error){
-							console.log(error);
-							response.error(error);
-						});
-					}else{
-						response.success({
-							"objectId": createDevice.id
-						});
-					}
-				}, function(error){
-					console.log(error);
-					response.error(error);
-				});
-			}, function(error){
-				console.log(error);
-				response.error(error);
-			});
+			response.error("UUID is null");
 		}
 	}, function(error){
 		console.log(error);
