@@ -222,6 +222,8 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 			query.equalTo('deviceSN', deviceSN);
 			query.find().then(function(dev){
 				
+				console.log("dev length:" + dev.length);
+				
 				if(dev.length > 9){
 					console.log("dev system error");
 					response.error("dev system error");
