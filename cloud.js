@@ -268,10 +268,10 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 								return;
 							}
 
-							AV.Object.destroyAll(dev3).then(function(){
+							AV.Object.destroyAll(dev3).then(function(resultDev){
 								console.log("delete dev3 success");
 								response.success({
-									"objectId": dev1.id
+									"objectId": "id"
 								});
 							}, function(error){
 								console.log(error);
