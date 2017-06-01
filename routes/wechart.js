@@ -10,7 +10,7 @@ var Todo = AV.Object.extend('Todo');
 router.get('/', function(req, res, next) {
   console.log(req.params);
   console.log(req.query);
-  res.json({echostr:req.query.echostr});
+  res.send(req.query.echostr);
 });
 
 // 新增 Todo 项目
