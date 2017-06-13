@@ -261,12 +261,12 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 							/**
 							 * 保留
 							 */
-							console.log("---dev1:" + dev1.id);
+							console.log("---dev1:" + dev.id);
 
 							var deleteDevs = [];
 							for(var i=0; i<dev3.length; i++){
 								console.log("---dev3 id:" + dev3[i].id);
-								if(dev3[i].id == dev1.id){
+								if(dev3[i].id == dev.id){
 									continue;
 								}
 								deleteDevs.push(dev3[i]);
