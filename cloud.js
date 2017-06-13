@@ -255,13 +255,13 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 					dev[position].set('workStatus', workStatus);
 					// dev[0].set('active', true);
 
-					dev[position].save().then(new function(dev1){
+					dev[position].save().then(function(dev1){
 						if(dev3.length > 0){
 							console.log("dev3 length:" + dev3.length);
 							/**
 							 * 保留
 							 */
-							console.log("---dev1:" + dev.id);
+							console.log("---dev1:" + dev1.id);
 
 							var deleteDevs = [];
 							for(var i=0; i<dev3.length; i++){
