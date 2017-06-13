@@ -261,15 +261,25 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 							/**
 							 * 保留
 							 */
+							console.log("---dev1:" + dev1.id);
 
-							if(dev3.length > 2){
-								console.log("delete dev3 system error");
-								response.error("delete dev3 system error");
+							var deleteDevs = [];
+							for(var i=0; i<dev3.length; i++){
+								console.log("---dev3 id:" + dev3[i].id);
+								if(dev3[i].id == dev1.id){
+									continue;
+								}
+								deleteDevs.push(dev3[i]);
+							}
+
+							if(deleteDevs.length > 3){
+								console.log("deleteDevs system error");
+								response.error("deleteDevs system error");
 								return;
 							}
 
-							AV.Object.destroyAll(dev3).then(function(resultDev){
-								console.log("delete dev3 success id1:" + dev[position].id);
+							AV.Object.destroyAll(deleteDevs).then(function(resultDev){
+								console.log("deleteDevs success id1:" + dev[position].id);
 								response.success({
 									"objectId": dev[position].id
 								});
