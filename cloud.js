@@ -174,6 +174,113 @@ AV.Cloud.define('boundDevice', function(request, response) {
 
 
 
+AV.Cloud.afterSave('BaseReports', function(request){
+
+	var idPatient = request.object.get('CreateBy').id;
+	
+	var type = request.object.get('Type');
+	var reportId = request.object.get('ReportId');
+
+	// var AHI = request.object.get('AHI');
+	// var start = request.object.get('start');
+
+	console.log("CreateBy:" + idPatient + ",type:" + type + ",reportId:" + reportId);
+
+	if(type == null || type == "" || type == undefined){
+		console.log("type is null");
+		// response.error("type is null");
+		return;
+	}
+	if(idPatient == null || idPatient == "" || idPatient == undefined){
+		console.log("idPatient is null");
+		// response.error("idPatient is null");
+		return;
+	}
+	if(reportId == null || reportId == "" || reportId == undefined){
+		console.log("reportId is null");
+		// response.error("reportId is null");
+		return;
+	}
+
+	
+	if(type != "mengjia"){
+		console.log("type is not right");
+		// response.error("type is " + type);
+		return;
+	}
+
+	var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
+
+	var queryReports = new AV.Query("Reports");
+	queryReports.equalTo('idPatient', targetTodoFolder);
+	queryReports.equalTo('objectId', reportId);
+
+	queryReports.find().then(function(reports){
+
+		var reportsLength = reports.length;
+		console.log("reportsLength:" + reportsLength);
+		if(reportsLength == 1){
+			
+			var start = reports[0].get("start") + "";
+			var AHI = reports[0].get("AHI");
+			var monthDate;
+
+			if(start == "-1" || start.length < 4){
+				monthDate = "1706";
+			}else{
+				monthDate = start.substr(0, 4);
+			}
+			console.log("monthDate:" + monthDate);
+
+			var queryMonthReports = new AV.Query('MonthReports');
+			queryMonthReports.equalTo('idPatient', targetTodoFolder);
+			queryMonthReports.equalTo('monthDate', monthDate);
+			queryMonthReports.find().then(function(monthReports){
+				
+				var monthReportsLength = monthReports.length;
+				console.log("monthReports length:" + monthReportsLength);
+
+				var sleepData = {
+					"AHI":AHI,
+					"start":start
+				};
+
+				if(monthReportsLength > 0){
+					monthReports[0].add('sleepData', sleepData);
+					monthReports[0].save().then(function(mReport){
+						console.log("monthReports save success" + mReport.id);
+					}, function(error){
+						console.log("monthReports save failure");
+					});
+
+				}else{
+					var MonthReports = AV.Object.extend('MonthReports');
+					var mMonthReports = new MonthReports();
+
+					var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
+					mMonthReports.set('idPatient', targetTodoFolder);
+					mMonthReports.set('monthDate', monthDate);
+					mMonthReports.add('sleepData', sleepData);
+					
+					mMonthReports.save().then(function(mReport){
+						console.log("monthReports1 save success" + mReport.id);
+					}, function(error){
+						console.log("monthReports1 save failure");
+					});
+				}
+			}, function(error){
+				console.log("queryMonthReports failure");
+			});
+
+
+		}else{
+			console.log("not report");
+		}
+	});
+
+});
+
+
 /**
  * 完成设备状态更新或添加
  */
