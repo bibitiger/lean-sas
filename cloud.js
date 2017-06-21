@@ -267,12 +267,12 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 					console.log("totalSleepTime:" + totalSleepTime);
 
-					if(isEffect){
-						monthReports[0].add('sleepData', sleepData);
-						monthReports[0].increment('totalEffectReportCount');
-						monthReports[0].set('totalSleepTime', end + totalSleepTime);
-						monthReports[0].set('totalAhi', AHI + totalAhi);
-					}
+					// if(isEffect){
+					monthReports[0].add('sleepData', sleepData);
+					monthReports[0].increment('totalEffectReportCount');
+					monthReports[0].set('totalSleepTime', end + totalSleepTime);
+					monthReports[0].set('totalAhi', AHI + totalAhi);
+					// }
 				
 					// monthReports[0].increment('totalReportCount');
 
@@ -289,12 +289,12 @@ AV.Cloud.afterSave('BaseReports', function(request){
 					var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
 					mMonthReports.set('idPatient', targetTodoFolder);
 					mMonthReports.set('monthDate', parseInt(monthDate));
-					if(isEffect){
-						mMonthReports.set('totalSleepTime', end);
-						mMonthReports.set('totalAhi', AHI);
-						mMonthReports.add('sleepData', sleepData);
-						mMonthReports.increment('totalEffectReportCount');
-					}
+					// if(isEffect){
+					mMonthReports.set('totalSleepTime', end);
+					mMonthReports.set('totalAhi', AHI);
+					mMonthReports.add('sleepData', sleepData);
+					mMonthReports.increment('totalEffectReportCount');
+					// }
 					// mMonthReports.increment('totalReportCount');
 	
 					mMonthReports.save().then(function(mReport){
