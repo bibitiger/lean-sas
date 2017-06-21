@@ -228,12 +228,19 @@ AV.Cloud.afterSave('BaseReports', function(request){
 			var end = reports[0].get("end");
 			var monthDate;
 
-			if(start == "-1" || start.length < 4){
-				monthDate = "1706";
-				start = 170620230129;
-				end = 1000;
+			var isEffect;
+
+			if(start == "-1" || start.length < 100 || AHI == -1){
+				// monthDate = "1706";
+				// start = 170620230129;
+				// end = 1000;
+				// console.log("not effect report");
+
+				isEffect = false;
+				
 			}else{
 				monthDate = start.substr(0, 4);
+				isEffect = true;
 			}
 			console.log("monthDate:" + monthDate);
 
@@ -254,12 +261,19 @@ AV.Cloud.afterSave('BaseReports', function(request){
 				if(monthReportsLength > 0){
 
 					var totalSleepTime = monthReports[0].get("totalSleepTime");
+					var totalAhi = monthReports[0].get("totalAhi");
 
 					console.log("totalSleepTime:" + totalSleepTime);
 
-					monthReports[0].add('sleepData', sleepData);
-					monthReports[0].increment('totalSleepCount');
-					monthReports[0].set('totalSleepTime', end + totalSleepTime);
+					if(isEffect){
+						monthReports[0].add('sleepData', sleepData);
+						monthReports[0].increment('totalEffectReportCount');
+						monthReports[0].set('totalSleepTime', end + totalSleepTime);
+						monthReports[0].set('totalAhi', AHI + totalAhi);
+					}
+				
+					monthReports[0].increment('totalReportCount');
+
 					monthReports[0].save().then(function(mReport){
 						console.log("monthReports save success" + mReport.id);
 					}, function(error){
@@ -273,10 +287,14 @@ AV.Cloud.afterSave('BaseReports', function(request){
 					var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
 					mMonthReports.set('idPatient', targetTodoFolder);
 					mMonthReports.set('monthDate', parseInt(monthDate));
-					mMonthReports.set('totalSleepTime', end);
-					mMonthReports.add('sleepData', sleepData);
-					mMonthReports.increment('totalSleepCount');
-
+					if(isEffect){
+						mMonthReports.set('totalSleepTime', end);
+						mMonthReports.set('totalAhi', AHI);
+						mMonthReports.add('sleepData', sleepData);
+						mMonthReports.increment('totalEffectReportCount');
+					}
+					mMonthReports.increment('totalReportCount');
+	
 					mMonthReports.save().then(function(mReport){
 						console.log("monthReports1 save success" + mReport.id);
 					}, function(error){
