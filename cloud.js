@@ -231,12 +231,14 @@ AV.Cloud.afterSave('BaseReports', function(request){
 			var isEffect;
 
 			if(start == "-1" || start.length < 100 || AHI == -1){
-				// monthDate = "1706";
-				// start = 170620230129;
-				// end = 1000;
-				// console.log("not effect report");
+				monthDate = "1706";
+				start = 170620230129;
+				end = 1000;
+				console.log("not effect report");
 
-				isEffect = false;
+				// isEffect = false;
+
+				
 				
 			}else{
 				monthDate = start.substr(0, 4);
@@ -272,7 +274,7 @@ AV.Cloud.afterSave('BaseReports', function(request){
 						monthReports[0].set('totalAhi', AHI + totalAhi);
 					}
 				
-					monthReports[0].increment('totalReportCount');
+					// monthReports[0].increment('totalReportCount');
 
 					monthReports[0].save().then(function(mReport){
 						console.log("monthReports save success" + mReport.id);
@@ -293,7 +295,7 @@ AV.Cloud.afterSave('BaseReports', function(request){
 						mMonthReports.add('sleepData', sleepData);
 						mMonthReports.increment('totalEffectReportCount');
 					}
-					mMonthReports.increment('totalReportCount');
+					// mMonthReports.increment('totalReportCount');
 	
 					mMonthReports.save().then(function(mReport){
 						console.log("monthReports1 save success" + mReport.id);
