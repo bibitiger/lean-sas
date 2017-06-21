@@ -231,11 +231,14 @@ AV.Cloud.afterSave('BaseReports', function(request){
 			var isEffect = true;
 
 			if(start == "-1" || start.length < 100 || AHI == -1){
-				// monthDate = "1706";
-				// start = 170620230129;
-				// end = 1000;
+
+				monthDate = "1706";
+				start = 170620230129;
+				end = 1000;
+				AHI = 5;
+
 				console.log("not effect report");
-				return;
+				// return;
 				
 			}else{
 				monthDate = start.substr(0, 4);
