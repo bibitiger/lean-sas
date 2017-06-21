@@ -236,7 +236,7 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 			var queryMonthReports = new AV.Query('MonthReports');
 			queryMonthReports.equalTo('idPatient', targetTodoFolder);
-			queryMonthReports.equalTo('monthDate', monthDate);
+			queryMonthReports.equalTo('monthDate', parseInt(monthDate));
 			queryMonthReports.find().then(function(monthReports){
 				
 				var monthReportsLength = monthReports.length;
@@ -261,7 +261,7 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 					var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
 					mMonthReports.set('idPatient', targetTodoFolder);
-					mMonthReports.set('monthDate', monthDate);
+					mMonthReports.set('monthDate', parseInt(monthDate));
 					mMonthReports.add('sleepData', sleepData);
 					
 					mMonthReports.save().then(function(mReport){
