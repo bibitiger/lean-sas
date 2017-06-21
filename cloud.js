@@ -225,10 +225,13 @@ AV.Cloud.afterSave('BaseReports', function(request){
 			
 			var start = reports[0].get("start") + "";
 			var AHI = reports[0].get("AHI");
+			var end = reports[0].get("end");
 			var monthDate;
 
 			if(start == "-1" || start.length < 4){
 				monthDate = "1706";
+				start = 170620230129;
+				end = 1000;
 			}else{
 				monthDate = start.substr(0, 4);
 			}
@@ -244,11 +247,19 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 				var sleepData = {
 					"AHI":AHI,
-					"start":start
+					"start":start,
+					"end":end
 				};
 
 				if(monthReportsLength > 0){
+
+					var totalSleepTime = monthReports[0].get("totalSleepTime");
+
+					console.log("totalSleepTime:" + totalSleepTime);
+
 					monthReports[0].add('sleepData', sleepData);
+					monthReports[0].increment('totalSleepCount');
+					monthReports[0].set('totalSleepTime', end + totalSleepTime);
 					monthReports[0].save().then(function(mReport){
 						console.log("monthReports save success" + mReport.id);
 					}, function(error){
@@ -262,8 +273,10 @@ AV.Cloud.afterSave('BaseReports', function(request){
 					var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
 					mMonthReports.set('idPatient', targetTodoFolder);
 					mMonthReports.set('monthDate', parseInt(monthDate));
+					mMonthReports.set('totalSleepTime', end);
 					mMonthReports.add('sleepData', sleepData);
-					
+					mMonthReports.increment('totalSleepCount');
+
 					mMonthReports.save().then(function(mReport){
 						console.log("monthReports1 save success" + mReport.id);
 					}, function(error){
