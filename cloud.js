@@ -267,11 +267,11 @@ AV.Cloud.afterSave('BaseReports', function(request){
 					mMonthReports.save().then(function(mReport){
 						console.log("monthReports1 save success" + mReport.id);
 					}, function(error){
-						console.log("monthReports1 save failure");
+						console.log(error);
 					});
 				}
 			}, function(error){
-				console.log("queryMonthReports failure");
+				console.log(error);
 			});
 
 		}else{
