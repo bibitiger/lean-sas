@@ -228,7 +228,7 @@ AV.Cloud.afterSave('BaseReports', function(request){
 			var end = reports[0].get("end");
 			var monthDate;
 
-			var isEffect;
+			var isEffect = true;
 
 			if(start == "-1" || start.length < 100 || AHI == -1){
 				monthDate = "1706";
