@@ -176,6 +176,8 @@ AV.Cloud.define('boundDevice', function(request, response) {
 
 AV.Cloud.afterSave('BaseReports', function(request){
 
+	console.log("BaseReports afterSave");
+	
 	var idPatient = request.object.get('CreateBy').id;
 	
 	var type = request.object.get('Type');
@@ -271,7 +273,6 @@ AV.Cloud.afterSave('BaseReports', function(request){
 			}, function(error){
 				console.log("queryMonthReports failure");
 			});
-
 
 		}else{
 			console.log("not report");
