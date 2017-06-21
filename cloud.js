@@ -255,7 +255,7 @@ AV.Cloud.afterSave('BaseReports', function(request){
 				console.log("monthReports length:" + monthReportsLength);
 
 				var sleepData = {
-					"AHI":AHI,
+					"ahi":AHI,
 					"start":start,
 					"end":end,
 					"reportId":reportId
