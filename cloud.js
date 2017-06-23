@@ -223,63 +223,32 @@ AV.Cloud.afterSave('BaseReports', function(request){
 		console.log("reportsLength:" + reportsLength);
 		if(reportsLength == 1){
 			
-			var start = reports[0].get("start");
+			var start = reports[0].get("start") + "";
 			var AHI = reports[0].get("AHI");
-			var end = reports[0].get("end");
 			var monthDate;
 
-			var isEffect = true;
-
-			if(start == -1 || AHI == -1){
-
-				// monthDate = "1706";
-				// start = 170620230129;
-				// end = 1000;
-				// AHI = 5;
-
-				console.log("not effect report");
-				return;
-				
+			if(start == "-1" || start.length < 4){
+				monthDate = "1706";
 			}else{
-				monthDate = (start + "").substr(0, 4);
-				isEffect = true;
+				monthDate = start.substr(0, 4);
 			}
 			console.log("monthDate:" + monthDate);
 
 			var queryMonthReports = new AV.Query('MonthReports');
 			queryMonthReports.equalTo('idPatient', targetTodoFolder);
-			queryMonthReports.equalTo('monthDate', parseInt(monthDate));
+			queryMonthReports.equalTo('monthDate', monthDate);
 			queryMonthReports.find().then(function(monthReports){
 				
 				var monthReportsLength = monthReports.length;
 				console.log("monthReports length:" + monthReportsLength);
 
 				var sleepData = {
-					"start":start,
-					"ahi":AHI,
-					"end":end,
-					"reportId":reportId
+					"AHI":AHI,
+					"start":start
 				};
 
 				if(monthReportsLength > 0){
-
-					var totalSleepTime = monthReports[0].get("totalSleepTime");
-					var totalAhi = monthReports[0].get("totalAhi");
-
-					console.log("totalSleepTime:" + totalSleepTime);
-
-					// if(isEffect){
 					monthReports[0].add('sleepData', sleepData);
-					monthReports[0].increment('totalEffectReportCount');
-					monthReports[0].set('totalSleepTime', end + totalSleepTime);
-					if(AHI != -1){
-						monthReports[0].set('totalAhi', AHI + totalAhi);
-					}
-				
-					// }
-				
-					// monthReports[0].increment('totalReportCount');
-
 					monthReports[0].save().then(function(mReport){
 						console.log("monthReports save success" + mReport.id);
 					}, function(error){
@@ -292,17 +261,9 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 					var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
 					mMonthReports.set('idPatient', targetTodoFolder);
-					mMonthReports.set('monthDate', parseInt(monthDate));
-					// if(isEffect){
-					mMonthReports.set('totalSleepTime', end);
-					if(AHI != -1){
-						mMonthReports.set('totalAhi', AHI);
-					}
+					mMonthReports.set('monthDate', monthDate);
 					mMonthReports.add('sleepData', sleepData);
-					mMonthReports.increment('totalEffectReportCount');
-					// }
-					// mMonthReports.increment('totalReportCount');
-	
+					
 					mMonthReports.save().then(function(mReport){
 						console.log("monthReports1 save success" + mReport.id);
 					}, function(error){
@@ -320,6 +281,23 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 });
 
+
+function getDadys(whichYear,whichMonth){
+  var nextMoth=whichMonth+1
+  var nextYear=whichYear;
+  if(nextMoth==13){
+    nextMoth=1;
+    nextYear++;
+  }
+  var theCurrentDate=whichYear+"-"+whichMonth+"-1";
+  var theNextDate=nextYear+"-"+nextMoth+"-1";
+  var yearObjOne=new Date(theCurrentDate);
+  var yearObjTwo=new Date(theNextDate);
+   
+  var milliseconds=yearObjTwo.getTime()-yearObjOne.getTime()
+  var daymilliseconds=3600*24*1000;
+  return (milliseconds/daymilliseconds);
+}
 
 /**
  * 完成设备状态更新或添加
