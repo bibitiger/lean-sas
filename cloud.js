@@ -248,10 +248,10 @@ AV.Cloud.afterSave('BaseReports', function(request){
 					console.log("start is error");
 					return;
 				}
-				var year = parseInt("20" + startStr.substr(0, 2));
-				var month = parseInt(startStr.substr(2, 4));
-				var day = parseInt(startStr.substr(4, 6));
-				var hour = parseInt(startStr.substr(6, 8));
+				var year = parseInt("20" + startStr.substring(0, 2));
+				var month = parseInt(startStr.substring(2, 4));
+				var day = parseInt(startStr.substring(4, 6));
+				var hour = parseInt(startStr.substring(6, 8));
 				console.log("year:" + year + "month:" + month + "day:" + day + "hour:" + hour);
 				
 				var maxDay = getDadys(year, month);
@@ -262,9 +262,9 @@ AV.Cloud.afterSave('BaseReports', function(request){
 					if(hour < 8){
 						month = month ==1 ? 12: month- 1;
 					}
-					monthDate = startStr.substr(0, 2) + (month < 10?"0" + month: "" + month);
+					monthDate = startStr.substring(0, 2) + (month < 10?"0" + month: "" + month);
 				}else{
-					monthDate = startStr.substr(0, 4);
+					monthDate = startStr.substring(0, 4);
 				}
 
 			}
