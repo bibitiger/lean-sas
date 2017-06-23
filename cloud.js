@@ -223,14 +223,14 @@ AV.Cloud.afterSave('BaseReports', function(request){
 		console.log("reportsLength:" + reportsLength);
 		if(reportsLength == 1){
 			
-			var start = reports[0].get("start") + "";
+			var start = reports[0].get("start");
 			var AHI = reports[0].get("AHI");
 			var end = reports[0].get("end");
 			var monthDate;
 
 			var isEffect = true;
 
-			if(start == "-1" || start.length < 4 || AHI == -1){
+			if(start == -1 || AHI == -1){
 
 				// monthDate = "1706";
 				// start = 170620230129;
@@ -241,7 +241,7 @@ AV.Cloud.afterSave('BaseReports', function(request){
 				return;
 				
 			}else{
-				monthDate = start.substr(0, 4);
+				monthDate = (start + "").substr(0, 4);
 				isEffect = true;
 			}
 			console.log("monthDate:" + monthDate);
