@@ -223,32 +223,87 @@ AV.Cloud.afterSave('BaseReports', function(request){
 		console.log("reportsLength:" + reportsLength);
 		if(reportsLength == 1){
 			
-			var start = reports[0].get("start") + "";
+			var start = reports[0].get("start");
 			var AHI = reports[0].get("AHI");
+			var end = reports[0].get("end");
 			var monthDate;
 
-			if(start == "-1" || start.length < 4){
-				monthDate = "1706";
+			var isEffect = true;
+
+			if(start == -1 || AHI == -1){
+
+				// 170610230729
+				// monthDate = "1706";
+				// start = 170620230129;
+				// end = 1000;
+				// AHI = 5;
+
+				console.log("not effect report");
+				return;
+				
 			}else{
-				monthDate = start.substr(0, 4);
+				var startStr = start + "";
+				
+				if(startStr.length < 10){
+					console.log("start is error");
+					return;
+				}
+				var year = parseInt("20" + startStr.substr(0, 2));
+				var month = parseInt(startStr.substr(2, 4));
+				var day = parseInt(startStr.substr(4, 6));
+				var hour = parseInt(startStr.substr(6, 8));
+				console.log("year:" + year + "month:" + month + "day:" + day + "hour:" + hour);
+				
+				var maxDay = getDadys(year, month);
+
+				console.log("maxDay:" + maxDay);
+
+				if(day == 1){
+					if(hour < 8){
+						month = month ==1 ? 12: month- 1;
+					}
+					monthDate = startStr.substr(0, 2) + (month < 10?"0" + month: "" + month);
+				}else{
+					monthDate = startStr.substr(0, 4);
+				}
+
 			}
 			console.log("monthDate:" + monthDate);
 
 			var queryMonthReports = new AV.Query('MonthReports');
 			queryMonthReports.equalTo('idPatient', targetTodoFolder);
-			queryMonthReports.equalTo('monthDate', monthDate);
+			queryMonthReports.equalTo('monthDate', parseInt(monthDate));
 			queryMonthReports.find().then(function(monthReports){
 				
 				var monthReportsLength = monthReports.length;
 				console.log("monthReports length:" + monthReportsLength);
 
 				var sleepData = {
-					"AHI":AHI,
-					"start":start
+					"start":start,
+					"ahi":AHI,
+					"end":end,
+					"reportId":reportId
 				};
 
 				if(monthReportsLength > 0){
+
+					var totalSleepTime = monthReports[0].get("totalSleepTime");
+					var totalAhi = monthReports[0].get("totalAhi");
+
+					console.log("totalSleepTime:" + totalSleepTime);
+
+					// if(isEffect){
 					monthReports[0].add('sleepData', sleepData);
+					monthReports[0].increment('totalEffectReportCount');
+					monthReports[0].set('totalSleepTime', end + totalSleepTime);
+					if(AHI != -1){
+						monthReports[0].set('totalAhi', AHI + totalAhi);
+					}
+				
+					// }
+				
+					// monthReports[0].increment('totalReportCount');
+
 					monthReports[0].save().then(function(mReport){
 						console.log("monthReports save success" + mReport.id);
 					}, function(error){
@@ -261,9 +316,17 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 					var targetTodoFolder = AV.Object.createWithoutData('Patients', idPatient);
 					mMonthReports.set('idPatient', targetTodoFolder);
-					mMonthReports.set('monthDate', monthDate);
+					mMonthReports.set('monthDate', parseInt(monthDate));
+					// if(isEffect){
+					mMonthReports.set('totalSleepTime', end);
+					if(AHI != -1){
+						mMonthReports.set('totalAhi', AHI);
+					}
 					mMonthReports.add('sleepData', sleepData);
-					
+					mMonthReports.increment('totalEffectReportCount');
+					// }
+					// mMonthReports.increment('totalReportCount');
+	
 					mMonthReports.save().then(function(mReport){
 						console.log("monthReports1 save success" + mReport.id);
 					}, function(error){
