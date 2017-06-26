@@ -254,10 +254,8 @@ AV.Cloud.afterSave('BaseReports', function(request){
 				var hour = parseInt(startStr.substring(6, 8));
 				console.log("year:" + year + "month:" + month + "day:" + day + "hour:" + hour);
 
-				if(day == 1){
-					if(hour < 8){
-						month = month ==1 ? 12: month- 1;
-					}
+				if(day == 1 && hour < 8){
+					month = month ==1 ? 12: month- 1;
 					monthDate = startStr.substring(0, 2) + (month < 10?"0" + month: "" + month);
 				}else{
 					monthDate = startStr.substring(0, 4);
