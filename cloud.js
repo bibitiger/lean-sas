@@ -253,10 +253,6 @@ AV.Cloud.afterSave('BaseReports', function(request){
 				var day = parseInt(startStr.substring(4, 6));
 				var hour = parseInt(startStr.substring(6, 8));
 				console.log("year:" + year + "month:" + month + "day:" + day + "hour:" + hour);
-				
-				var maxDay = getDadys(year, month);
-
-				console.log("maxDay:" + maxDay);
 
 				if(day == 1){
 					if(hour < 8){
@@ -344,23 +340,6 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 });
 
-
-function getDadys(whichYear,whichMonth){
-  var nextMoth=whichMonth+1
-  var nextYear=whichYear;
-  if(nextMoth==13){
-    nextMoth=1;
-    nextYear++;
-  }
-  var theCurrentDate=whichYear+"-"+whichMonth+"-1";
-  var theNextDate=nextYear+"-"+nextMoth+"-1";
-  var yearObjOne=new Date(theCurrentDate);
-  var yearObjTwo=new Date(theNextDate);
-   
-  var milliseconds=yearObjTwo.getTime()-yearObjOne.getTime()
-  var daymilliseconds=3600*24*1000;
-  return (milliseconds/daymilliseconds);
-}
 
 /**
  * 完成设备状态更新或添加
