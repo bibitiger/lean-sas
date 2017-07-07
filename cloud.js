@@ -353,10 +353,13 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 	// 	response.error(e);
  //  	});
 	var params = request.params;
-	// console.log(params);
+	console.log(params);
 	var end = params.end;
 	var begin = params.begin;
 	var patientID = params.patientID;
+	console.log(end);
+	console.log(begin);
+	console.log(patientID);
 	if (end == null || end == undefined || begin == null || begin == undefined || patientID == null || patientID == undefined) {
 		console.log("getReportsForSDKWithEndAndBegin param error");
 		response.error("getReportsForSDKWithEndAndBegin param error");
