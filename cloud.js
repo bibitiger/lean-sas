@@ -338,6 +338,171 @@ AV.Cloud.afterSave('BaseReports', function(request){
 
 });
 
+/**
+ * 获取报告--给第三方的sdk提供
+ */
+AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
+	// var reports = [];
+	// reports.push(AV.Object.createWithoutData('Reports', '58db16f22f301e007e971b1e'));
+	// reports.push(AV.Object.createWithoutData('Reports', '58f7dde28d6d810057ceefd1'));
+	// AV.Object.fetchAll(reports).then(function (objects) {
+	// 	console.log(o);
+	// 	response.success(o);
+	//   }, function (e) {	
+	//     console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
+	// 	response.error(e);
+ //  	});
+	var params = request.params;
+	// console.log(params);
+	var end = params.end;
+	var begin = params.begin;
+	var patientID = params.patientID;
+	if (end == null || end == undefined || begin == null || begin == undefined || patientID == null || patientID == undefined) {
+		console.log("getReportsForSDKWithEndAndBegin param error");
+		response.error("getReportsForSDKWithEndAndBegin param error");
+		return;
+	};
+
+	var queryBaseReports = new AV.Query('BaseReports');
+	queryBaseReports.equalTo('isDelete', 0);
+  	var patient = AV.Object.createWithoutData('Patients', patientID);
+	queryBaseReports.equalTo('CreateBy', patient);
+	queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+	queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
+	queryBaseReports.limit(50);
+	queryBaseReports.skip(0);
+	queryBaseReports.descending('updatedAt');
+	queryBaseReports.find().then(function (results) {
+		var reports = [];
+		var checkQuery = new AV.Query('Reports');
+		var checkQuerys = [];
+		var baseReportsDic = {};
+		var cqlStr = 'select * from Reports where ';
+		for(var i in results){
+			baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
+																'reportId':results[i]['_serverData']['ReportId'],
+																'baseId':results[i]['id'],
+																'updateAt':results[i]['updatedAt'],
+																'CreateBy':results[i]['_serverData']['CreateBy']['id']};
+			cqlStr += 'objectId = ';
+			cqlStr += '\"';
+			cqlStr += results[i]['_serverData']['ReportId'];
+			cqlStr += '\"';
+			cqlStr += ' or ';
+		}
+		console.log(baseReportsDic);
+		console.log(results.length);
+		cqlStr = cqlStr.substring(0,cqlStr.length - 4);
+		console.log(cqlStr);
+		AV.Query.doCloudQuery(cqlStr).then(function (o){
+			// console.log(baseReportsDic);
+			// console.log(o);
+			for(var i in o['results']){
+				baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
+			}
+			console.log(baseReportsDic);
+			response.success(baseReportsDic);
+		  }, function (e) {	
+		    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
+			response.error(e);
+	  	});
+	}, function(e){
+		console.log("getReportsForSDKWithEndAndBegin error : "+e);
+		response.error(e);
+	})
+});
+
+/**
+ * 获取报告--给第三方的sdk提供
+ */
+AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
+	var params = request.params;
+	var end = params.end;
+	var cnt = params.cnt;
+	var patientID = params.patientID;
+	if (end == null || end == undefined || cnt == null || cnt == undefined || patientID == null || patientID == undefined) {
+		console.log("getReportsForSDKWithEndAndCnt param error");
+		response.error("getReportsForSDKWithEndAndCnt param error");
+		return;
+	};
+
+	if (cnt  > 50) {cnt = 50};
+	var queryBaseReports = new AV.Query('BaseReports');
+	queryBaseReports.equalTo('isDelete', 0);
+  	var patient = AV.Object.createWithoutData('Patients', patientID);
+	queryBaseReports.equalTo('CreateBy', patient);
+	queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+	queryBaseReports.limit(cnt);
+	queryBaseReports.skip(0);
+	queryBaseReports.descending('updatedAt');
+	queryBaseReports.find().then(function (results) {
+		var reports = [];
+		var checkQuery = new AV.Query('Reports');
+		var checkQuerys = [];
+		var baseReportsDic = {};
+		var cqlStr = 'select * from Reports where ';
+		for(var i in results){
+			baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
+																'reportId':results[i]['_serverData']['ReportId'],
+																'baseId':results[i]['id'],
+																'updateAt':results[i]['updatedAt'],
+																'CreateBy':results[i]['_serverData']['CreateBy']['id']};
+			cqlStr += 'objectId = ';
+			cqlStr += '\"';
+			cqlStr += results[i]['_serverData']['ReportId'];
+			cqlStr += '\"';
+			cqlStr += ' or ';
+		}
+		console.log(baseReportsDic);
+		console.log(results.length);
+		cqlStr = cqlStr.substring(0,cqlStr.length - 4);
+		console.log(cqlStr);
+		AV.Query.doCloudQuery(cqlStr).then(function (o){
+			// console.log(baseReportsDic);
+			// console.log(o);
+			for(var i in o['results']){
+				baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
+			}
+			console.log(JSON.stringify(baseReportsDic));
+			response.success(baseReportsDic);
+		  }, function (e) {	
+		    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
+			response.error(e);
+	  	});
+	}, function(e){
+		console.log("getReportsForSDKWithEndAndBegin error : "+e);
+		response.error(e);
+	})
+});
+
+/**
+ * 获取报告--给第三方的sdk提供
+ */
+AV.Cloud.define('getReportsCntForSDKWithEndAndBegin', function(request, response){
+	var params = request.params;
+	var end = params.end;
+	var begin = params.begin;
+	var patientID = params.patientID;
+	if (end == null || end == undefined || begin == null || begin == undefined || patientID == null || patientID == undefined) {
+		console.log("getReportsCntForSDKWithEndAndBegin param error");
+		response.error("getReportsCntForSDKWithEndAndBegin param error");
+		return;
+	};
+
+	var queryBaseReports = new AV.Query('BaseReports');
+	queryBaseReports.equalTo('isDelete', 0);
+  	var patient = AV.Object.createWithoutData('Patients', patientID);
+	queryBaseReports.equalTo('CreateBy', patient);
+	queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+	queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
+	queryBaseReports.count().then(function (count) {
+		response.success(count);
+	}, function(e){
+		console.log("getReportsForSDKWithEndAndBegin error : "+e);
+		response.error(e);
+	})
+});
+
 
 /**
  * 完成设备状态更新或添加
