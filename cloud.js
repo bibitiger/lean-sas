@@ -393,7 +393,7 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 		// console.log(baseReportsDic);
 		// console.log(results.length);
 		cqlStr = cqlStr.substring(0,cqlStr.length - 4);
-		// console.log(cqlStr);
+		console.log(cqlStr);
 		AV.Query.doCloudQuery(cqlStr).then(function (o){
 			// console.log(baseReportsDic);
 			// console.log(o);
