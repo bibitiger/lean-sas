@@ -390,17 +390,17 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 			cqlStr += '\"';
 			cqlStr += ' or ';
 		}
-		console.log(baseReportsDic);
-		console.log(results.length);
+		// console.log(baseReportsDic);
+		// console.log(results.length);
 		cqlStr = cqlStr.substring(0,cqlStr.length - 4);
-		console.log(cqlStr);
+		// console.log(cqlStr);
 		AV.Query.doCloudQuery(cqlStr).then(function (o){
 			// console.log(baseReportsDic);
 			// console.log(o);
 			for(var i in o['results']){
 				baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
 			}
-			console.log(baseReportsDic);
+			// console.log(baseReportsDic);
 			response.success(baseReportsDic);
 		  }, function (e) {	
 		    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
@@ -420,7 +420,7 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 	var end = params.end;
 	var cnt = params.cnt;
 	var patientID = params.patientID;
-	if (end == null || end == undefined || cnt == null || cnt == undefined || patientID == null || patientID == undefined) {
+	if (cnt == null || cnt == undefined || patientID == null || patientID == undefined) {
 		console.log("getReportsForSDKWithEndAndCnt param error");
 		response.error("getReportsForSDKWithEndAndCnt param error");
 		return;
@@ -431,7 +431,9 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 	queryBaseReports.equalTo('isDelete', 0);
   	var patient = AV.Object.createWithoutData('Patients', patientID);
 	queryBaseReports.equalTo('CreateBy', patient);
-	queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+	if (end == null || end == undefined) {
+		queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+	}
 	queryBaseReports.limit(cnt);
 	queryBaseReports.skip(0);
 	queryBaseReports.descending('updatedAt');
@@ -453,17 +455,15 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 			cqlStr += '\"';
 			cqlStr += ' or ';
 		}
-		console.log(baseReportsDic);
-		console.log(results.length);
+		// console.log(baseReportsDic);
+		// console.log(results.length);
 		cqlStr = cqlStr.substring(0,cqlStr.length - 4);
-		console.log(cqlStr);
+		// console.log(cqlStr);
 		AV.Query.doCloudQuery(cqlStr).then(function (o){
-			// console.log(baseReportsDic);
-			// console.log(o);
 			for(var i in o['results']){
 				baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
 			}
-			console.log(JSON.stringify(baseReportsDic));
+			// console.log(JSON.stringify(baseReportsDic));
 			response.success(baseReportsDic);
 		  }, function (e) {	
 		    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
