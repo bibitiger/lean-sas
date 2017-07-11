@@ -715,6 +715,7 @@ AV.Cloud.define('boundDeviceForClient', function(request, response) {
 	var deviceSN = params.deviceSN;
 	var patientId = params.patientId;
 	var uuid = params.uuid;
+	console.log("params : " + params);
 
 	var query = new AV.Query('Device');
 	query.equalTo('deviceSN', deviceSN);
