@@ -342,77 +342,81 @@ AV.Cloud.afterSave('BaseReports', function(request){
  * 获取报告--给第三方的sdk提供
  */
 AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
-	// var reports = [];
-	// reports.push(AV.Object.createWithoutData('Reports', '58db16f22f301e007e971b1e'));
-	// reports.push(AV.Object.createWithoutData('Reports', '58f7dde28d6d810057ceefd1'));
-	// AV.Object.fetchAll(reports).then(function (objects) {
-	// 	console.log(o);
-	// 	response.success(o);
-	//   }, function (e) {	
-	//     console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
-	// 	response.error(e);
- //  	});
 	var params = request.params;
 	console.log(params);
 	var end = params.end;
 	var begin = params.begin;
-	var patientID = params.patientID;
+	var patientId = params.patientId;
+	var factoryCode = params.factoryCode;
 	console.log(end);
 	console.log(begin);
-	console.log(patientID);
-	if (end == null || end == undefined || begin == null || begin == undefined || patientID == null || patientID == undefined) {
+	console.log(patientId);
+	if (end == null || end == undefined || begin == null || begin == undefined || patientId == null || patientId == undefined) {
 		console.log("getReportsForSDKWithEndAndBegin param error");
 		response.error("getReportsForSDKWithEndAndBegin param error");
 		return;
 	};
 
-	var queryBaseReports = new AV.Query('BaseReports');
-	queryBaseReports.equalTo('isDelete', 0);
-  	var patient = AV.Object.createWithoutData('Patients', patientID);
-	queryBaseReports.equalTo('CreateBy', patient);
-	queryBaseReports.lessThanOrEqualTo('updatedAt', end);
-	queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
-	queryBaseReports.limit(50);
-	queryBaseReports.skip(0);
-	queryBaseReports.descending('updatedAt');
-	queryBaseReports.find().then(function (results) {
-		var reports = [];
-		var checkQuery = new AV.Query('Reports');
-		var checkQuerys = [];
-		var baseReportsDic = {};
-		var cqlStr = 'select * from Reports where ';
-		for(var i in results){
-			baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
-																'reportId':results[i]['_serverData']['ReportId'],
-																'baseId':results[i]['id'],
-																'updateAt':results[i]['updatedAt'],
-																'CreateBy':results[i]['_serverData']['CreateBy']['id']};
-			cqlStr += 'objectId = ';
-			cqlStr += '\"';
-			cqlStr += results[i]['_serverData']['ReportId'];
-			cqlStr += '\"';
-			cqlStr += ' or ';
+
+	var query = new AV.Query('FactoryUserList');
+	query.get(patientId).then(function (factoryUser) {
+	    if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+	    	response.error({'error':'cant find this user, please check your patientId and factoryCode'});
+	    } else {
+	    	var patientID = factoryUser.get('patient').id;
+	    	console.log('patientID:' + patientID);
+	    	var queryBaseReports = new AV.Query('BaseReports');
+			queryBaseReports.equalTo('isDelete', 0);
+		  	var patient = AV.Object.createWithoutData('Patients', patientID);
+			queryBaseReports.equalTo('CreateBy', patient);
+			queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+			queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
+			queryBaseReports.limit(50);
+			queryBaseReports.skip(0);
+			queryBaseReports.descending('updatedAt');
+			queryBaseReports.find().then(function (results) {
+				var reports = [];
+				var checkQuery = new AV.Query('Reports');
+				var checkQuerys = [];
+				var baseReportsDic = {};
+				var cqlStr = 'select * from Reports where ';
+				for(var i in results){
+					baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
+																		'reportId':results[i]['_serverData']['ReportId'],
+																		'baseId':results[i]['id'],
+																		'updateAt':results[i]['updatedAt'],
+																		'CreateBy':results[i]['_serverData']['CreateBy']['id']};
+					cqlStr += 'objectId = ';
+					cqlStr += '\"';
+					cqlStr += results[i]['_serverData']['ReportId'];
+					cqlStr += '\"';
+					cqlStr += ' or ';
+				}
+				// console.log(baseReportsDic);
+				// console.log(results.length);
+				cqlStr = cqlStr.substring(0,cqlStr.length - 4);
+				console.log(cqlStr);
+				AV.Query.doCloudQuery(cqlStr).then(function (o){
+					// console.log(baseReportsDic);
+					// console.log(o);
+					for(var i in o['results']){
+						baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
+					}
+					// console.log(baseReportsDic);
+					response.success(baseReportsDic);
+				  }, function (e) {	
+				    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
+					response.error(e);
+			  	});
+			}, function(e){
+				console.log("getReportsForSDKWithEndAndBegin error : "+e);
+				response.error(e);
+			});
 		}
-		// console.log(baseReportsDic);
-		// console.log(results.length);
-		cqlStr = cqlStr.substring(0,cqlStr.length - 4);
-		console.log(cqlStr);
-		AV.Query.doCloudQuery(cqlStr).then(function (o){
-			// console.log(baseReportsDic);
-			// console.log(o);
-			for(var i in o['results']){
-				baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
-			}
-			// console.log(baseReportsDic);
-			response.success(baseReportsDic);
-		  }, function (e) {	
-		    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
-			response.error(e);
-	  	});
-	}, function(e){
-		console.log("getReportsForSDKWithEndAndBegin error : "+e);
-		response.error(e);
-	})
+	}, function (error) {
+	    console.log(error);
+	  	response.error(error);
+	});
 });
 
 /**
@@ -422,60 +426,71 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 	var params = request.params;
 	var end = params.end;
 	var cnt = params.cnt;
-	var patientID = params.patientID;
-	if (cnt == null || cnt == undefined || patientID == null || patientID == undefined) {
+	var patientId = params.patientId;
+	var factoryCode = params.factoryCode;
+	if (cnt == null || cnt == undefined || patientId == null || patientId == undefined) {
 		console.log("getReportsForSDKWithEndAndCnt param error");
 		response.error("getReportsForSDKWithEndAndCnt param error");
 		return;
 	};
 
-	if (cnt  > 50) {cnt = 50};
-	var queryBaseReports = new AV.Query('BaseReports');
-	queryBaseReports.equalTo('isDelete', 0);
-  	var patient = AV.Object.createWithoutData('Patients', patientID);
-	queryBaseReports.equalTo('CreateBy', patient);
-	if (end == null || end == undefined) {
-		queryBaseReports.lessThanOrEqualTo('updatedAt', end);
-	}
-	queryBaseReports.limit(cnt);
-	queryBaseReports.skip(0);
-	queryBaseReports.descending('updatedAt');
-	queryBaseReports.find().then(function (results) {
-		var reports = [];
-		var checkQuery = new AV.Query('Reports');
-		var checkQuerys = [];
-		var baseReportsDic = {};
-		var cqlStr = 'select * from Reports where ';
-		for(var i in results){
-			baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
-																'reportId':results[i]['_serverData']['ReportId'],
-																'baseId':results[i]['id'],
-																'updateAt':results[i]['updatedAt'],
-																'CreateBy':results[i]['_serverData']['CreateBy']['id']};
-			cqlStr += 'objectId = ';
-			cqlStr += '\"';
-			cqlStr += results[i]['_serverData']['ReportId'];
-			cqlStr += '\"';
-			cqlStr += ' or ';
-		}
-		// console.log(baseReportsDic);
-		// console.log(results.length);
-		cqlStr = cqlStr.substring(0,cqlStr.length - 4);
-		// console.log(cqlStr);
-		AV.Query.doCloudQuery(cqlStr).then(function (o){
-			for(var i in o['results']){
-				baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
+	var query = new AV.Query('FactoryUserList');
+	query.get(patientId).then(function (factoryUser) {
+	    if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+	    	response.error({'error':'cant find this user, please check your patientId and factoryCode'});
+	    } else {
+	    	var patientID = factoryUser.get('patient').id;
+	    	if (cnt  > 50) {cnt = 50};
+			var queryBaseReports = new AV.Query('BaseReports');
+			queryBaseReports.equalTo('isDelete', 0);
+		  	var patient = AV.Object.createWithoutData('Patients', patientID);
+			queryBaseReports.equalTo('CreateBy', patient);
+			if (end == null || end == undefined) {
+				queryBaseReports.lessThanOrEqualTo('updatedAt', end);
 			}
-			// console.log(JSON.stringify(baseReportsDic));
-			response.success(baseReportsDic);
-		  }, function (e) {	
-		    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
-			response.error(e);
-	  	});
-	}, function(e){
-		console.log("getReportsForSDKWithEndAndBegin error : "+e);
-		response.error(e);
-	})
+			queryBaseReports.limit(cnt);
+			queryBaseReports.skip(0);
+			queryBaseReports.descending('updatedAt');
+			queryBaseReports.find().then(function (results) {
+				var reports = [];
+				var checkQuery = new AV.Query('Reports');
+				var checkQuerys = [];
+				var baseReportsDic = {};
+				var cqlStr = 'select * from Reports where ';
+				for(var i in results){
+					baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
+																		'reportId':results[i]['_serverData']['ReportId'],
+																		'baseId':results[i]['id'],
+																		'updateAt':results[i]['updatedAt'],
+																		'CreateBy':results[i]['_serverData']['CreateBy']['id']};
+					cqlStr += 'objectId = ';
+					cqlStr += '\"';
+					cqlStr += results[i]['_serverData']['ReportId'];
+					cqlStr += '\"';
+					cqlStr += ' or ';
+				}
+				// console.log(baseReportsDic);
+				// console.log(results.length);
+				cqlStr = cqlStr.substring(0,cqlStr.length - 4);
+				// console.log(cqlStr);
+				AV.Query.doCloudQuery(cqlStr).then(function (o){
+					for(var i in o['results']){
+						baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
+					}
+					// console.log(JSON.stringify(baseReportsDic));
+					response.success(baseReportsDic);
+				  }, function (e) {	
+				    console.log("getReportsForSDKWithEndAndBegin error : "+JSON.stringify(e));
+					response.error(e);
+			  	});
+			}, function(e){
+				console.log("getReportsForSDKWithEndAndBegin error : "+e);
+				response.error(e);
+			})
+	    }
+	});
+
+	
 });
 
 /**
@@ -485,25 +500,35 @@ AV.Cloud.define('getReportsCntForSDKWithEndAndBegin', function(request, response
 	var params = request.params;
 	var end = params.end;
 	var begin = params.begin;
-	var patientID = params.patientID;
-	if (end == null || end == undefined || begin == null || begin == undefined || patientID == null || patientID == undefined) {
+	var patientId = params.patientId;
+	var factoryCode = params.factoryCode;
+	if (end == null || end == undefined || begin == null || begin == undefined || patientId == null || patientId == undefined) {
 		console.log("getReportsCntForSDKWithEndAndBegin param error");
 		response.error("getReportsCntForSDKWithEndAndBegin param error");
 		return;
 	};
 
-	var queryBaseReports = new AV.Query('BaseReports');
-	queryBaseReports.equalTo('isDelete', 0);
-  	var patient = AV.Object.createWithoutData('Patients', patientID);
-	queryBaseReports.equalTo('CreateBy', patient);
-	queryBaseReports.lessThanOrEqualTo('updatedAt', end);
-	queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
-	queryBaseReports.count().then(function (count) {
-		response.success(count);
-	}, function(e){
-		console.log("getReportsForSDKWithEndAndBegin error : "+e);
-		response.error(e);
-	})
+	var query = new AV.Query('FactoryUserList');
+	query.get(patientId).then(function (factoryUser) {
+	    if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+	    	response.error({'error':'cant find this user, please check your patientId and factoryCode'});
+	    } else {
+	    	var patientID = factoryUser.get('patient').id;
+	    	var queryBaseReports = new AV.Query('BaseReports');
+			queryBaseReports.equalTo('isDelete', 0);
+		  	var patient = AV.Object.createWithoutData('Patients', patientID);
+			queryBaseReports.equalTo('CreateBy', patient);
+			queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+			queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
+			queryBaseReports.count().then(function (count) {
+				response.success(count);
+			}, function(e){
+				console.log("getReportsForSDKWithEndAndBegin error : "+e);
+				response.error(e);
+			})
+	    }
+	});
+	
 });
 
 
@@ -1325,6 +1350,289 @@ AV.Cloud.define('phoneCheckCode', function(request, response) {
 	}, function(err) {
 	  //发送失败
 	    response.error(err);
+	});
+});
+
+/**
+ * [generateUUID description]
+ * @Author   bibitiger
+ * @DateTime 2017-07-18T10:40:34+0800
+ * @return   {[type]}                 [description]
+ */
+function generateUUID() {
+	var d = new Date().getTime();
+	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	  var r = (d + Math.random()*16)%16 | 0;
+	  d = Math.floor(d/16);
+	  return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+	});
+	return uuid;
+};
+
+/**
+ * [registerForSDK]
+ * @Author   bibitiger
+ * @DateTime 2017-07-17T16:00:12+0800
+ */
+AV.Cloud.define('registerForSDK', function(request, response) {
+
+	var factoryCode = request.params.factoryCode;
+	console.log('registerForSDK factoryCode:'+factoryCode);
+
+
+	var data = {};
+	var uuid = generateUUID();
+	var name = uuid.replace(/-/g,'');
+	console.log('registerForSDK uuid:'+uuid);
+	console.log('registerForSDK name:'+name);
+	var user = new AV.User();
+	user.setUsername(name);
+	user.setPassword('123456');
+	user.set('factoryCode', factoryCode);
+	user.signUp().then(function (loginedUser) {
+		console.log(JSON.stringify(loginedUser));
+	  	// response.success(loginedUser);
+	  	var Patient = AV.Object.extend('Patients');
+	    var patient = new Patient();
+	    patient.set('user',loginedUser)
+	    patient.set('name',loginedUser.get('username'));
+	    
+	     // 新建一个 ACL 实例
+	    var acl = new AV.ACL();
+	    acl.setPublicReadAccess(true);
+	    acl.setPublicWriteAccess(false);
+	    acl.setWriteAccess(user,true);
+	      // 将 ACL 实例赋予 patient 对象
+	    patient.setACL(acl);
+
+	    patient.save().then(function(patient) {
+	        
+            // data['userId'] = user.id;
+            // data['profileId'] = patient.id;
+            // data['sessionToken'] = user._sessionToken;
+            // data['user'] = user;
+            // data['name'] = user.get('username');
+            //...
+            console.log('11111111');
+			var FactoryUser = AV.Object.extend('FactoryUserList');
+			var factoryUser = new FactoryUser();
+            factoryUser.set('factoryCode', factoryCode);
+            factoryUser.set('patient',patient);
+            factoryUser.set('user',loginedUser);
+            factoryUser.save().then(function(factoryUser){
+            	data['patientId'] = factoryUser.id;
+				response.success(data);
+            },function(error){
+            	console.log(JSON.stringify(error));
+            	response.error(error);
+            });
+	    }, function(err) {
+	        
+	        console.log('Failed to create new object, with error message: ' + err.message);
+	        response.error(err);
+	    });
+	}, function (error){
+		console.log(error);
+	  	response.error(error);
+	});
+});
+
+
+/**
+ * [loginForSDK]
+ * @Author   bibitiger
+ * @DateTime 2017-07-18T14:43:41+0800
+ * @param    {[type]}                 request   [description]
+ * @param    {[type]}                 response) {	var        factoryCode [description]
+ * @return   {[type]}                           [description]
+ */
+AV.Cloud.define('loginForSDK', function(request, response) {
+
+	var factoryCode = request.params.factoryCode;
+	var patientId = request.params.patientId;
+    if (factoryCode == null || patientId == null) {
+    	response.error({'error':'params could not be null'});
+    };
+	console.log('loginForSDK factoryCode:'+factoryCode);
+	console.log('loginForSDK patientId:'+patientId);
+
+	var query = new AV.Query('FactoryUserList');
+	query.get(patientId).then(function (factoryUser) {
+	    if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+	    	response.error({'error':'cant find this user, please check your patientId and factoryCode'});
+	    } else {
+	    	response.success({'patientId':patientId});
+	    }
+	}, function (error) {
+	    console.log(error);
+	  	response.error(error);
+	});
+	
+});
+
+/**
+ * [description]
+ * @Author   bibitiger
+ * @DateTime 2017-07-18T15:20:51+0800
+ * @param    {[type]}                 request   [description]
+ * @param    {[type]}                 response) {	var        factoryCode [description]
+ * @param    {[type]}                 function  (error)       {	                         console.log(error);	  	response.error(error);	});	} [description]
+ * @return   {[type]}                           [description]
+ */
+AV.Cloud.define('CreateDeviceWithUUIDForSDK', function(request, response) {
+
+	var factoryCode = request.params.factoryCode;
+	var UUID = request.params.UUID;
+	var patientId = request.params.patientId;
+    if (UUID == null || patientId == null || factoryCode == null) {
+    	response.error({'error':'params could not be null'});
+    };
+	console.log('CreateDeviceWithUUIDForSDK UUID:'+UUID);
+	console.log('CreateDeviceWithUUIDForSDK patientId:'+patientId);
+	console.log('CreateDeviceWithUUIDForSDK factoryCode:'+factoryCode);
+
+	var query = new AV.Query('FactoryUserList');
+	query.get(patientId).then(function (factoryUser) {
+	    if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+	    	response.error({'error':'cant find this user, please check your patientId and factoryCode'});
+	    } else {
+	    	patient = factoryUser.get('patient');
+	    	var Device = AV.Object.extend('Device');
+			// 新建对象
+			var device = new Device();
+			device.set('idPatient',patient);
+			device.set('UUID',UUID);
+			device.save().then(function (device) {
+	    		response.success(device);
+			}, function (error) {
+			  console.error(error);
+	  		  response.error(error);
+			});
+	    }
+	}, function (error) {
+	    console.log(error);
+	  	response.error(error);
+	});
+});
+
+
+/**
+ * [GetDeviceWithUUIDForSDK]
+ * @Author   bibitiger
+ * @DateTime 2017-07-18T15:49:30+0800
+ * @param    {[type]}                 request   [description]
+ * @param    {[type]}                 response) {	var        factoryCode [description]
+ * @return   {[type]}                           [description]
+ */
+AV.Cloud.define('GetDeviceWithUUIDForSDK', function(request, response) {
+
+	var factoryCode = request.params.factoryCode;
+	var UUID = request.params.UUID;
+    if (UUID == null || factoryCode == null) {
+    	response.error({'error':'params could not be null'});
+    };
+	console.log('GetDeviceWithUUIDForSDK UUID:'+UUID);
+	console.log('GetDeviceWithUUIDForSDK factoryCode:'+factoryCode);
+
+	var query = new AV.Query('Device');
+    query.equalTo('UUID', UUID);
+    query.find().then(function(devices) {
+	    if (devices == null || devices.length  == 0) {
+	    	response.error({'error':'cant find this device'});
+	    } else {
+	    	response.success(devices[0]);
+	    }
+	}, function (error) {
+	    console.log(error);
+	  	response.error(error);
+	});
+});
+
+
+/**
+ * [description]
+ * @Author   bibitiger
+ * @DateTime 2017-07-18T17:08:40+0800
+ * @param    {[type]}                 request   [description]
+ * @param    {[type]}                 response) {	var        factoryCode [description]
+ * @param    {[type]}                 function  (error)       {	                         console.log(error);	  	response.error(error);	});} [description]
+ * @return   {[type]}                           [description]
+ */
+AV.Cloud.define('GetDeviceWithFactoryUserIDForSDK', function(request, response) {
+
+	var factoryCode = request.params.factoryCode;
+	var patientId = request.params.patientId;
+    if (factoryCode == null || patientId == null) {
+    	response.error({'error':'params could not be null'});
+    };
+	console.log('GetDeviceWithFactoryUserIDForSDK factoryCode:'+factoryCode);
+
+	var query = new AV.Query('FactoryUserList');
+	query.get(patientId).then(function (factoryUser) {
+	    if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+	    	response.error({'error':'cant find this user, please check your patientId and factoryCode'});
+	    } else {
+	    	var patient = factoryUser.get('patient');
+	    	var query = new AV.Query('Device');
+		    query.equalTo('idPatient', patient);
+		    query.find().then(function(devices) {
+			    if (devices == null || devices.length  == 0) {
+			    	response.error({'error':'cant find this device'});
+			    } else {
+			    	response.success(devices[0]);
+			    }
+			}, function (error) {
+			    console.log(error);
+			  	response.error(error);
+			});
+	    }
+	});
+	
+});
+
+
+/**
+ * [description]
+ * @Author   bibitiger
+ * @DateTime 2017-07-18T15:56:48+0800
+ * @param    {[type]}                 request   [description]
+ * @param    {[type]}                 response) {	var        factoryCode [description]
+ * @param    {[type]}                 function  (error)       {	                         console.log(error);	  	response.error(error);	});} [description]
+ * @return   {[type]}                           [description]
+ */
+AV.Cloud.define('boundDeviceForClientSDK', function(request, response) {
+
+	var deviceID = request.params.deviceID;
+	var deviceSN = request.params.deviceSN;
+	var patientId = request.params.patientId;
+	var factoryCode = request.params.factoryCode;
+	var UUID = request.params.UUID;
+    if (UUID == null || factoryCode == null || deviceID == null || deviceSN == null || patientId == null ) {
+    	response.error({'error':'params could not be null'});
+    };
+	console.log('boundDeviceForClientSDK UUID:'+UUID);
+	console.log('boundDeviceForClientSDK factoryCode:'+factoryCode);
+
+	var query = new AV.Query('FactoryUserList');
+	query.get(patientId).then(function (factoryUser) {
+	    if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+	    	response.error({'error':'cant find this user, please check your patientId and factoryCode'});
+	    } else {
+	    	var paramsJson = {};
+	    	paramsJson['deviceID'] = deviceID;
+	    	paramsJson['deviceSN'] = deviceSN;
+	    	paramsJson['patientId'] = factoryUser.get('patient').id;
+	    	paramsJson['uuid'] = UUID;
+	    	AV.Cloud.run('boundDeviceForClient', paramsJson).then(function(data) {
+	    			response.success(data);
+				}, function(err) {
+				    console.log(error);
+				  	response.error(error);
+				});
+		    }
+	}, function (error) {
+	    console.log(error);
+	  	response.error(error);
 	});
 });
 
