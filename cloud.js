@@ -353,7 +353,7 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 	console.log(patientId);
 	if (end == null || end == undefined || begin == null || begin == undefined || patientId == null || patientId == undefined) {
 		console.log("getReportsForSDKWithEndAndBegin param error");
-		response.error("getReportsForSDKWithEndAndBegin param error");
+    	response.error({'error':'getReportsForSDKWithEndAndBegin param error'});
 		return;
 	};
 
@@ -430,7 +430,7 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 	var factoryCode = params.factoryCode;
 	if (cnt == null || cnt == undefined || patientId == null || patientId == undefined) {
 		console.log("getReportsForSDKWithEndAndCnt param error");
-		response.error("getReportsForSDKWithEndAndCnt param error");
+    	response.error({'error':'getReportsForSDKWithEndAndCnt param error'});
 		return;
 	};
 
@@ -504,7 +504,7 @@ AV.Cloud.define('getReportsCntForSDKWithEndAndBegin', function(request, response
 	var factoryCode = params.factoryCode;
 	if (end == null || end == undefined || begin == null || begin == undefined || patientId == null || patientId == undefined) {
 		console.log("getReportsCntForSDKWithEndAndBegin param error");
-		response.error("getReportsCntForSDKWithEndAndBegin param error");
+    	response.error({'error':'getReportsCntForSDKWithEndAndBegin param error'});
 		return;
 	};
 
