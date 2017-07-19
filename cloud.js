@@ -375,6 +375,9 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 			queryBaseReports.skip(0);
 			queryBaseReports.descending('updatedAt');
 			queryBaseReports.find().then(function (results) {
+				if (results.length == 0) {
+					response.success({});
+				};
 				var reports = [];
 				var checkQuery = new AV.Query('Reports');
 				var checkQuerys = [];
@@ -452,6 +455,10 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 			queryBaseReports.skip(0);
 			queryBaseReports.descending('updatedAt');
 			queryBaseReports.find().then(function (results) {
+				
+				if (results.length == 0) {
+					response.success({});
+				};
 				var reports = [];
 				var checkQuery = new AV.Query('Reports');
 				var checkQuerys = [];
