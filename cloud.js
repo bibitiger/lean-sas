@@ -1576,6 +1576,7 @@ AV.Cloud.define('GetDeviceWithFactoryUserIDForSDK', function(request, response) 
 	    	var query = new AV.Query('Device');
 		    query.equalTo('idPatient', patient);
 		    query.find().then(function(devices) {
+		    	console.log(JSON.stringify(devices));
 			    if (devices == null || devices.length  == 0) {
 			    	response.error({'error':'cant find this device'});
 			    } else {
