@@ -1379,8 +1379,14 @@ AV.Cloud.define('registerForSDK', function(request, response) {
 	var factoryCode = request.params.factoryCode;
 	console.log('registerForSDK factoryCode:'+factoryCode);
 
-
-	var data = {};
+	var query = new AV.Query('FactoryCode');
+    query.equalTo('Code', factoryCode);
+    query.find().then(function(factorys) {
+    	console.log(JSON.stringify(factorys));
+	    if (factorys == null || factorys.length  == 0) {
+	    	response.error({'error':'cant find this factory'});
+	    } else {
+	    	var data = {};
 	var uuid = generateUUID();
 	var name = uuid.replace(/-/g,'');
 	console.log('registerForSDK uuid:'+uuid);
@@ -1399,20 +1405,13 @@ AV.Cloud.define('registerForSDK', function(request, response) {
 	    
 	     // 新建一个 ACL 实例
 	    var acl = new AV.ACL();
-	    acl.setPublicReadAccess(true);
+	    acl.setPublicReadAccess(false);
 	    acl.setPublicWriteAccess(false);
 	    acl.setWriteAccess(user,true);
 	      // 将 ACL 实例赋予 patient 对象
 	    patient.setACL(acl);
 
 	    patient.save().then(function(patient) {
-	        
-            // data['userId'] = user.id;
-            // data['profileId'] = patient.id;
-            // data['sessionToken'] = user._sessionToken;
-            // data['user'] = user;
-            // data['name'] = user.get('username');
-            //...
             console.log('11111111');
 			var FactoryUser = AV.Object.extend('FactoryUserList');
 			var factoryUser = new FactoryUser();
@@ -1433,6 +1432,11 @@ AV.Cloud.define('registerForSDK', function(request, response) {
 	    });
 	}, function (error){
 		console.log(error);
+	  	response.error(error);
+	});
+	    }
+	}, function (error) {
+	    console.log(error);
 	  	response.error(error);
 	});
 });
