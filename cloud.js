@@ -381,14 +381,14 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 				var reports = [];
 				var checkQuery = new AV.Query('Reports');
 				var checkQuerys = [];
-				var baseReportsDic = {};
+				var baseReportsDic = [];
 				var cqlStr = 'select * from Reports where ';
 				for(var i in results){
-					baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
+					baseReportsDic.push({'type':results[i]['_serverData']['Type'],
 																		'reportId':results[i]['_serverData']['ReportId'],
 																		'baseId':results[i]['id'],
 																		'updateAt':results[i]['updatedAt'],
-																		'CreateBy':results[i]['_serverData']['CreateBy']['id']};
+																		'CreateBy':results[i]['_serverData']['CreateBy']['id']});
 					cqlStr += 'objectId = ';
 					cqlStr += '\"';
 					cqlStr += results[i]['_serverData']['ReportId'];
@@ -403,7 +403,11 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 					// console.log(baseReportsDic);
 					// console.log(o);
 					for(var i in o['results']){
-						baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
+						baseReportsDic[i]['start'] = o['results'][i].get('start');
+						baseReportsDic[i]['breathList'] = o['results'][i].get('breathList');
+						baseReportsDic[i]['end'] = o['results'][i].get('end');
+						baseReportsDic[i]['sleepData'] = o['results'][i].get('sleepData');
+						baseReportsDic[i]['AHI'] = o['results'][i].get('AHI');
 					}
 					// console.log(baseReportsDic);
 					response.success(baseReportsDic);
@@ -448,7 +452,7 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 			queryBaseReports.equalTo('isDelete', 0);
 		  	var patient = AV.Object.createWithoutData('Patients', patientID);
 			queryBaseReports.equalTo('CreateBy', patient);
-			if (end == null || end == undefined) {
+			if (end != null) {
 				queryBaseReports.lessThanOrEqualTo('updatedAt', end);
 			}
 			queryBaseReports.limit(cnt);
@@ -462,14 +466,14 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 				var reports = [];
 				var checkQuery = new AV.Query('Reports');
 				var checkQuerys = [];
-				var baseReportsDic = {};
+				var baseReportsDic = [];
 				var cqlStr = 'select * from Reports where ';
 				for(var i in results){
-					baseReportsDic[results[i]['_serverData']['ReportId']] = {'type':results[i]['_serverData']['Type'],
+					baseReportsDic.push({'type':results[i]['_serverData']['Type'],
 																		'reportId':results[i]['_serverData']['ReportId'],
 																		'baseId':results[i]['id'],
 																		'updateAt':results[i]['updatedAt'],
-																		'CreateBy':results[i]['_serverData']['CreateBy']['id']};
+																		'CreateBy':results[i]['_serverData']['CreateBy']['id']});
 					cqlStr += 'objectId = ';
 					cqlStr += '\"';
 					cqlStr += results[i]['_serverData']['ReportId'];
@@ -482,7 +486,11 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 				// console.log(cqlStr);
 				AV.Query.doCloudQuery(cqlStr).then(function (o){
 					for(var i in o['results']){
-						baseReportsDic[o['results'][i]['id']]['subReport'] = o['results'][i];
+						baseReportsDic[i]['start'] = o['results'][i].get('start');
+						baseReportsDic[i]['breathList'] = o['results'][i].get('breathList');
+						baseReportsDic[i]['end'] = o['results'][i].get('end');
+						baseReportsDic[i]['sleepData'] = o['results'][i].get('sleepData');
+						baseReportsDic[i]['AHI'] = o['results'][i].get('AHI');
 					}
 					// console.log(JSON.stringify(baseReportsDic));
 					response.success(baseReportsDic);
