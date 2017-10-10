@@ -557,7 +557,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 	var hwVersion = params.hwVersion;
 	var btVersion = params.btVersion;
 	var swVersion = params.swVersion;
-	var size = params.size;
+	var size = params.dSize;
 	var sn = params.sn;
 	var mac = params.mac;
 
