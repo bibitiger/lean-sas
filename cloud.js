@@ -586,8 +586,11 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 		queryBoundDevice.equalTo('deviceType', "spt");
 		queryBoundDevice.find().then(function(dev){
 
+			console.log("bound length:" + dev.length);
+
 			if(dev.length > 0){
 
+				console.log("mac:" + dev[0].mac);
 				if(dev[0].mac == null || dev[0].mac == "" || dev[0].mac == undefined){
 
 					dev[0].set('deviceType', "spt");
