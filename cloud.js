@@ -661,7 +661,7 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
 	var params = request.params;
 	var deviceType = params.deviceType;
 	var mPlusSn = params.mPlusSn;
-	var size = params.size;
+	var size = params.dSize;
 
 	if(deviceType == null || deviceType == "" || deviceType == undefined){
 		console.log("deviceType is null");
