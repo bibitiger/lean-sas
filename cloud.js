@@ -557,7 +557,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 	var hwVersion = params.hwVersion;
 	var btVersion = params.btVersion;
 	var swVersion = params.swVersion;
-	var size = params.dSize;
+	var dSize = params.dSize;
 	var sn = params.sn;
 	var mac = params.mac;
 
@@ -598,7 +598,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 					dev[0].set('hwVersion', hwVersion);
 					dev[0].set('btVersion', btVersion);
 					dev[0].set('swVersion', swVersion);
-					dev[0].set('size', size);
+					dev[0].set('dSize', dSize);
 					dev[0].set('sn', sn);
 					dev[0].set('mac', mac);
 
@@ -626,7 +626,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 				boundDevice.set('hwVersion', hwVersion);
 				boundDevice.set('btVersion', btVersion);
 				boundDevice.set('swVersion', swVersion);
-				boundDevice.set('size', size);
+				boundDevice.set('dSize', dSize);
 				boundDevice.set('sn', sn);
 				boundDevice.set('mac', mac);
 
@@ -661,7 +661,7 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
 	var params = request.params;
 	var deviceType = params.deviceType;
 	var mPlusSn = params.mPlusSn;
-	var size = params.dSize;
+	var dSize = params.dSize;
 
 	if(deviceType == null || deviceType == "" || deviceType == undefined){
 		console.log("deviceType is null");
@@ -693,7 +693,7 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
 				dev[0].set('hwVersion', "");
 				dev[0].set('btVersion', "");
 				dev[0].set('swVersion', "");
-				dev[0].set('size', "");
+				dev[0].set('dSize', "");
 				dev[0].set('sn', "");
 				dev[0].set('mac', "");
 
