@@ -555,6 +555,183 @@ AV.Cloud.define('getReportsCntForSDKWithEndAndBegin', function(request, response
 	
 });
 
+/**
+ * 绑定
+ */
+AV.Cloud.define('boundBluetoothDevice', function(request, response){
+	
+	var params = request.params;
+	var deviceType = params.deviceType;
+	var mPlusSn = params.mPlusSn;
+	var hwVersion = params.hwVersion;
+	var btVersion = params.btVersion;
+	var swVersion = params.swVersion;
+	var dSize = params.dSize;
+	var sn = params.sn;
+	var mac = params.mac;
+
+	if(deviceType == null || deviceType == "" || deviceType == undefined){
+		console.log("deviceType is null");
+		response.error("deviceType is null");
+		return;
+	}
+	
+	if(mPlusSn == null || mPlusSn == "" || mPlusSn == undefined){
+		console.log("mPlusSn is null");
+		response.error("mPlusSn is null");
+		return;
+	}
+
+	if(mac == null || mac == "" || mac == undefined){
+		console.log("mac is null");
+		response.error("mac is null");
+		return;
+	}
+
+	if(deviceType == "spt"){
+		
+		var queryBoundDevice = new AV.Query('BoundDevice');
+		queryBoundDevice.equalTo('mPlusSn', mPlusSn);
+		queryBoundDevice.equalTo('deviceType', "spt");
+		queryBoundDevice.find().then(function(dev){
+
+			console.log("bound length:" + dev.length);
+
+			if(dev.length > 0){
+				var mac1 = dev[0].get("mac");
+				console.log("mac:" + mac);
+				if(mac1 == null || mac1 == "" || mac1 == undefined){
+
+					dev[0].set('deviceType', "spt");
+					dev[0].set('mPlusSn', mPlusSn);
+					dev[0].set('hwVersion', hwVersion);
+					dev[0].set('btVersion', btVersion);
+					dev[0].set('swVersion', swVersion);
+					dev[0].set('dSize', dSize);
+					dev[0].set('sn', sn);
+					dev[0].set('mac', mac);
+
+					dev[0].save().then(function(device){
+						console.log(device.id);
+						response.success({
+							"id":device.id
+						});
+					}, function(error){
+						console.log(error);
+						response.error(error);
+					});
+					
+				}else{
+					console.log("MPlus already bound spt " + mPlusSn);
+					response.error("Bound");
+				}
+				
+			}else{
+				var BoundDevice = AV.Object.extend('BoundDevice');
+		    	var boundDevice = new BoundDevice();
+
+				boundDevice.set('deviceType', "spt");
+				boundDevice.set('mPlusSn', mPlusSn);
+				boundDevice.set('hwVersion', hwVersion);
+				boundDevice.set('btVersion', btVersion);
+				boundDevice.set('swVersion', swVersion);
+				boundDevice.set('dSize', dSize);
+				boundDevice.set('sn', sn);
+				boundDevice.set('mac', mac);
+
+				boundDevice.save().then(function(device){
+					console.log(device.id);
+					response.success({
+						"id":device.id
+					});
+				}, function(error){
+					console.log(error);
+					response.error(error);
+				})
+			}
+		}, function(error){
+			console.log(error);
+			response.error(error);
+		})
+		
+	}else{
+		console.log("deviceType error");
+		response.error("deviceType error");
+	}
+
+});
+
+
+/**
+ * 解绑
+ */
+AV.Cloud.define('unboundBluetoothDevice', function(request, response){
+
+	var params = request.params;
+	var deviceType = params.deviceType;
+	var mPlusSn = params.mPlusSn;
+	var dSize = params.dSize;
+
+	if(deviceType == null || deviceType == "" || deviceType == undefined){
+		console.log("deviceType is null");
+		response.error("deviceType is null");
+		return;
+	}
+
+	if(mPlusSn == null || mPlusSn == "" || mPlusSn == undefined){
+		console.log("mPlusSn is null");
+		response.error("mPlusSn is null");
+		return;
+	}
+
+	// if(size == null || size == "" || size == undefined){
+	// 	console.log("size is null");
+	// 	response.error("size is null");
+	// 	return;
+	// }
+
+	if(deviceType == "spt"){
+
+		var queryBoundDevice = new AV.Query('BoundDevice');
+		queryBoundDevice.equalTo('mPlusSn', mPlusSn);
+		queryBoundDevice.equalTo('deviceType', "spt");
+
+		queryBoundDevice.find().then(function(dev){
+
+			if(dev.length > 0){
+				dev[0].set('hwVersion', "");
+				dev[0].set('btVersion', "");
+				dev[0].set('swVersion', "");
+				dev[0].set('dSize', "");
+				dev[0].set('sn', "");
+				dev[0].set('mac', "");
+
+				dev[0].save().then(function(device){
+					
+					response.success({
+						"id": device.id
+					});
+				}, function(error){
+					console.log(error);
+					response.error(error);
+				});
+
+			}else{
+				console.log(mPlusSn + " without spt");
+				response.error("Without SPT");
+			}
+
+		}, function(error){
+			console.log(error);
+			response.error(error);
+		})
+
+	}else{
+		console.log("deviceType error");
+		response.error("deviceType error");
+	}
+});
+
 
 /**
  * 完成设备状态更新或添加
