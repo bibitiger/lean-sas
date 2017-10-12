@@ -403,11 +403,16 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 					// console.log(baseReportsDic);
 					// console.log(o);
 					for(var i in o['results']){
-						baseReportsDic[i]['start'] = o['results'][i].get('start');
-						baseReportsDic[i]['breathList'] = o['results'][i].get('breathList');
-						baseReportsDic[i]['end'] = o['results'][i].get('end');
-						baseReportsDic[i]['sleepData'] = o['results'][i].get('sleepData');
-						baseReportsDic[i]['AHI'] = o['results'][i].get('AHI');
+						for (var j = 0 ; j < baseReportsDic.length; j++) {
+							if (baseReportsDic[j]['reportId'] == o['results'][i].get('objectId')) {
+								baseReportsDic[j]['start'] = o['results'][i].get('start');
+								baseReportsDic[j]['breathList'] = o['results'][i].get('breathList');
+								baseReportsDic[j]['end'] = o['results'][i].get('end');
+								baseReportsDic[j]['sleepData'] = o['results'][i].get('sleepData');
+								baseReportsDic[j]['AHI'] = o['results'][i].get('AHI');
+							};
+						};
+						
 					}
 					// console.log(baseReportsDic);
 					response.success(baseReportsDic);
@@ -486,11 +491,15 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 				// console.log(cqlStr);
 				AV.Query.doCloudQuery(cqlStr).then(function (o){
 					for(var i in o['results']){
-						baseReportsDic[i]['start'] = o['results'][i].get('start');
-						baseReportsDic[i]['breathList'] = o['results'][i].get('breathList');
-						baseReportsDic[i]['end'] = o['results'][i].get('end');
-						baseReportsDic[i]['sleepData'] = o['results'][i].get('sleepData');
-						baseReportsDic[i]['AHI'] = o['results'][i].get('AHI');
+						for (var j = 0 ; j < baseReportsDic.length; j++) {
+							if (baseReportsDic[j]['reportId'] == o['results'][i].get('objectId')) {
+								baseReportsDic[j]['start'] = o['results'][i].get('start');
+								baseReportsDic[j]['breathList'] = o['results'][i].get('breathList');
+								baseReportsDic[j]['end'] = o['results'][i].get('end');
+								baseReportsDic[j]['sleepData'] = o['results'][i].get('sleepData');
+								baseReportsDic[j]['AHI'] = o['results'][i].get('AHI');
+							};
+						}
 					}
 					// console.log(JSON.stringify(baseReportsDic));
 					response.success(baseReportsDic);
