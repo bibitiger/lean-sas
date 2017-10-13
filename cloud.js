@@ -369,11 +369,11 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 			queryBaseReports.equalTo('isDelete', 0);
 		  	var patient = AV.Object.createWithoutData('Patients', patientID);
 			queryBaseReports.equalTo('CreateBy', patient);
-			queryBaseReports.lessThanOrEqualTo('updatedAt', end);
-			queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
+			queryBaseReports.lessThanOrEqualTo('createdAt', end);
+			queryBaseReports.greaterThanOrEqualTo('createdAt',begin);
 			queryBaseReports.limit(50);
 			queryBaseReports.skip(0);
-			queryBaseReports.descending('updatedAt');
+			queryBaseReports.descending('createdAt');
 			queryBaseReports.find().then(function (results) {
 				if (results.length == 0) {
 					response.success({});
@@ -410,6 +410,7 @@ AV.Cloud.define('getReportsForSDKWithEndAndBegin', function(request, response){
 								baseReportsDic[j]['end'] = o['results'][i].get('end');
 								baseReportsDic[j]['sleepData'] = o['results'][i].get('sleepData');
 								baseReportsDic[j]['AHI'] = o['results'][i].get('AHI');
+								baseReportsDic[j]['eventCnt'] = o['results'][i].get('eventCnt');
 							};
 						};
 						
@@ -458,11 +459,11 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 		  	var patient = AV.Object.createWithoutData('Patients', patientID);
 			queryBaseReports.equalTo('CreateBy', patient);
 			if (end != null) {
-				queryBaseReports.lessThanOrEqualTo('updatedAt', end);
+				queryBaseReports.lessThanOrEqualTo('createdAt', end);
 			}
 			queryBaseReports.limit(cnt);
 			queryBaseReports.skip(0);
-			queryBaseReports.descending('updatedAt');
+			queryBaseReports.descending('createdAt');
 			queryBaseReports.find().then(function (results) {
 				
 				if (results.length == 0) {
@@ -498,6 +499,7 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 								baseReportsDic[j]['end'] = o['results'][i].get('end');
 								baseReportsDic[j]['sleepData'] = o['results'][i].get('sleepData');
 								baseReportsDic[j]['AHI'] = o['results'][i].get('AHI');
+								baseReportsDic[j]['eventCnt'] = o['results'][i].get('eventCnt');
 							};
 						}
 					}
