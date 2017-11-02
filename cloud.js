@@ -618,6 +618,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 							dev[0].set('dSize', dSize);
 							dev[0].set('sn', sn);
 							dev[0].set('mac', mac);
+							dev[0].set('active', true);
 
 							dev[0].save().then(function(device){
 								console.log(device.id);
@@ -646,6 +647,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 						boundDevice.set('dSize', dSize);
 						boundDevice.set('sn', sn);
 						boundDevice.set('mac', mac);
+						boundDevice.set('active', true);
 
 						boundDevice.save().then(function(device){
 							console.log(device.id);
@@ -723,6 +725,7 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
 				dev[0].set('dSize', "");
 				dev[0].set('sn', "");
 				dev[0].set('mac', "");
+				dev[0].set('active', false);
 
 				dev[0].save().then(function(device){
 					
