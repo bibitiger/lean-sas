@@ -861,7 +861,11 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 							AV.Object.destroyAll(deleteDevs).then(function(resultDev){
 								console.log("deleteDevs success id1:" + dev[position].id);
 								response.success({
-									"objectId": dev[position].id
+									"objectId": dev1.id,
+									"rawDataUpload" : dev1.get('rawDataUpload'),
+									"idPatient" : dev1.get('idPatient'),
+									"period" : dev1.get('period'),
+									"ledOnTime" : dev1.get('ledOnTime')  
 								});
 							}, function(error){
 								console.log(error);
@@ -870,7 +874,11 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 							
 						}else{
 							response.success({
-								"objectId": dev[position].id
+								"objectId": dev1.id,
+								"rawDataUpload" : dev1.get('rawDataUpload'),
+								"idPatient" : dev1.get('idPatient'),
+								"period" : dev1.get('period'),
+								"ledOnTime" : dev1.get('ledOnTime')  
 							});
 						}
 					}, function(error){
@@ -911,7 +919,11 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 								AV.Object.destroyAll(delDevice).then(function(){
 									console.log("delDevice success");
 									response.success({
-										"objectId": createDevice.id
+										"objectId": createDevice.id,
+										"rawDataUpload" : createDevice.get('rawDataUpload'),
+										"idPatient" : createDevice.get('idPatient'),
+										"period" : createDevice.get('period'),
+										"ledOnTime" : createDevice.get('ledOnTime') 
 									});
 								}, function(error){
 									console.log(error);
@@ -920,7 +932,11 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 
 							}else{
 								response.success({
-									"objectId": createDevice.id
+									"objectId": createDevice.id,
+									"rawDataUpload" : createDevice.get('rawDataUpload'),
+									"idPatient" : createDevice.get('idPatient'),
+									"period" : createDevice.get('period'),
+									"ledOnTime" : createDevice.get('ledOnTime') 
 								});
 							}
 					
