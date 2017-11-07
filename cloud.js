@@ -836,7 +836,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 				
 					var idPatient2 = dev3[0].get('idPatient');
 					console.log("idPatient2:" + idPatient2.id);
-					if(idPatient2 != null){
+					if(idPatient2 != null && idPatient2.id != null){
 						dev[position].set('idPatient', idPatient2);
 						dev[position].set('active', true);
 					}
@@ -913,7 +913,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 					
 					var idPatient2 = dev3[0].get('idPatient');
 					console.log("idPatient2:" + idPatient2);
-					if(idPatient2 != null){
+					if(idPatient2 != null && idPatient2.id != null){
 						dev3[0].set('active', true);
 					}
 					// device.set('active', true);
