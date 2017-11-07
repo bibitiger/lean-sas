@@ -544,8 +544,8 @@ AV.Cloud.define('getReportsCntForSDKWithEndAndBegin', function(request, response
 			queryBaseReports.equalTo('isDelete', 0);
 		  	var patient = AV.Object.createWithoutData('Patients', patientID);
 			queryBaseReports.equalTo('CreateBy', patient);
-			queryBaseReports.lessThanOrEqualTo('updatedAt', end);
-			queryBaseReports.greaterThanOrEqualTo('updatedAt',begin);
+			queryBaseReports.lessThanOrEqualTo('createdAt', end);
+			queryBaseReports.greaterThanOrEqualTo('createdAt',begin);
 			queryBaseReports.count().then(function (count) {
 				response.success(count);
 			}, function(e){
