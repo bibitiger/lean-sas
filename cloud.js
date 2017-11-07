@@ -519,6 +519,34 @@ AV.Cloud.define('getReportsForSDKWithEndAndCnt', function(request, response){
 	
 });
 
+
+/**
+ * get valid report(AHI != -1),with the given count 
+ * @Author   bibitiger
+ * @DateTime 2017-11-07T17:05:56+0800
+ * @param    Date curTime
+ * @param    int pastCnt
+ * @param    int laterCnt
+ * @param    string patientID
+ * @return   [{report},{report}] 
+ */
+AV.Cloud.define('getValidReportsWithCnt', function(request, response){
+	var params = request.params;
+	var pastCnt = params.pastCnt;
+	var laterCnt = params.laterCnt;
+	var curTime = params.curTime;
+	var patientID = patientID;
+
+	if (passCnt == undefined || pastCnt == null 
+		|| laterCnt == undefined || laterCnt == null 
+		curTime == undefined || curTime == null) {
+		console.log("getValidReportsWithCnt param error");
+		response.error({'error':'getValidReportsWithCnt param error'});
+	};
+
+	
+});
+
 /**
  * 获取报告--给第三方的sdk提供
  */
