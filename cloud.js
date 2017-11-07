@@ -591,70 +591,88 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 	}
 
 	if(deviceType == "spt"){
-		
-		var queryBoundDevice = new AV.Query('BoundDevice');
-		queryBoundDevice.equalTo('mPlusSn', mPlusSn);
-		queryBoundDevice.equalTo('deviceType', "spt");
-		queryBoundDevice.find().then(function(dev){
 
-			console.log("bound length:" + dev.length);
+		var queryExistMac = new AV.Query('BoundDevice');
+		queryExistMac.equalTo('mac', mac);
+		queryExistMac.notEqualTo('mPlusSn', null);
+		queryExistMac.find().then(function(macDev){
 
-			if(dev.length > 0){
-				var mac1 = dev[0].get("mac");
-				console.log("mac:" + mac);
-				if(mac1 == null || mac1 == "" || mac1 == undefined){
+			if(macDev.length < 1){
+				var queryBoundDevice = new AV.Query('BoundDevice');
+				queryBoundDevice.equalTo('mPlusSn', mPlusSn);
+				queryBoundDevice.equalTo('deviceType', "spt");
+				queryBoundDevice.find().then(function(dev){
 
-					dev[0].set('deviceType', "spt");
-					dev[0].set('mPlusSn', mPlusSn);
-					dev[0].set('hwVersion', hwVersion);
-					dev[0].set('btVersion', btVersion);
-					dev[0].set('swVersion', swVersion);
-					dev[0].set('dSize', dSize);
-					dev[0].set('sn', sn);
-					dev[0].set('mac', mac);
+					console.log("bound length:" + dev.length);
 
-					dev[0].save().then(function(device){
-						console.log(device.id);
-						response.success({
-							"id":device.id
-						});
-					}, function(error){
-						console.log(error);
-						response.error(error);
-					});
-					
-				}else{
-					console.log("MPlus already bound spt " + mPlusSn);
-					response.error("Bound");
-				}
-				
-			}else{
-				var BoundDevice = AV.Object.extend('BoundDevice');
-		    	var boundDevice = new BoundDevice();
+					if(dev.length > 0){
+						var mac1 = dev[0].get("mac");
+						console.log("mac:" + mac);
+						if(mac1 == null || mac1 == "" || mac1 == undefined){
 
-				boundDevice.set('deviceType', "spt");
-				boundDevice.set('mPlusSn', mPlusSn);
-				boundDevice.set('hwVersion', hwVersion);
-				boundDevice.set('btVersion', btVersion);
-				boundDevice.set('swVersion', swVersion);
-				boundDevice.set('dSize', dSize);
-				boundDevice.set('sn', sn);
-				boundDevice.set('mac', mac);
+							dev[0].set('deviceType', "spt");
+							dev[0].set('mPlusSn', mPlusSn);
+							dev[0].set('hwVersion', hwVersion);
+							dev[0].set('btVersion', btVersion);
+							dev[0].set('swVersion', swVersion);
+							dev[0].set('dSize', dSize);
+							dev[0].set('sn', sn);
+							dev[0].set('mac', mac);
+							dev[0].set('active', true);
 
-				boundDevice.save().then(function(device){
-					console.log(device.id);
-					response.success({
-						"id":device.id
-					});
+							dev[0].save().then(function(device){
+								console.log(device.id);
+								response.success({
+									"id":device.id
+								});
+							}, function(error){
+								console.log(error);
+								response.error(error);
+							});
+							
+						}else{
+							console.log("MPlus already bound spt " + mPlusSn);
+							response.error("Bound");
+						}
+						
+					}else{
+						var BoundDevice = AV.Object.extend('BoundDevice');
+						var boundDevice = new BoundDevice();
+
+						boundDevice.set('deviceType', "spt");
+						boundDevice.set('mPlusSn', mPlusSn);
+						boundDevice.set('hwVersion', hwVersion);
+						boundDevice.set('btVersion', btVersion);
+						boundDevice.set('swVersion', swVersion);
+						boundDevice.set('dSize', dSize);
+						boundDevice.set('sn', sn);
+						boundDevice.set('mac', mac);
+						boundDevice.set('active', true);
+
+						boundDevice.save().then(function(device){
+							console.log(device.id);
+							response.success({
+								"id":device.id
+							});
+						}, function(error){
+							console.log(error);
+							response.error(error);
+						})
+					}
 				}, function(error){
 					console.log(error);
 					response.error(error);
-				})
+				});
+
+			}else{
+				console.log("MPlus already bound spt " + mPlusSn);
+				response.error("Bound");
 			}
+
 		}, function(error){
 			console.log(error);
 			response.error(error);
-		})
+		});
 		
 	}else{
 		console.log("deviceType error");
@@ -707,6 +725,7 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
 				dev[0].set('dSize', "");
 				dev[0].set('sn', "");
 				dev[0].set('mac', "");
+				dev[0].set('active', false);
 
 				dev[0].save().then(function(device){
 					
@@ -814,6 +833,14 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 					dev[position].set('romVersion', romVersion);
 					dev[position].set('versionNO', versionNO);
 					dev[position].set('workStatus', workStatus);
+				
+					var idPatient2 = dev3[0].get('idPatient');
+					console.log("idPatient2:" + idPatient2);
+					if(idPatient2 != null){
+						dev[position].set('idPatient', idPatient2);
+						dev[position].set('active', true);
+					}
+					
 					// dev[0].set('active', true);
 
 					dev[position].save().then(function(dev1){
@@ -833,25 +860,39 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 								deleteDevs.push(dev3[i]);
 							}
 
-							if(deleteDevs.length > 3){
+							console.log("deleteDevs length:" + deleteDevs.length);
+							if(deleteDevs.length > 10 || deleteDevs.length == 0){
 								console.log("deleteDevs system error");
-								response.error("deleteDevs system error");
-								return;
-							}
-
-							AV.Object.destroyAll(deleteDevs).then(function(resultDev){
-								console.log("deleteDevs success id1:" + dev[position].id);
 								response.success({
-									"objectId": dev[position].id
+									"objectId": dev1.id,
+									"rawDataUpload" : dev1.get('rawDataUpload'),
+									"idPatient" : dev1.get('idPatient'),
+									"period" : dev1.get('period'),
+									"ledOnTime" : dev1.get('ledOnTime')  
 								});
-							}, function(error){
-								console.log(error);
-								response.error(error);
-							});
+							}else{
+								AV.Object.destroyAll(deleteDevs).then(function(resultDev){
+									console.log("deleteDevs success id1:" + dev[position].id);
+									response.success({
+										"objectId": dev1.id,
+										"rawDataUpload" : dev1.get('rawDataUpload'),
+										"idPatient" : dev1.get('idPatient'),
+										"period" : dev1.get('period'),
+										"ledOnTime" : dev1.get('ledOnTime')  
+									});
+								}, function(error){
+									console.log(error);
+									response.error(error);
+								});
+							}
 							
 						}else{
 							response.success({
-								"objectId": dev[position].id
+								"objectId": dev1.id,
+								"rawDataUpload" : dev1.get('rawDataUpload'),
+								"idPatient" : dev1.get('idPatient'),
+								"period" : dev1.get('period'),
+								"ledOnTime" : dev1.get('ledOnTime')  
 							});
 						}
 					}, function(error){
@@ -869,6 +910,12 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 					dev3[0].set('romVersion', romVersion);
 					dev3[0].set('versionNO', versionNO);
 					dev3[0].set('workStatus', workStatus);
+					
+					var idPatient2 = dev3[0].get('idPatient');
+					console.log("idPatient2:" + idPatient2);
+					if(idPatient2 != null){
+						dev3[0].set('active', true);
+					}
 					// device.set('active', true);
 
 					dev3[0].save().then(function(createDevice){
@@ -881,27 +928,29 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 								delDevice.push(dev3[i]);
 							}
 							console.log("delDevice length:" + delDevice.length);
-							if(delDevice.length > 0){
 
-								if(delDevice.length > 3){
-									console.log("delDevice system error");
-									response.error("delDevice system error");
-									return;
-								}
-
+							if(delDevice.length > 10 || delDevice.length == 0){
+								console.log("delDevice system error");
+								response.success({
+									"objectId": createDevice.id,
+									"rawDataUpload" : createDevice.get('rawDataUpload'),
+									"idPatient" : createDevice.get('idPatient'),
+									"period" : createDevice.get('period'),
+									"ledOnTime" : createDevice.get('ledOnTime') 
+								});
+							}else{
 								AV.Object.destroyAll(delDevice).then(function(){
 									console.log("delDevice success");
 									response.success({
-										"objectId": createDevice.id
+										"objectId": createDevice.id,
+										"rawDataUpload" : createDevice.get('rawDataUpload'),
+										"idPatient" : createDevice.get('idPatient'),
+										"period" : createDevice.get('period'),
+										"ledOnTime" : createDevice.get('ledOnTime') 
 									});
 								}, function(error){
 									console.log(error);
 									response.error(error);
-								});
-
-							}else{
-								response.success({
-									"objectId": createDevice.id
 								});
 							}
 					
