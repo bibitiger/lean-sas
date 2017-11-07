@@ -835,7 +835,7 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 					dev[position].set('workStatus', workStatus);
 				
 					var idPatient2 = dev3[0].get('idPatient');
-					console.log("idPatient2:" + idPatient2);
+					console.log("idPatient2:" + idPatient2.id);
 					if(idPatient2 != null){
 						dev[position].set('idPatient', idPatient2);
 						dev[position].set('active', true);
