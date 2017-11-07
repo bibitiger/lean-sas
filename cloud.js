@@ -539,7 +539,7 @@ AV.Cloud.define('getValidReportsWithCnt', function(request, response){
 
 	if (passCnt == undefined || pastCnt == null 
 		|| laterCnt == undefined || laterCnt == null 
-		curTime == undefined || curTime == null) {
+		|| curTime == undefined || curTime == null) {
 		console.log("getValidReportsWithCnt param error");
 		response.error({'error':'getValidReportsWithCnt param error'});
 	};
