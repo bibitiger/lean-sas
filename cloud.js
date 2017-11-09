@@ -583,7 +583,8 @@ AV.Cloud.define('getValidReportsWithCnt', function(request, response){
             }
             console.log("response : " + JSON.stringify(curReports));
             console.log("response curReports cnt : " + curReports.length);
-            response.success(curReports);
+            // response.success(curReports);
+            response.success({'later':laterReports, 'past':pastReports});
         }, function(error){
             response.error(error);
         })
