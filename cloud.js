@@ -581,7 +581,8 @@ AV.Cloud.define('getValidReportsWithCnt', function(request, response){
             // for(var i in pastReports){
             //     curReports.push(pastReports[i]);
             // }
-            // console.log("response : " + JSON.stringify(curReports));
+            console.log("later : " + JSON.stringify(laterReports));
+            console.log("past : " + JSON.stringify(pastReports));
             // console.log("response curReports cnt : " + curReports.length);
             // response.success(curReports);
             response.success({'later':laterReports, 'past':pastReports});
@@ -652,7 +653,9 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
         for(var i in reports){
             // if past report time is before 12:00AM, consider this time to be yestoday
             var pastTime = checkReportTimeNeedToPastDay((reports[i]).get('start'));
+                console.log("1111cur :" + curGetTime + "," + "past :" + pastTime);
             if (parseInt(curGetTime / 1000000) == parseInt(pastTime / 1000000)) {
+                console.log("cur :" + curGetTime + "," + "past :" + pastTime);
                 if (endTimeCycle <= (reports[i]).get('end')) {
                     endTimeCycle = (reports[i]).get('end');
                     curReports.pop();
@@ -708,9 +711,9 @@ function checkReportTimeNeedToPastDay(time){
     if (parseInt(strGetTime.substr(8,2)) < 12) {
         dateTime = addDate(dateTime, -1);
     }
-    console.log("checkReportTimeNeedToPastDay end: " + dateTime);
+    // console.log("checkReportTimeNeedToPastDay end: " + dateTime);
 
-    // return Number(dateTime.Format("yyMMddhhmmss"));
+    return Number(dateTime.Format("yyMMddhhmmss"));
 }
 
 function addDate(date,days){
