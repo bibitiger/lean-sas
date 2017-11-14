@@ -627,7 +627,7 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
     queryReport.exists('start');
     queryReport.notEqualTo('AHI', -1);
     queryReport.limit(reportCnt);
-    queryReport.select(['start', 'AHI', 'createdAt', 'end', 'breathList', 'idPatient']);
+    queryReport.select(['start', 'AHI', 'createdAt', 'end'/*, 'breathList'*/, 'idPatient']);
     var numTime = Number(chekTime.Format("yyMMddhhmmss"));
     console.log("chekTime : " + chekTime);
     console.log("numtime : " + numTime);
@@ -640,17 +640,19 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
     }
 
     return queryReport.find().then(function(reports){
-        console.log("1111111");
         // console.log(JSON.stringify(reports));
         var curGetTime = numTime;
         var endTimeCycle = 0;
         if (curReports.length > 0) {
             curGetTime = (curReports[curReports.length -1]).get('start');
+            // if past report time is before 12:00AM, consider this time to be yestoday
+            curGetTime = checkReportTimeNeedToPastDay(curGetTime);
             endTimeCycle = (curReports[curReports.length -1]).get('end');
         };
         for(var i in reports){
-            // if (true) {};
-            if (parseInt(curGetTime / 1000000) == parseInt((reports[i]).get('start')/1000000)) {
+            // if past report time is before 12:00AM, consider this time to be yestoday
+            var pastTime = checkReportTimeNeedToPastDay((reports[i]).get('start'));
+            if (parseInt(curGetTime / 1000000) == parseInt(pastTime / 1000000)) {
                 if (endTimeCycle <= (reports[i]).get('end')) {
                     endTimeCycle = (reports[i]).get('end');
                     curReports.pop();
@@ -660,7 +662,7 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
                 endTimeCycle = (reports[i]).get('end');
                 curReports.push(reports[i]);
             }
-            curGetTime = (reports[i]).get('start');
+            curGetTime = pastTime;
         }
 
         console.log("curReports is : "  + JSON.stringify(curReports));
@@ -668,17 +670,16 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
         if (reports.length == 0) { return curReports; };
 
         if (curReports.length <= reportCnt) {
-            console.log(curGetTime);
-            var temCurGetTime = curGetTime+20000000000000;
+            var temCurGetTime = (reports[reports.length -1]).get('start')+20000000000000;
             var strCurGetTime = temCurGetTime.toString();
             var tt = new Date(parseInt(strCurGetTime.substr(0,4)),parseInt(strCurGetTime.substr(4,2))-1,parseInt(strCurGetTime.substr(6,2)),parseInt(strCurGetTime.substr(8,2)),
                 parseInt(strCurGetTime.substr(10,2)),parseInt(strCurGetTime.substr(12,2)));
 
             if (direction == 1) {
-                tt = new Date(tt.getTime() - 1000)
+                tt = new Date(tt.getTime() - 1000);
             };
 
-            console.log(tt);
+            console.log("tt:" + tt);
             return getValidReports(direction, tt, reportCnt, patientId, curReports);
         } else {
             return curReports;
@@ -688,6 +689,36 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
         console.log("getValidReports error : " + error);
         return error;
     });
+}
+
+/**
+ * [checkReportTimeNeedToPastDay description]
+ * @Author   bibitiger
+ * @DateTime 2017-11-14T10:27:18+0800
+ * @param    {Number}                 time [description]
+ * @return   {Number}                      [description]
+ */
+function checkReportTimeNeedToPastDay(time){
+    console.log("checkReportTimeNeedToPastDay begin: " + time);
+    time = time+20000000000000;
+    var strGetTime = time.toString();
+    var dateTime = new Date(parseInt(strGetTime.substr(0,4)),parseInt(strGetTime.substr(4,2))-1,
+        parseInt(strGetTime.substr(6,2)),parseInt(strGetTime.substr(8,2)),
+                parseInt(strGetTime.substr(10,2)),parseInt(strGetTime.substr(12,2)));
+    if (parseInt(strGetTime.substr(8,2)) < 12) {
+        dateTime = addDate(dateTime, -1);
+    }
+    console.log("checkReportTimeNeedToPastDay end: " + dateTime);
+
+    return Number(dateTime.Format("yyMMddhhmmss"));
+}
+
+function addDate(date,days){
+    var d = new Date(date);
+    // console.log("addDate begin: " + d);
+    d.setDate(d.getDate()+days);
+    // console.log("addDate: " + d);
+    return d;
 }
 
 /**
