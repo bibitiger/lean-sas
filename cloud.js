@@ -561,13 +561,18 @@ AV.Cloud.define('getValidReportsWithCnt', function(request, response){
         response.error({'error':'getValidReportsWithCnt param error'});
     };
 
-    var strTime = changeParamDateToJsDate(curTime).Format("yyMMddhhmmss");
-    var numTime = Number(strTime);
+    // var strTime = changeParamDateToJsDate(curTime).Format("yyMMddhhmmss");
+    // var numTime = Number(strTime);
     // console.log("strTime: " + strTime);
     // console.log("curTime:" + curTime['iso']);
     // console.log("numTime: " + numTime);
 
-    var curTimeDate = changeParamDateToJsDate(curTime)
+    var curTimeDate = changeParamDateToJsDate(curTime);
+    curTimeDate = new Date(curTimeDate.getTime() + 24*60*60*1000);
+    curTimeDate.setHours(11);
+    curTimeDate.setMinutes(59);
+    curTimeDate.setSeconds(59);
+    console.log("curTimeDate: " + curTimeDate);
 
     var laterBaseReports = new Array();
     getValidReports(0,curTimeDate, laterCnt, patientID, laterBaseReports).then(function(laterReports){
@@ -628,7 +633,7 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
     queryReport.exists('start');
     queryReport.notEqualTo('AHI', -1);
     queryReport.limit(reportCnt);
-    queryReport.select(['start', 'AHI', 'createdAt', 'end', 'breathList', 'idPatient']);
+    queryReport.select(['start', 'AHI', 'createdAt', 'end', /*'breathList'*/, 'idPatient']);
     var numTime = Number(chekTime.Format("yyMMddhhmmss"));
     // console.log("chekTime : " + chekTime);
     // console.log("numtime : " + numTime);
