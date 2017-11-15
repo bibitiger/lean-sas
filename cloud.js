@@ -633,7 +633,7 @@ function getValidReports(direction, chekTime, reportCnt, patientId, curReports){
     queryReport.exists('start');
     queryReport.notEqualTo('AHI', -1);
     queryReport.limit(reportCnt);
-    queryReport.select(['start', 'AHI', 'createdAt', 'end', /*'breathList'*/, 'idPatient']);
+    queryReport.select(['start', 'AHI', 'createdAt', 'end', 'breathList', 'idPatient']);
     var numTime = Number(chekTime.Format("yyMMddhhmmss"));
     // console.log("chekTime : " + chekTime);
     // console.log("numtime : " + numTime);
