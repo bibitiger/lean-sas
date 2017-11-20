@@ -1196,7 +1196,7 @@ AV.Cloud.define('getDevices', function(request, response){
 
     if(idPatient == null || idPatient == "" || idPatient == undefined){
         console.log("idPatient is null");
-        throw new AV.Error('Params error', {code:256});
+        throw new AV.Error(256, 'Params error');
     }
     console.log('After idPatient is null');
 
