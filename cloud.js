@@ -1188,7 +1188,22 @@ AV.Cloud.define('addOrUpdateDevice', function(request, response){
 
 });
 
+AV.Cloud.define('getDevices', function(request, response){
 
+    var params = request.params;
+    // var deviceSN = params.deviceSN;
+    var idPatient = params.idPatient;
+
+    if(idPatient == null || idPatient == "" || idPatient == undefined){
+        console.log("idPatient is null");
+        throw new AV.Cloud.Error('Params error', {code:256});
+    }
+    console.log('After idPatient is null');
+
+    // var queryDevice = new AV.Query('Device');
+    // queryDevice.equalTo('active', true);
+
+});
 
 /*
     phone client use when checked device has connect internet
