@@ -808,6 +808,10 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
             throw new AV.Error(256, 'Mplus is not bound');
         }else{
             var idPatient = qDevices[0].get('idPatient');
+            var deviceId = qDevices[0].id;
+
+            var createDevice = AV.Object.createWithoutData('Device', deviceId);
+
             if(deviceType == "spt"){
 
                 var queryExistMac = new AV.Query('BoundDevice');
@@ -838,6 +842,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                     dev[0].set('mac', mac);
                                     dev[0].set('active', true);
                                     dev[0].set('idPatient', idPatient);
+                                    dev[0].set('idDevice', createDevice);
 
                                     dev[0].save().then(function(device){
                                         console.log(device.id);
@@ -868,6 +873,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                 boundDevice.set('mac', mac);
                                 boundDevice.set('active', true);
                                 boundDevice.set('idPatient', idPatient);
+                                boundDevice.set('idDevice', createDevice);
 
                                 boundDevice.save().then(function(device){
                                     console.log(device.id);
