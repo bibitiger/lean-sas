@@ -800,94 +800,110 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
         return;
     }
 
-    if(deviceType == "spt"){
+    var queryDevice = new AV.Query('Device');
+    queryDevice.equalTo('deviceSN', mPlusSn);
+    queryDevice.equalTo('active', true);
+    queryDevice.find().then(function(qDevices){
+        if(qDevices.length < 1){
+            throw new AV.Error(256, 'Mplus is not bound');
+        }else{
+            var idPatient = qDevices[0].get('idPatient');
+            if(deviceType == "spt"){
 
-        var queryExistMac = new AV.Query('BoundDevice');
-        queryExistMac.equalTo('mac', mac);
-        queryExistMac.notEqualTo('mPlusSn', null);
-        queryExistMac.find().then(function(macDev){
+                var queryExistMac = new AV.Query('BoundDevice');
+                queryExistMac.equalTo('mac', mac);
+                queryExistMac.notEqualTo('mPlusSn', null);
+                queryExistMac.find().then(function(macDev){
 
-            if(macDev.length < 1){
-                var queryBoundDevice = new AV.Query('BoundDevice');
-                queryBoundDevice.equalTo('mPlusSn', mPlusSn);
-                queryBoundDevice.equalTo('deviceType', "spt");
-                queryBoundDevice.find().then(function(dev){
+                    if(macDev.length < 1){
+                        var queryBoundDevice = new AV.Query('BoundDevice');
+                        queryBoundDevice.equalTo('mPlusSn', mPlusSn);
+                        queryBoundDevice.equalTo('deviceType', "spt");
+                        queryBoundDevice.find().then(function(dev){
 
-                    console.log("bound length:" + dev.length);
+                            console.log("bound length:" + dev.length);
 
-                    if(dev.length > 0){
-                        var mac1 = dev[0].get("mac");
-                        console.log("mac:" + mac);
-                        if(mac1 == null || mac1 == "" || mac1 == undefined){
+                            if(dev.length > 0){
+                                var mac1 = dev[0].get("mac");
+                                console.log("mac:" + mac);
+                                if(mac1 == null || mac1 == "" || mac1 == undefined){
 
-                            dev[0].set('deviceType', "spt");
-                            dev[0].set('mPlusSn', mPlusSn);
-                            dev[0].set('hwVersion', hwVersion);
-                            dev[0].set('btVersion', btVersion);
-                            dev[0].set('swVersion', swVersion);
-                            dev[0].set('dSize', dSize);
-                            dev[0].set('sn', sn);
-                            dev[0].set('mac', mac);
-                            dev[0].set('active', true);
+                                    dev[0].set('deviceType', "spt");
+                                    dev[0].set('mPlusSn', mPlusSn);
+                                    dev[0].set('hwVersion', hwVersion);
+                                    dev[0].set('btVersion', btVersion);
+                                    dev[0].set('swVersion', swVersion);
+                                    dev[0].set('dSize', dSize);
+                                    dev[0].set('sn', sn);
+                                    dev[0].set('mac', mac);
+                                    dev[0].set('active', true);
+                                    dev[0].set('idPatient', idPatient);
 
-                            dev[0].save().then(function(device){
-                                console.log(device.id);
-                                response.success({
-                                    "id":device.id
-                                });
-                            }, function(error){
-                                console.log(error);
-                                response.error(error);
-                            });
+                                    dev[0].save().then(function(device){
+                                        console.log(device.id);
+                                        response.success({
+                                            "id":device.id
+                                        });
+                                    }, function(error){
+                                        console.log(error);
+                                        response.error(error);
+                                    });
 
-                        }else{
-                            console.log("MPlus already bound spt " + mPlusSn);
-                            response.error("Bound");
-                        }
+                                }else{
+                                    console.log("MPlus already bound spt " + mPlusSn);
+                                    response.error("Bound");
+                                }
 
-                    }else{
-                        var BoundDevice = AV.Object.extend('BoundDevice');
-                        var boundDevice = new BoundDevice();
+                            }else{
+                                var BoundDevice = AV.Object.extend('BoundDevice');
+                                var boundDevice = new BoundDevice();
 
-                        boundDevice.set('deviceType', "spt");
-                        boundDevice.set('mPlusSn', mPlusSn);
-                        boundDevice.set('hwVersion', hwVersion);
-                        boundDevice.set('btVersion', btVersion);
-                        boundDevice.set('swVersion', swVersion);
-                        boundDevice.set('dSize', dSize);
-                        boundDevice.set('sn', sn);
-                        boundDevice.set('mac', mac);
-                        boundDevice.set('active', true);
+                                boundDevice.set('deviceType', "spt");
+                                boundDevice.set('mPlusSn', mPlusSn);
+                                boundDevice.set('hwVersion', hwVersion);
+                                boundDevice.set('btVersion', btVersion);
+                                boundDevice.set('swVersion', swVersion);
+                                boundDevice.set('dSize', dSize);
+                                boundDevice.set('sn', sn);
+                                boundDevice.set('mac', mac);
+                                boundDevice.set('active', true);
+                                boundDevice.set('idPatient', idPatient);
 
-                        boundDevice.save().then(function(device){
-                            console.log(device.id);
-                            response.success({
-                                "id":device.id
-                            });
+                                boundDevice.save().then(function(device){
+                                    console.log(device.id);
+                                    response.success({
+                                        "id":device.id
+                                    });
+                                }, function(error){
+                                    console.log(error);
+                                    response.error(error);
+                                })
+                            }
                         }, function(error){
                             console.log(error);
                             response.error(error);
-                        })
+                        });
+
+                    }else{
+                        console.log("MPlus already bound spt " + mPlusSn);
+                        response.error("Bound");
                     }
+
                 }, function(error){
                     console.log(error);
                     response.error(error);
                 });
 
             }else{
-                console.log("MPlus already bound spt " + mPlusSn);
-                response.error("Bound");
+                console.log("deviceType error");
+                response.error("deviceType error");
             }
 
-        }, function(error){
-            console.log(error);
-            response.error(error);
-        });
-
-    }else{
-        console.log("deviceType error");
-        response.error("deviceType error");
-    }
+        }
+    }, function(error){
+        console.log(error);
+        response.error(error);
+    });
 
 });
 
