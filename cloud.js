@@ -958,8 +958,8 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
                 dev[0].set('sn', "");
                 dev[0].set('mac', "");
                 dev[0].set('active', false);
-                dev[0].set('idPatient', "");
-                dev[0].set('idDevice', "");
+                dev[0].set('idPatient', null);
+                dev[0].set('idDevice', null);
                 dev[0].set('battery', -1);
                 dev[0].set('connectStatus', 0);
 
