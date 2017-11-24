@@ -958,8 +958,10 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
                 dev[0].set('sn', "");
                 dev[0].set('mac', "");
                 dev[0].set('active', false);
-                dev[0].set('idPatient', null);
-                dev[0].set('idDevice', null);
+                dev[0].set('idPatient', "");
+                dev[0].set('idDevice', "");
+                dev[0].set('battery', -1);
+                dev[0].set('connectStatus', 0);
 
                 dev[0].save().then(function(device){
 
@@ -1217,17 +1219,259 @@ AV.Cloud.define('getDevices', function(request, response){
     var params = request.params;
     // var deviceSN = params.deviceSN;
     var idPatient = params.idPatient;
+    var deviceSN = params.deviceSN;
 
-    if(idPatient == null || idPatient == "" || idPatient == undefined){
-        console.log("idPatient is null");
-        throw new AV.Error(256, 'Params error');
+    if((!idPatient || idPatient == "") &&
+    (!deviceSN || deviceSN == "")){
+        console.log("{error:1}");
+        response.error("{error:1}");
     }
-    console.log('After idPatient is null');
+    // console.log('After idPatient is null');
+
+    var queryDevice = new AV.Query('Device');
+    queryDevice.equalTo('active', true);
+    if(deviceSN){
+        queryDevice.equalTo('deviceSN', deviceSN);
+    }else{
+        var createPatient = AV.Object.createWithoutData('Patients', idPatient);
+        queryDevice.equalTo('idPatient', createPatient);
+    }
+    queryDevice.find().then(function(mPlusDevices){
+        if(mPlusDevices.length < 1){
+            response.success(mPlusDevices);
+        }else{
+            console.log(JSON.stringify(mPlusDevices));
+            var deviceSN1 = mPlusDevices[0].get("deviceSN");
+            console.log("deviceSN1:" + deviceSN1);
+            if(!deviceSN1){
+                console.log("{error:1}");
+                response.error("{error:1}");
+            }
+            var queryBoundDevice = new AV.Query('BoundDevice');
+            queryBoundDevice.equalTo('mPlusSn', deviceSN1);
+            queryBoundDevice.find().then(function(boundDevices){
+                // var jsonboundDevices = JSON.stringify(boundDevices);
+                // console.log("jsonboundDevices:" + jsonboundDevices);
+                console.log("length:" + boundDevices.length);
+                
+                var bDevices = [];
+                for(var j =0; j< boundDevices.length; j++){
+                    var bDevice = {};
+                    bDevice.hwVersion = boundDevices[j].get("hwVersion");
+                    bDevice.btVersion = boundDevices[j].get("btVersion");
+                    bDevice.btVersion = boundDevices[j].get("btVersion");
+                    bDevice.dSize = boundDevices[j].get("dSize");
+                    bDevice.active = boundDevices[j].get("active");
+                    bDevice.deviceType = boundDevices[j].get("deviceType");
+                    bDevice.idPatient = boundDevices[j].get("idPatient");
+                    bDevice.sn = boundDevices[j].get("sn");
+                    bDevice.idDevice = boundDevices[j].get("idDevice");
+                    bDevice.mac = boundDevices[j].get("mac");
+                    bDevice.objectId = boundDevices[j].id;
+                    bDevices.push(bDevice);
+                }
+                mPlusDevices[0].set("boundDevices", bDevices);
+                response.success(mPlusDevices);
+            }, function(error){
+                console.log(error);
+                response.error(error);
+            });
+        }
+
+
+    }, function(error){
+        console.log(error);
+        response.error(error);
+    });
 
     // var queryDevice = new AV.Query('Device');
     // queryDevice.equalTo('active', true);
 
 });
+
+
+
+
+AV.Cloud.define('updateADevices', function(request, response) {
+
+    var params = request.params;
+    var deviceSN = params.deviceSN;
+    var workStatus = params.workStatus;
+    var sleepStatus = params.sleepStatus;
+    var monitorStatus = params.monitorStatus;
+    var localIP = params.localIP;
+    var wifiName = params.wifiName;
+    var boundDevices = params.boundDevices;
+
+    console.log(JSON.stringify(params));
+
+    if(!deviceSN){
+        response.error("error");
+        return;
+    }
+
+    var query = new AV.Query('Device');
+    query.equalTo('deviceSN', deviceSN);
+    query.find().then(function(dev) {
+        if(dev.length === 0){
+            response.error("can not find device");
+        }else {
+            dev[0].set('workStatus',workStatus);
+            dev[0].set('sleepStatus',sleepStatus);
+            dev[0].set('monitorStatus',monitorStatus);
+            dev[0].set('localIP',localIP);
+            dev[0].set('wifiName',wifiName);
+            dev[0].save().then(function(newDev){
+
+            if(boundDevices && boundDevices.length > 0){
+                var mac = boundDevices[0].mac;
+                console.log("mac:" + mac);
+                if(!mac){
+                    response.error("mac is null");
+                    return;
+                }
+                var queryBoundDevice = new AV.Query('BoundDevice');
+                queryBoundDevice.equalTo('mac', mac);
+                queryBoundDevice.find().then(function(bDevices){
+                    if(bDevices.length < 1){
+                        response.error("Can not find boundDevice " + mac);
+                        return;
+                    }
+                    if(boundDevices[0].hwVersion){
+                        bDevices[0].set('hwVersion', boundDevices[0].hwVersion);
+                    }
+                    if(boundDevices[0].btVersion){
+                        bDevices[0].set('btVersion', boundDevices[0].btVersion);
+                    }
+                    if(boundDevices[0].swVersion){
+                        bDevices[0].set('swVersion', boundDevices[0].swVersion);
+                    }
+                    if(boundDevices[0].connectStatus){
+                        bDevices[0].set('connectStatus', boundDevices[0].connectStatus);
+                    }
+                    if(boundDevices[0].dSize){
+                        bDevices[0].set('dSize', boundDevices[0].dSize);
+                    }
+                    if(boundDevices[0].battery){
+                        bDevices[0].set('battery', boundDevices[0].battery);
+                    }
+                    
+                    bDevices[0].save().then(function(sDevices){
+                        
+                        response.success({
+                            "objectId" : newDev.id,
+                            "rawDataUpload" : newDev.get('rawDataUpload'),
+                            "idPatient" : newDev.get('idPatient'),
+                            "period" : newDev.get('period'),
+                            "ledOnTime" : newDev.get('ledOnTime')
+                        });
+
+                    }, function(error){
+                        response.error(error);
+                    });
+
+                }, function(error){
+                    console.log(error);
+                    response.error(error);
+                });
+
+            }else{
+                response.success({
+                    "objectId" : newDev.id,
+                    "rawDataUpload" : newDev.get('rawDataUpload'),
+                    "idPatient" : newDev.get('idPatient'),
+                    "period" : newDev.get('period'),
+                    "ledOnTime" : newDev.get('ledOnTime')
+                });
+            }
+
+
+            });
+        }
+    },function(err) {
+        console.log(err);
+        response.error(err);
+    });
+});
+
+
+
+
+/**
+ * 解绑
+ */
+AV.Cloud.define('unboundMPlusDevice', function(request, response){
+
+    var params = request.params;
+    var idPatient = params.idPatient;
+
+
+    if(!idPatient){
+        console.log("idPatient is null");
+        response.error("idPatient is null");
+        return;
+    }
+
+    var pointPatient = AV.Object.createWithoutData('Patients', idPatient);
+    
+    var queryDevice = new AV.Query('Device');
+    queryDevice.equalTo('idPatient', pointPatient);
+    queryDevice.equalTo('active', true);
+    queryDevice.find().then(function(dev1){
+        if(dev1.length < 1 || dev1.length > 10){
+            response.error("Can not device");
+            return;
+        }
+        dev1[0].set('active', false);
+        dev1[0].save().then(function(saveDevice){
+            
+            var queryBoundDevice = new AV.Query('BoundDevice');
+            queryBoundDevice.equalTo('idPatient', pointPatient);
+            queryBoundDevice.find().then(function(bDevice){
+
+                if(bDevice.length > 5){
+                    console.log("query error");
+                    response.error("query error");
+                    return;
+                }
+
+                var deleteDevs = [];
+
+                for(var i = 0; i< bDevice.length; i++){
+                    deleteDevs.push(bDevice[i]);
+                }
+
+                console.log("deleteDevs length:" + deleteDevs.length);
+                if(deleteDevs.length == 0 || deleteDevs.length > 3){
+                    response.success("{}");
+                    return;
+                }
+                
+                AV.Object.destroyAll(deleteDevs).then(function(resultDev){
+                    response.success("{}");
+                }, function(error){
+                    console.log(error);
+                    response.error(error);
+                });
+                
+                
+            }, function(error){
+                console.log(error);
+                response.error(error);
+            });
+
+        }, function(error){
+            console.log(error);
+            response.error(error);
+        });
+
+    }, function(error){
+        console.log(error);
+        response.error(error);
+    });
+
+});
+
 
 /*
     phone client use when checked device has connect internet
