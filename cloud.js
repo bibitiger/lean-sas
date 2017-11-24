@@ -805,7 +805,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
     queryDevice.equalTo('active', true);
     queryDevice.find().then(function(qDevices){
         if(qDevices.length < 1){
-            throw new AV.Error(256, 'Mplus is not bound');
+            response.error("MPlus is null");
         }else{
             var idPatient = qDevices[0].get('idPatient');
             var deviceId = qDevices[0].id;
