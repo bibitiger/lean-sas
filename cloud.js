@@ -1267,6 +1267,8 @@ AV.Cloud.define('getDevices', function(request, response){
                     bDevice.sn = boundDevices[j].get("sn");
                     bDevice.idDevice = boundDevices[j].get("idDevice");
                     bDevice.mac = boundDevices[j].get("mac");
+                    bDevice.battery = boundDevices[j].get("battery");
+                    bDevice.powerStatus = boundDevices[j].get("powerStatus");
                     bDevice.objectId = boundDevices[j].id;
                     bDevices.push(bDevice);
                 }
@@ -1383,6 +1385,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                         qDevices[k].set('dSize', boundDevices[i].dSize);
                                     }
                                     qDevices[k].set('battery', boundDevices[i].battery);
+                                    qDevices[k].set('monitor', boundDevices[i].monitor);
                                     qDevices[k].set('powerStatus', boundDevices[i].powerStatus);
                                     updateBoundDevices.push(qDevices[k]);
                                 }
