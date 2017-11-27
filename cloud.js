@@ -1312,6 +1312,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
 
     var query = new AV.Query('Device');
     query.equalTo('deviceSN', deviceSN);
+    query.equalTo('active', true);
     query.find().then(function(dev) {
         if(dev.length === 0){
             response.error("can not find device");
@@ -1323,67 +1324,101 @@ AV.Cloud.define('updateADevices', function(request, response) {
             dev[0].set('wifiName',wifiName);
             dev[0].save().then(function(newDev){
 
-            if(boundDevices && boundDevices.length > 0){
-                var mac = boundDevices[0].mac;
-                console.log("mac:" + mac);
-                if(!mac){
-                    response.error("mac is null");
+                var pointIdPatient = dev[0].get("idPatient");
+                if(!pointIdPatient){
+                    response.error("not idPatient");
                     return;
                 }
-                var queryBoundDevice = new AV.Query('BoundDevice');
-                queryBoundDevice.equalTo('mac', mac);
-                queryBoundDevice.find().then(function(bDevices){
-                    if(bDevices.length < 1){
-                        response.error("Can not find boundDevice " + mac);
-                        return;
-                    }
-                    if(boundDevices[0].hwVersion){
-                        bDevices[0].set('hwVersion', boundDevices[0].hwVersion);
-                    }
-                    if(boundDevices[0].btVersion){
-                        bDevices[0].set('btVersion', boundDevices[0].btVersion);
-                    }
-                    if(boundDevices[0].swVersion){
-                        bDevices[0].set('swVersion', boundDevices[0].swVersion);
-                    }
-                    if(boundDevices[0].connectStatus){
-                        bDevices[0].set('connectStatus', boundDevices[0].connectStatus);
-                    }
-                    if(boundDevices[0].dSize){
-                        bDevices[0].set('dSize', boundDevices[0].dSize);
-                    }
-                    if(boundDevices[0].battery){
-                        bDevices[0].set('battery', boundDevices[0].battery);
-                    }
+
+                var qBoundDevice = new AV.Query('BoundDevice');
+                qBoundDevice.equalTo('idPatient', pointIdPatient);
+                qBoundDevice.equalTo('active', true);
+                qBoundDevice.find().then(function(qDevices){
+                    // var jsonboundDevices = JSON.stringify(boundDevices);
+                    // console.log("jsonboundDevices:" + jsonboundDevices);
+                    console.log("length:" + qDevices.length);
                     
-                    bDevices[0].save().then(function(sDevices){
-                        
+                    var pDevices = [];
+                    for(var j =0; j< qDevices.length; j++){
+                        var bDevice = {};
+                        bDevice.dSize = qDevices[j].get("dSize");
+                        bDevice.active = qDevices[j].get("active");
+                        bDevice.deviceType = qDevices[j].get("deviceType");
+                        bDevice.sn = qDevices[j].get("sn");
+                        bDevice.mac = qDevices[j].get("mac");
+                        bDevice.objectId = qDevices[j].id;
+                        pDevices.push(bDevice);
+                    }
+
+                    if(boundDevices && boundDevices.length > 0){
+                        var mac = boundDevices[0].mac;
+                        console.log("mac:" + mac);
+                        if(!mac){
+                            response.error("mac is null");
+                            return;
+                        }
+
+                        var updateBoundDevices = [];
+                        for(var i = 0; i < boundDevices.length; i++){
+                            if(!boundDevices[i].mac){
+                                continue;
+                            }
+                            for(var k = 0; k< qDevices.length; k++){
+                                if(boundDevices[i].mac == qDevices[k].get("mac")){
+
+                                    if(boundDevices[i].hwVersion){
+                                        qDevices[k].set('hwVersion', boundDevices[i].hwVersion);
+                                    }
+                                    if(boundDevices[i].btVersion){
+                                        qDevices[k].set('btVersion', boundDevices[i].btVersion);
+                                    }
+                                    if(boundDevices[i].swVersion){
+                                        qDevices[k].set('swVersion', boundDevices[i].swVersion);
+                                    }
+                                    if(boundDevices[i].connectStatus){
+                                        qDevices[k].set('connectStatus', boundDevices[i].connectStatus);
+                                    }
+                                    if(boundDevices[i].dSize){
+                                        qDevices[k].set('dSize', boundDevices[i].dSize);
+                                    }
+                                    if(boundDevices[i].battery){
+                                        qDevices[k].set('battery', boundDevices[i].battery);
+                                    }
+                                    updateBoundDevices.push(qDevices[k]);
+                                }
+                            }
+                        }
+
+                        AV.Object.saveAll(updateBoundDevices).then(function(updateDevs){
+                                response.success({
+                                    "objectId" : newDev.id,
+                                    "rawDataUpload" : newDev.get('rawDataUpload'),
+                                    "idPatient" : newDev.get('idPatient'),
+                                    "period" : newDev.get('period'),
+                                    "ledOnTime" : newDev.get('ledOnTime'),
+                                    "boundDevices":pDevices
+                                });
+                        }, function(error){
+                            console.log(error);
+                            response.error(error);
+                        })
+
+                    }else{
                         response.success({
                             "objectId" : newDev.id,
                             "rawDataUpload" : newDev.get('rawDataUpload'),
                             "idPatient" : newDev.get('idPatient'),
                             "period" : newDev.get('period'),
-                            "ledOnTime" : newDev.get('ledOnTime')
+                            "ledOnTime" : newDev.get('ledOnTime'),
+                            "boundDevices":pDevices
                         });
-
-                    }, function(error){
-                        response.error(error);
-                    });
-
+                    }
+                    
+                    
                 }, function(error){
                     console.log(error);
                     response.error(error);
                 });
-
-            }else{
-                response.success({
-                    "objectId" : newDev.id,
-                    "rawDataUpload" : newDev.get('rawDataUpload'),
-                    "idPatient" : newDev.get('idPatient'),
-                    "period" : newDev.get('period'),
-                    "ledOnTime" : newDev.get('ledOnTime')
-                });
-            }
 
 
             });
