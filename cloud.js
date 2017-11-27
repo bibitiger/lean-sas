@@ -1378,19 +1378,12 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                     if(boundDevices[i].swVersion){
                                         qDevices[k].set('swVersion', boundDevices[i].swVersion);
                                     }
-                                    if(boundDevices[i].connectStatus){
-                                        qDevices[k].set('connectStatus', boundDevices[i].connectStatus);
-                                    }
+                                    qDevices[k].set('connectStatus', boundDevices[i].connectStatus);
                                     if(boundDevices[i].dSize){
                                         qDevices[k].set('dSize', boundDevices[i].dSize);
                                     }
-                                    if(boundDevices[i].battery){
-                                        qDevices[k].set('battery', boundDevices[i].battery);
-                                    }
-                                    console.log("powerStatus:" + boundDevices[i].powerStatus);
-                                    if(boundDevices[i].powerStatus){
-                                        qDevices[k].set('powerStatus', boundDevices[i].powerStatus);
-                                    }
+                                    qDevices[k].set('battery', boundDevices[i].battery);
+                                    qDevices[k].set('powerStatus', boundDevices[i].powerStatus);
                                     updateBoundDevices.push(qDevices[k]);
                                 }
                             }
