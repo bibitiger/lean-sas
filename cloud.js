@@ -962,6 +962,8 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
                 dev[0].set('idDevice', null);
                 dev[0].set('battery', -1);
                 dev[0].set('connectStatus', 0);
+                dev[0].set('monitor', -1);
+                dev[0].set('powerStatus', -1);
 
                 dev[0].save().then(function(device){
 
