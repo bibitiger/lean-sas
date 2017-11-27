@@ -1346,6 +1346,9 @@ AV.Cloud.define('updateADevices', function(request, response) {
                         bDevice.deviceType = qDevices[j].get("deviceType");
                         bDevice.sn = qDevices[j].get("sn");
                         bDevice.mac = qDevices[j].get("mac");
+                        bDevice.hwVersion = qDevices[j].get("hwVersion");
+                        bDevice.btVersion = qDevices[j].get("btVersion");
+                        bDevice.swVersion = qDevices[j].get("swVersion");
                         bDevice.objectId = qDevices[j].id;
                         pDevices.push(bDevice);
                     }
