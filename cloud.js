@@ -1387,6 +1387,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                     if(boundDevices[i].battery){
                                         qDevices[k].set('battery', boundDevices[i].battery);
                                     }
+                                    console.log("powerStatus:" + boundDevices[i].powerStatus);
                                     if(boundDevices[i].powerStatus){
                                         qDevices[k].set('powerStatus', boundDevices[i].powerStatus);
                                     }
