@@ -1391,20 +1391,32 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                 }
                             }
                         }
+                        
+                        if(updateBoundDevices.length > 0){
+                            AV.Object.saveAll(updateBoundDevices).then(function(updateDevs){
+                                    response.success({
+                                        "objectId" : newDev.id,
+                                        "rawDataUpload" : newDev.get('rawDataUpload'),
+                                        "idPatient" : newDev.get('idPatient'),
+                                        "period" : newDev.get('period'),
+                                        "ledOnTime" : newDev.get('ledOnTime'),
+                                        "boundDevices":pDevices
+                                    });
+                            }, function(error){
+                                console.log(error);
+                                response.error(error);
+                            });
+                        }else{
+                            response.success({
+                                "objectId" : newDev.id,
+                                "rawDataUpload" : newDev.get('rawDataUpload'),
+                                "idPatient" : newDev.get('idPatient'),
+                                "period" : newDev.get('period'),
+                                "ledOnTime" : newDev.get('ledOnTime'),
+                                "boundDevices":pDevices
+                            });
+                        }
 
-                        AV.Object.saveAll(updateBoundDevices).then(function(updateDevs){
-                                response.success({
-                                    "objectId" : newDev.id,
-                                    "rawDataUpload" : newDev.get('rawDataUpload'),
-                                    "idPatient" : newDev.get('idPatient'),
-                                    "period" : newDev.get('period'),
-                                    "ledOnTime" : newDev.get('ledOnTime'),
-                                    "boundDevices":pDevices
-                                });
-                        }, function(error){
-                            console.log(error);
-                            response.error(error);
-                        })
 
                     }else{
                         response.success({
