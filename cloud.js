@@ -823,14 +823,37 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                         var queryBoundDevice = new AV.Query('BoundDevice');
                         queryBoundDevice.equalTo('mPlusSn', mPlusSn);
                         queryBoundDevice.equalTo('deviceType', "spt");
-                        queryBoundDevice.equalTo('active', true);
                         queryBoundDevice.find().then(function(dev){
 
                             console.log("bound length:" + dev.length);
 
                             if(dev.length > 0){
-                                console.log("Already bound spt " + mPlusSn);
-                                response.error("Bound");
+                                if(dev[0].get("active")){
+                                    console.log("Already bound spt " + mPlusSn);
+                                    response.error("Bound");
+                                }else{
+                                    dev[0].set('deviceType', "spt");
+                                    dev[0].set('mPlusSn', mPlusSn);
+                                    dev[0].set('hwVersion', hwVersion);
+                                    dev[0].set('btVersion', btVersion);
+                                    dev[0].set('swVersion', swVersion);
+                                    dev[0].set('dSize', dSize);
+                                    dev[0].set('sn', sn);
+                                    dev[0].set('mac', mac);
+                                    dev[0].set('active', true);
+                                    dev[0].set('idPatient', idPatient);
+                                    dev[0].set('idDevice', createDevice);
+
+                                    dev[0].save().then(function(eDev){
+                                        response.success({
+                                            "id":eDev.id
+                                        });
+                                    }, function(error){
+                                        console.log(error);
+                                        response.error(error);
+                                    });
+                                }
+                                
                             }else{
                                 var BoundDevice = AV.Object.extend('BoundDevice');
                                 var boundDevice = new BoundDevice();
