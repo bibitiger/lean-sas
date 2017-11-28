@@ -823,6 +823,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                         var queryBoundDevice = new AV.Query('BoundDevice');
                         queryBoundDevice.equalTo('mPlusSn', mPlusSn);
                         queryBoundDevice.equalTo('deviceType', "spt");
+                        queryBoundDevice.equalTo('active', true);
                         queryBoundDevice.find().then(function(dev){
 
                             console.log("bound length:" + dev.length);
