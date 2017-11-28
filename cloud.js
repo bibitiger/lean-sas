@@ -1271,6 +1271,7 @@ AV.Cloud.define('getDevices', function(request, response){
                     bDevice.mac = boundDevices[j].get("mac");
                     bDevice.battery = boundDevices[j].get("battery");
                     bDevice.powerStatus = boundDevices[j].get("powerStatus");
+                    bDevice.monitor = boundDevices[j].get("monitor");
                     bDevice.objectId = boundDevices[j].id;
                     bDevices.push(bDevice);
                 }
