@@ -829,37 +829,8 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                             console.log("bound length:" + dev.length);
 
                             if(dev.length > 0){
-                                var mac1 = dev[0].get("mac");
-                                console.log("mac:" + mac);
-                                if(mac1 == null || mac1 == "" || mac1 == undefined){
-
-                                    dev[0].set('deviceType', "spt");
-                                    dev[0].set('mPlusSn', mPlusSn);
-                                    dev[0].set('hwVersion', hwVersion);
-                                    dev[0].set('btVersion', btVersion);
-                                    dev[0].set('swVersion', swVersion);
-                                    dev[0].set('dSize', dSize);
-                                    dev[0].set('sn', sn);
-                                    dev[0].set('mac', mac);
-                                    dev[0].set('active', true);
-                                    dev[0].set('idPatient', idPatient);
-                                    dev[0].set('idDevice', createDevice);
-
-                                    dev[0].save().then(function(device){
-                                        console.log(device.id);
-                                        response.success({
-                                            "id":device.id
-                                        });
-                                    }, function(error){
-                                        console.log(error);
-                                        response.error(error);
-                                    });
-
-                                }else{
-                                    console.log("MPlus already bound spt " + mPlusSn);
-                                    response.error("Bound");
-                                }
-
+                                console.log("Already bound spt " + mPlusSn);
+                                response.error("Bound");
                             }else{
                                 var BoundDevice = AV.Object.extend('BoundDevice');
                                 var boundDevice = new BoundDevice();
