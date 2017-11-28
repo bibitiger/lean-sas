@@ -816,7 +816,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 
                 var queryExistMac = new AV.Query('BoundDevice');
                 queryExistMac.equalTo('mac', mac);
-                queryExistMac.notEqualTo('mPlusSn', null);
+                queryExistMac.equalTo('active', true);
                 queryExistMac.find().then(function(macDev){
 
                     if(macDev.length < 1){
