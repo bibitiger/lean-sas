@@ -1256,7 +1256,7 @@ AV.Cloud.define('getDevices', function(request, response){
                     var bDevice = {};
                     bDevice.hwVersion = boundDevices[j].get("hwVersion");
                     bDevice.btVersion = boundDevices[j].get("btVersion");
-                    bDevice.btVersion = boundDevices[j].get("btVersion");
+                    bDevice.swVersion = boundDevices[j].get("swVersion");
                     bDevice.dSize = boundDevices[j].get("dSize");
                     bDevice.active = boundDevices[j].get("active");
                     bDevice.deviceType = boundDevices[j].get("deviceType");
