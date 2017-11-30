@@ -781,6 +781,9 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
     var dSize = params.dSize;
     var sn = params.sn;
     var mac = params.mac;
+    var monitor = params.monitor;
+    var connectStatus = params.connectStatus;
+    var battery = params.battery;
 
     if(deviceType == null || deviceType == "" || deviceType == undefined){
         console.log("deviceType is null");
@@ -816,48 +819,118 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 
                 var queryExistMac = new AV.Query('BoundDevice');
                 queryExistMac.equalTo('mac', mac);
-                queryExistMac.equalTo('active', true);
-                queryExistMac.find().then(function(macDev){
+                queryExistMac.equalTo('deviceType', "spt");
+                queryExistMac.notEqualTo('mPlusSn', mPlusSn);
+                queryExistMac.find().then(function(otherBounds){
 
-                    if(macDev.length < 1){
-                        var queryBoundDevice = new AV.Query('BoundDevice');
-                        queryBoundDevice.equalTo('mPlusSn', mPlusSn);
-                        queryBoundDevice.equalTo('deviceType', "spt");
-                        queryBoundDevice.find().then(function(dev){
+                    var queryMPlusBoundSpt = new AV.Query('BoundDevice');
+                    queryMPlusBoundSpt.equalTo('mPlusSn', mPlusSn);
+                    queryMPlusBoundSpt.equalTo('deviceType', "spt");
 
-                            console.log("bound length:" + dev.length);
+                    queryMPlusBoundSpt.find().then(function(mPlusBounds){
 
-                            if(dev.length > 0){
-                                if(dev[0].get("active")){
-                                    console.log("Already bound spt " + mPlusSn);
-                                    response.error("Bound");
-                                }else{
-                                    dev[0].set('deviceType', "spt");
-                                    dev[0].set('mPlusSn', mPlusSn);
-                                    dev[0].set('hwVersion', hwVersion);
-                                    dev[0].set('btVersion', btVersion);
-                                    dev[0].set('swVersion', swVersion);
-                                    dev[0].set('dSize', dSize);
-                                    dev[0].set('sn', sn);
-                                    dev[0].set('mac', mac);
-                                    dev[0].set('active', true);
-                                    dev[0].set('idPatient', idPatient);
-                                    dev[0].set('idDevice', createDevice);
+                        if(otherBounds.length > 0){
 
-                                    dev[0].save().then(function(eDev){
+                            if(otherBounds.length > 10){
+                                response.error("mac too more");
+                                return;
+                            }
+                            console.log("delete otherBounds" + otherBounds.length);
+                            AV.Object.destroyAll(otherBounds).then(function(oDev){
+
+                                if(mPlusBounds.length > 0){
+
+                                    mPlusBounds[0].set('deviceType', "spt");
+                                    mPlusBounds[0].set('mPlusSn', mPlusSn);
+                                    mPlusBounds[0].set('hwVersion', hwVersion);
+                                    mPlusBounds[0].set('btVersion', btVersion);
+                                    mPlusBounds[0].set('swVersion', swVersion);
+                                    mPlusBounds[0].set('dSize', dSize);
+                                    mPlusBounds[0].set('sn', sn);
+                                    mPlusBounds[0].set('mac', mac);
+                                    mPlusBounds[0].set('active', true);
+                                    mPlusBounds[0].set('idPatient', idPatient);
+                                    mPlusBounds[0].set('idDevice', createDevice);
+                                    mPlusBounds[0].set('monitor', monitor);
+                                    mPlusBounds[0].set('connectStatus', connectStatus);
+                                    mPlusBounds[0].set('battery', battery);
+
+                                    mPlusBounds[0].save().then(function(eDev){
                                         response.success({
                                             "id":eDev.id
+                                        });                                    
+
+                                    }, function(error){
+                                        console.log(error);
+                                        response.error(error);
+                                    });
+
+                                }else{
+
+                                    var BoundDevice = AV.Object.extend('BoundDevice');
+                                    var boundDevice = new BoundDevice();
+                                    boundDevice.set('deviceType', "spt");
+                                    boundDevice.set('mPlusSn', mPlusSn);
+                                    boundDevice.set('hwVersion', hwVersion);
+                                    boundDevice.set('btVersion', btVersion);
+                                    boundDevice.set('swVersion', swVersion);
+                                    boundDevice.set('dSize', dSize);
+                                    boundDevice.set('sn', sn);
+                                    boundDevice.set('mac', mac);
+                                    boundDevice.set('active', true);
+                                    boundDevice.set('idPatient', idPatient);
+                                    boundDevice.set('idDevice', createDevice);
+                                    boundDevice.set('monitor', monitor);
+                                    boundDevice.set('connectStatus', connectStatus);
+                                    boundDevice.set('battery', battery);
+
+                                    boundDevice.save().then(function(device){
+                                        console.log(device.id);
+                                        response.success({
+                                            "id":device.id
                                         });
                                     }, function(error){
                                         console.log(error);
                                         response.error(error);
                                     });
                                 }
-                                
+
+                            }, function(error){
+                                console.log(error);
+                                response.error(error);
+                            });
+                        }else{
+                            if(mPlusBounds.length > 0){
+
+                                mPlusBounds[0].set('deviceType', "spt");
+                                mPlusBounds[0].set('mPlusSn', mPlusSn);
+                                mPlusBounds[0].set('hwVersion', hwVersion);
+                                mPlusBounds[0].set('btVersion', btVersion);
+                                mPlusBounds[0].set('swVersion', swVersion);
+                                mPlusBounds[0].set('dSize', dSize);
+                                mPlusBounds[0].set('sn', sn);
+                                mPlusBounds[0].set('mac', mac);
+                                mPlusBounds[0].set('active', true);
+                                mPlusBounds[0].set('idPatient', idPatient);
+                                mPlusBounds[0].set('idDevice', createDevice);
+                                mPlusBounds[0].set('monitor', monitor);
+                                mPlusBounds[0].set('connectStatus', connectStatus);
+                                mPlusBounds[0].set('battery', battery);
+
+                                mPlusBounds[0].save().then(function(eDev){
+                                    response.success({
+                                        "id":eDev.id
+                                    });                                    
+
+                                }, function(error){
+                                    console.log(error);
+                                    response.error(error);
+                                });
+
                             }else{
+
                                 var BoundDevice = AV.Object.extend('BoundDevice');
                                 var boundDevice = new BoundDevice();
-
                                 boundDevice.set('deviceType', "spt");
                                 boundDevice.set('mPlusSn', mPlusSn);
                                 boundDevice.set('hwVersion', hwVersion);
@@ -869,6 +942,9 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                 boundDevice.set('active', true);
                                 boundDevice.set('idPatient', idPatient);
                                 boundDevice.set('idDevice', createDevice);
+                                boundDevice.set('monitor', monitor);
+                                boundDevice.set('connectStatus', connectStatus);
+                                boundDevice.set('battery', battery);
 
                                 boundDevice.save().then(function(device){
                                     console.log(device.id);
@@ -878,17 +954,15 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                 }, function(error){
                                     console.log(error);
                                     response.error(error);
-                                })
+                                });
                             }
-                        }, function(error){
-                            console.log(error);
-                            response.error(error);
-                        });
+                            
+                        }
 
-                    }else{
-                        console.log("MPlus already bound spt " + mPlusSn);
-                        response.error("Bound");
-                    }
+                    }, function(error){
+                        console.log(error);
+                        response.error(error);
+                    })
 
                 }, function(error){
                     console.log(error);
@@ -1267,6 +1341,7 @@ AV.Cloud.define('getDevices', function(request, response){
                     bDevice.battery = boundDevices[j].get("battery");
                     bDevice.powerStatus = boundDevices[j].get("powerStatus");
                     bDevice.monitor = boundDevices[j].get("monitor");
+                    bDevice.connectStatus = boundDevices[j].get("connectStatus");
                     bDevice.objectId = boundDevices[j].id;
                     bDevices.push(bDevice);
                 }
