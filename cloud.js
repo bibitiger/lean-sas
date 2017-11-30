@@ -784,6 +784,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
     var monitor = params.monitor;
     var connectStatus = params.connectStatus;
     var battery = params.battery;
+    var random = params.random;
 
     if(deviceType == null || deviceType == "" || deviceType == undefined){
         console.log("deviceType is null");
@@ -854,6 +855,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                     mPlusBounds[0].set('monitor', monitor);
                                     mPlusBounds[0].set('connectStatus', connectStatus);
                                     mPlusBounds[0].set('battery', battery);
+                                    mPlusBounds[0].set('random', random);
 
                                     mPlusBounds[0].save().then(function(eDev){
                                         response.success({
@@ -883,6 +885,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                     boundDevice.set('monitor', monitor);
                                     boundDevice.set('connectStatus', connectStatus);
                                     boundDevice.set('battery', battery);
+                                    boundDevice.set('random', random);
 
                                     boundDevice.save().then(function(device){
                                         console.log(device.id);
@@ -916,6 +919,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                 mPlusBounds[0].set('monitor', monitor);
                                 mPlusBounds[0].set('connectStatus', connectStatus);
                                 mPlusBounds[0].set('battery', battery);
+                                mPlusBounds[0].set('random', random);
 
                                 mPlusBounds[0].save().then(function(eDev){
                                     response.success({
@@ -945,6 +949,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                                 boundDevice.set('monitor', monitor);
                                 boundDevice.set('connectStatus', connectStatus);
                                 boundDevice.set('battery', battery);
+                                boundDevice.set('random', random);
 
                                 boundDevice.save().then(function(device){
                                     console.log(device.id);
