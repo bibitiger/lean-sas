@@ -1018,46 +1018,52 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
 
     if(deviceType == "spt"){
 
-        var queryBoundDevice = new AV.Query('BoundDevice');
-        queryBoundDevice.equalTo('mPlusSn', mPlusSn);
-        queryBoundDevice.equalTo('deviceType', "spt");
+        var queryDev = new AV.Query('Device');
+        queryDev.equalTo('deviceSN', mPlusSn);
+        queryDev.equalTo('active', true);
+        queryDev.find().then(function(plusList){
 
-        queryBoundDevice.find().then(function(dev){
-
-            if(dev.length > 0){
-                dev[0].set('hwVersion', "");
-                dev[0].set('btVersion', "");
-                dev[0].set('swVersion', "");
-                dev[0].set('dSize', "");
-                dev[0].set('sn', "");
-                dev[0].set('mac', "");
-                dev[0].set('active', false);
-                dev[0].set('idPatient', null);
-                dev[0].set('idDevice', null);
-                dev[0].set('battery', -1);
-                dev[0].set('connectStatus', 0);
-                dev[0].set('monitor', -1);
-                dev[0].set('powerStatus', -1);
-
-                dev[0].save().then(function(device){
-
-                    response.success({
-                        "id": device.id
-                    });
-                }, function(error){
-                    console.log(error);
-                    response.error(error);
-                });
-
-            }else{
-                console.log(mPlusSn + " without spt");
-                response.error("Without SPT");
+            if(plusList.length < 1){
+                response.error("no device");
+                return;
             }
 
+            var pointIdPatient = plusList[0].get("idPatient");
+
+            var queryBoundDevice = new AV.Query('BoundDevice');
+            queryBoundDevice.equalTo('idPatient', pointIdPatient);
+            queryBoundDevice.equalTo('deviceType', "spt");
+
+            queryBoundDevice.find().then(function(bDev){
+
+                if(bDev.length > 0 && bDev.length < 10){
+
+                    AV.Object.destroyAll(bDev).then(function(deleteList){
+                        console.log("delDevice success");
+                        response.success({
+                            "id": ""
+                        });
+                    }, function(error){
+                        console.log(error);
+                        response.error(error);
+                    });
+
+
+                }else{
+                    response.success({
+                        "id": ""
+                    });
+                }
+
+            }, function(error){
+                console.log(error);
+                response.error(error);
+            });
+            
         }, function(error){
             console.log(error);
             response.error(error);
-        })
+        });
 
     }else{
         console.log("deviceType error");
