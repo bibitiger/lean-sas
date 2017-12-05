@@ -821,11 +821,11 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                 var queryExistMac = new AV.Query('BoundDevice');
                 queryExistMac.equalTo('mac', mac);
                 queryExistMac.equalTo('deviceType', "spt");
-                queryExistMac.notEqualTo('mPlusSn', mPlusSn);
+                queryExistMac.notEqualTo('idPatient', idPatient);
                 queryExistMac.find().then(function(otherBounds){
 
                     var queryMPlusBoundSpt = new AV.Query('BoundDevice');
-                    queryMPlusBoundSpt.equalTo('mPlusSn', mPlusSn);
+                    queryMPlusBoundSpt.equalTo('idPatient', idPatient);
                     queryMPlusBoundSpt.equalTo('deviceType', "spt");
 
                     queryMPlusBoundSpt.find().then(function(mPlusBounds){
