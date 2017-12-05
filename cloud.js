@@ -1303,21 +1303,27 @@ AV.Cloud.define('getDevices', function(request, response){
     var idPatient = params.idPatient;
     var deviceSN = params.deviceSN;
 
-    if((!idPatient || idPatient == "") &&
-    (!deviceSN || deviceSN == "")){
+    // if((!idPatient || idPatient == "") &&
+    // (!deviceSN || deviceSN == "")){
+    //     console.log("{error:1}");
+    //     response.error("{error:1}");
+    // }
+
+    if(!idPatient){
         console.log("{error:1}");
         response.error("{error:1}");
+        return;
     }
     // console.log('After idPatient is null');
 
     var queryDevice = new AV.Query('Device');
     queryDevice.equalTo('active', true);
-    if(deviceSN){
-        queryDevice.equalTo('deviceSN', deviceSN);
-    }else{
+    // if(deviceSN){
+    //     queryDevice.equalTo('deviceSN', deviceSN);
+    // }else{
         var createPatient = AV.Object.createWithoutData('Patients', idPatient);
         queryDevice.equalTo('idPatient', createPatient);
-    }
+    // }
     queryDevice.find().then(function(mPlusDevices){
         if(mPlusDevices.length < 1){
             response.success(mPlusDevices);
@@ -1330,7 +1336,7 @@ AV.Cloud.define('getDevices', function(request, response){
                 response.error("{error:1}");
             }
             var queryBoundDevice = new AV.Query('BoundDevice');
-            queryBoundDevice.equalTo('mPlusSn', deviceSN1);
+            queryBoundDevice.equalTo('idPatient', createPatient);
             queryBoundDevice.find().then(function(boundDevices){
                 // var jsonboundDevices = JSON.stringify(boundDevices);
                 // console.log("jsonboundDevices:" + jsonboundDevices);
