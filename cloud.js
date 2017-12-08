@@ -1442,6 +1442,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                         bDevice.hwVersion = qDevices[j].get("hwVersion");
                         bDevice.btVersion = qDevices[j].get("btVersion");
                         bDevice.swVersion = qDevices[j].get("swVersion");
+                        bDevice.random = qDevices[j].get("random");
                         bDevice.objectId = qDevices[j].id;
                         pDevices.push(bDevice);
                     }
