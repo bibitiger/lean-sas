@@ -1359,6 +1359,7 @@ AV.Cloud.define('getDevices', function(request, response){
                     bDevice.powerStatus = boundDevices[j].get("powerStatus");
                     bDevice.monitor = boundDevices[j].get("monitor");
                     bDevice.connectStatus = boundDevices[j].get("connectStatus");
+                    bDevice.random = boundDevices[j].get("random");
                     bDevice.objectId = boundDevices[j].id;
                     bDevices.push(bDevice);
                 }
