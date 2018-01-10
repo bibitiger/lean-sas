@@ -2217,6 +2217,7 @@ AV.Cloud.define('login', function(request, response) {
 AV.Cloud.define('phoneCheckCode', function(request, response) {
 
     var phoneNumber = request.params.phoneNumber;
+    var type = request.params.type;
 
     var query = new AV.Query(AV.User);
     query.equalTo('mobilePhoneNumber', phoneNumber);
@@ -2225,13 +2226,28 @@ AV.Cloud.define('phoneCheckCode', function(request, response) {
           response.error('该手机号已被注册');
       }else{
 
-        AV.Cloud.requestSmsCode(phoneNumber).then(function() {
-          //发送成功
-          response.success(phoneNumber);
-        }, function(err) {
-          //发送失败
-            response.error(err);
-        });
+        if(type > 0){
+            AV.Cloud.requestSmsCode({
+                mobilePhoneNumber: phoneNumber,
+                template: 'createUser',    
+                sign:'睡眠仪'                
+              }).then(function() {
+                //发送成功
+                response.success(phoneNumber);
+              }, function(err) {
+                //发送失败
+                  response.error(err);
+              });
+        }else{
+            AV.Cloud.requestSmsCode(phoneNumber).then(function() {
+                //发送成功
+                response.success(phoneNumber);
+              }, function(err) {
+                //发送失败
+                  response.error(err);
+              });
+        }
+
 
       }
     }, function(err) {
