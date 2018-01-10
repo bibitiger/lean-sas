@@ -2542,6 +2542,7 @@ AV.Cloud.define('register', function(request, response) {
     var phoneNumber = request.params.phoneNumber;
     var password = request.params.password;
     var checkCode = request.params.checkCode;
+    var roleType = request.params.roleType;
 
 
     var data = {};
@@ -2556,6 +2557,10 @@ AV.Cloud.define('register', function(request, response) {
         var patient = new Patient();
         patient.set('user',user)
         patient.set('name',user.get('username'));
+
+        if(roleType > 0){
+            patient.set('role', roleType);
+        }
 
          // 新建一个 ACL 实例
         var acl = new AV.ACL();
