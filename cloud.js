@@ -1489,6 +1489,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                     response.success({
                                         "objectId" : newDev.id,
                                         "rawDataUpload" : newDev.get('rawDataUpload'),
+                                        "modeType" : newDev.get('modeType'),
                                         "idPatient" : newDev.get('idPatient'),
                                         "period" : newDev.get('period'),
                                         "ledOnTime" : newDev.get('ledOnTime'),
@@ -1502,6 +1503,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                             response.success({
                                 "objectId" : newDev.id,
                                 "rawDataUpload" : newDev.get('rawDataUpload'),
+                                "modeType" : newDev.get('modeType'),
                                 "idPatient" : newDev.get('idPatient'),
                                 "period" : newDev.get('period'),
                                 "ledOnTime" : newDev.get('ledOnTime'),
@@ -1514,6 +1516,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                         response.success({
                             "objectId" : newDev.id,
                             "rawDataUpload" : newDev.get('rawDataUpload'),
+                            "modeType" : newDev.get('modeType'),
                             "idPatient" : newDev.get('idPatient'),
                             "period" : newDev.get('period'),
                             "ledOnTime" : newDev.get('ledOnTime'),
@@ -2228,8 +2231,8 @@ AV.Cloud.define('phoneCheckCode', function(request, response) {
 
         if(type > 0){
             AV.Cloud.requestSmsCode({
-                mobilePhoneNumber: phoneNumber,
-                template: 'createUser',    
+                mobilePhoneNumber:phoneNumber,
+                template:'createUser',    
                 sign:'睡眠仪'                
               }).then(function() {
                 //发送成功
