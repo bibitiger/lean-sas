@@ -816,17 +816,17 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 
             var createDevice = AV.Object.createWithoutData('Device', deviceId);
 
-            if(deviceType == "spt"){
+            if(deviceType == "spt" || deviceType == "MegaRing"){
 
                 var queryExistMac = new AV.Query('BoundDevice');
                 queryExistMac.equalTo('mac', mac);
-                queryExistMac.equalTo('deviceType', "spt");
+                queryExistMac.equalTo('deviceType', deviceType);
                 queryExistMac.notEqualTo('idPatient', idPatient);
                 queryExistMac.find().then(function(otherBounds){
 
                     var queryMPlusBoundSpt = new AV.Query('BoundDevice');
                     queryMPlusBoundSpt.equalTo('idPatient', idPatient);
-                    queryMPlusBoundSpt.equalTo('deviceType', "spt");
+                    queryMPlusBoundSpt.equalTo('deviceType', deviceType);
 
                     queryMPlusBoundSpt.find().then(function(mPlusBounds){
 
@@ -841,7 +841,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 
                                 if(mPlusBounds.length > 0){
 
-                                    mPlusBounds[0].set('deviceType', "spt");
+                                    mPlusBounds[0].set('deviceType', deviceType);
                                     mPlusBounds[0].set('mPlusSn', mPlusSn);
                                     mPlusBounds[0].set('hwVersion', hwVersion);
                                     mPlusBounds[0].set('btVersion', btVersion);
@@ -871,7 +871,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 
                                     var BoundDevice = AV.Object.extend('BoundDevice');
                                     var boundDevice = new BoundDevice();
-                                    boundDevice.set('deviceType', "spt");
+                                    boundDevice.set('deviceType', deviceType);
                                     boundDevice.set('mPlusSn', mPlusSn);
                                     boundDevice.set('hwVersion', hwVersion);
                                     boundDevice.set('btVersion', btVersion);
@@ -905,7 +905,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
                         }else{
                             if(mPlusBounds.length > 0){
 
-                                mPlusBounds[0].set('deviceType', "spt");
+                                mPlusBounds[0].set('deviceType', deviceType);
                                 mPlusBounds[0].set('mPlusSn', mPlusSn);
                                 mPlusBounds[0].set('hwVersion', hwVersion);
                                 mPlusBounds[0].set('btVersion', btVersion);
@@ -935,7 +935,7 @@ AV.Cloud.define('boundBluetoothDevice', function(request, response){
 
                                 var BoundDevice = AV.Object.extend('BoundDevice');
                                 var boundDevice = new BoundDevice();
-                                boundDevice.set('deviceType', "spt");
+                                boundDevice.set('deviceType', deviceType);
                                 boundDevice.set('mPlusSn', mPlusSn);
                                 boundDevice.set('hwVersion', hwVersion);
                                 boundDevice.set('btVersion', btVersion);
@@ -1016,7 +1016,7 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
     //  return;
     // }
 
-    if(deviceType == "spt"){
+    if(deviceType == "spt" || deviceType == "MegaRing"){
 
         var queryDev = new AV.Query('Device');
         queryDev.equalTo('deviceSN', mPlusSn);
@@ -1032,7 +1032,7 @@ AV.Cloud.define('unboundBluetoothDevice', function(request, response){
 
             var queryBoundDevice = new AV.Query('BoundDevice');
             queryBoundDevice.equalTo('idPatient', pointIdPatient);
-            queryBoundDevice.equalTo('deviceType', "spt");
+            queryBoundDevice.equalTo('deviceType', deviceType);
 
             queryBoundDevice.find().then(function(bDev){
 
