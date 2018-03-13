@@ -1751,10 +1751,15 @@ AV.Cloud.define('ota', function(request, response) {
 // handle client's input(device ROM version) to find patches
 // function findPatch() {
 
-    var user = request.user
+    var user = request.user;
     var deviceVer = request.params.deviceVer;
     var deviceAppVer = request.params.deviceAppVer;
     var deviceType = request.params.deviceType;
+
+    if(!deviceAppVer || !deviceVer){
+        console.log("device appVer or deviceVer is null");
+        response.error("device appVer or deviceVer is null");
+    }
 
     console.log("deviceType:" + deviceType + ",deviceAppVer:" + deviceAppVer + ",deviceVer:" + deviceVer);
 
@@ -1766,14 +1771,39 @@ AV.Cloud.define('ota', function(request, response) {
     var url = "DeviceVersion";
 
     if(!deviceType){
-        if((deviceAppVer && (deviceAppVer.substring(0, 1) == 2)) || 
-        (deviceVer && (deviceVer.substring(0, 1) == 2))){
-            console.log("rk upgrade");
-            deviceType = "rk";
-        }else{
-            console.log("mtk upgrade");
-            deviceType = "mtk";
+
+        var deviceAppVerArray = deviceAppVer.split(".");
+        var isRightAppVer = (deviceAppVerArray.length > 1 && deviceAppVerArray[1] == 4);
+
+        var t;
+        if(!isRightAppVer){
+            t = deviceAppVer;
+            deviceAppVer = deviceVer;
+            deviceVer = t;
         }
+
+        console.log("deviceType:" + deviceType + ",deviceAppVer:" + deviceAppVer + ",deviceVer:" + deviceVer);
+
+        if(isRightAppVer){
+            if((deviceAppVer && (deviceAppVer.substring(0, 1) == 2)) || 
+            (deviceVer && (deviceVer.substring(0, 1) == 2))){
+                console.log("rk upgrade");
+                deviceType = "rk";
+            }else{
+                console.log("mtk upgrade");
+                deviceType = "mtk";
+            }
+        }else{
+            if(deviceAppVer && (deviceAppVer.substring(0, 1) == 2)){
+                console.log("rk upgrade");
+                deviceType = "rk";
+            }else{
+                console.log("mtk upgrade");
+                deviceType = "mtk";
+            }
+        }
+
+
     }
 
     console.log("deviceType:" + deviceType);
