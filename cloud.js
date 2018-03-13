@@ -1770,19 +1770,19 @@ AV.Cloud.define('ota', function(request, response) {
 
     var url = "DeviceVersion";
 
+    var deviceAppVerArray = deviceAppVer.split(".");
+    var isRightAppVer = (deviceAppVerArray.length > 1 && deviceAppVerArray[1] == 4);
+
+    var t;
+    if(!isRightAppVer){
+        t = deviceAppVer;
+        deviceAppVer = deviceVer;
+        deviceVer = t;
+    }
+
+    console.log("New deviceType:" + deviceType + ",deviceAppVer:" + deviceAppVer + ",deviceVer:" + deviceVer);
+
     if(!deviceType){
-
-        var deviceAppVerArray = deviceAppVer.split(".");
-        var isRightAppVer = (deviceAppVerArray.length > 1 && deviceAppVerArray[1] == 4);
-
-        var t;
-        if(!isRightAppVer){
-            t = deviceAppVer;
-            deviceAppVer = deviceVer;
-            deviceVer = t;
-        }
-
-        console.log("deviceType:" + deviceType + ",deviceAppVer:" + deviceAppVer + ",deviceVer:" + deviceVer);
 
         if(isRightAppVer){
             if((deviceAppVer && (deviceAppVer.substring(0, 1) == 2)) || 
