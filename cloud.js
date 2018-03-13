@@ -1754,14 +1754,43 @@ AV.Cloud.define('ota', function(request, response) {
     var user = request.user
     var deviceVer = request.params.deviceVer;
     var deviceAppVer = request.params.deviceAppVer;
-    var userType = "customer"
+    var deviceType = request.params.deviceType;
+
+    console.log("deviceType:" + deviceType + ",deviceAppVer:" + deviceAppVer + ",deviceVer:" + deviceVer);
+
+    var userType = "customer";
     if (user != null) {
         userType = user.get("UserType");
     };
 
-    var url = "DeviceVersion"
-    if(userType == "tester")
-        url = "DeviceVersionForTest"
+    var url = "DeviceVersion";
+
+    if(!deviceType){
+        if((deviceAppVer && (deviceAppVer.substring(0, 1) == 2)) || 
+        (deviceVer && (deviceVer.substring(0, 1) == 2))){
+            console.log("rk upgrade");
+            deviceType = "rk";
+        }else{
+            console.log("mtk upgrade");
+            deviceType = "mtk";
+        }
+    }
+
+    console.log("deviceType:" + deviceType);
+
+    if(deviceType == "rk"){
+        if(userType == "tester"){
+            url = "RkDeviceVersionForTest";
+        }else{
+            url = "RkDeviceVersion";
+        }
+    }else{
+        if(userType == "tester"){
+            url = "DeviceVersionForTest";
+        }else{
+            url = "DeviceVersion";
+        }
+    }
 
 
     var startQuery = new AV.Query("DeviceRomDifPackageList");
