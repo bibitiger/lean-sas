@@ -1806,6 +1806,10 @@ AV.Cloud.define('ota', function(request, response) {
 
     }
 
+    if(!isRightAppVer){
+        deviceAppVer = "1.4.0";
+    }
+
     console.log("deviceType:" + deviceType);
 
     if(deviceType == "rk"){
