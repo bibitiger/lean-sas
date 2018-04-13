@@ -1444,6 +1444,22 @@ AV.Cloud.define('updateADevices', function(request, response) {
                         bDevice.swVersion = qDevices[j].get("swVersion");
                         bDevice.random = qDevices[j].get("random");
                         bDevice.objectId = qDevices[j].id;
+
+                        if(boundDevices && boundDevices.length > 0){
+                            for(var i = 0; i < boundDevices.length; i++){
+                                if(boundDevices[i].mac && boundDevices[i].mac == qDevices[j].get("mac")){
+                                    if(boundDevices[i].hwVersion){
+                                        bDevice.hwVersion = boundDevices[i].hwVersion;
+                                    }
+                                    if(boundDevices[i].btVersion){
+                                        bDevice.btVersion = boundDevices[i].btVersion;
+                                    }
+                                    if(boundDevices[i].swVersion){
+                                        bDevice.swVersion = boundDevices[i].swVersion;
+                                    }
+                                }
+                            }
+                        }
                         pDevices.push(bDevice);
                     }
 
@@ -1494,7 +1510,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                         "idPatient" : newDev.get('idPatient'),
                                         "period" : newDev.get('period'),
                                         "ledOnTime" : newDev.get('ledOnTime'),
-                                        "boundDevices":updateBoundDevices
+                                        "boundDevices":pDevices
                                     });
                             }, function(error){
                                 console.log(error);
