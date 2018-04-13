@@ -1494,7 +1494,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                         "idPatient" : newDev.get('idPatient'),
                                         "period" : newDev.get('period'),
                                         "ledOnTime" : newDev.get('ledOnTime'),
-                                        "boundDevices":pDevices
+                                        "boundDevices":updateBoundDevices
                                     });
                             }, function(error){
                                 console.log(error);
