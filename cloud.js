@@ -1510,6 +1510,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                         "idPatient" : newDev.get('idPatient'),
                                         "period" : newDev.get('period'),
                                         "ledOnTime" : newDev.get('ledOnTime'),
+                                        "frameArea" : newDev.get('frameArea'),
                                         "boundDevices":pDevices
                                     });
                             }, function(error){
@@ -1525,6 +1526,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                 "idPatient" : newDev.get('idPatient'),
                                 "period" : newDev.get('period'),
                                 "ledOnTime" : newDev.get('ledOnTime'),
+                                "frameArea" : newDev.get('frameArea'),
                                 "boundDevices":pDevices
                             });
                         }
@@ -1539,6 +1541,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                             "idPatient" : newDev.get('idPatient'),
                             "period" : newDev.get('period'),
                             "ledOnTime" : newDev.get('ledOnTime'),
+                            "frameArea" : newDev.get('frameArea'),
                             "boundDevices":pDevices
                         });
                     }
