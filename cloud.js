@@ -2414,6 +2414,7 @@ AV.Cloud.define('registerForSDK', function(request, response) {
             factoryUser.set('user',loginedUser);
             factoryUser.save().then(function(factoryUser){
                 data['patientId'] = factoryUser.id;
+                data['patient'] = factoryUser.get('patient');
                 response.success(data);
             },function(error){
                 console.log(JSON.stringify(error));
