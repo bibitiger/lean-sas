@@ -2598,16 +2598,19 @@ AV.Cloud.define('GetDevicesWithFactoryUserIDForSDK', function(request, response)
 
     var factoryCode = request.params.factoryCode;
     var idPatient = request.params.patientId;
+
+    console.log('GetDevicesWithFactoryUserIDForSDK factoryCode:'+factoryCode + ",idPatient:" + idPatient);
+
     if (factoryCode == null || idPatient == null) {
         response.error({'error':'params could not be null'});
     };
-    console.log('GetDevicesWithFactoryUserIDForSDK factoryCode:'+factoryCode);
 
     var queryFactoryUserList = new AV.Query('FactoryUserList');
 
     queryFactoryUserList.get(idPatient).then(function(factoryUser){
 
         if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+            console.log("please check your idPatient and factoryCode");
             response.error({'error':'cant find this user, please check your idPatient and factoryCode'});
         } else {
 
@@ -2617,6 +2620,7 @@ AV.Cloud.define('GetDevicesWithFactoryUserIDForSDK', function(request, response)
             queryDevice.equalTo('idPatient', createPatient);
             queryDevice.find().then(function(mPlusDevices){
                 if(mPlusDevices.length < 1){
+                    console.log("no bind devices");
                     response.success(mPlusDevices);
                 }else{
                     console.log(JSON.stringify(mPlusDevices));
