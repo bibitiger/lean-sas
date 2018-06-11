@@ -2593,6 +2593,91 @@ AV.Cloud.define('GetDeviceWithFactoryUserIDForSDK', function(request, response) 
 });
 
 
+
+AV.Cloud.define('GetDevicesWithFactoryUserIDForSDK', function(request, response){
+
+    var factoryCode = request.params.factoryCode;
+    var idPatient = request.params.patientId;
+    if (factoryCode == null || idPatient == null) {
+        response.error({'error':'params could not be null'});
+    };
+    console.log('GetDevicesWithFactoryUserIDForSDK factoryCode:'+factoryCode);
+
+    var queryFactoryUserList = new AV.Query('FactoryUserList');
+
+    queryFactoryUserList.get(idPatient).then(function(factoryUser){
+
+        if (factoryUser.get('factoryCode') == null || factoryUser.get('factoryCode') != factoryCode) {
+            response.error({'error':'cant find this user, please check your idPatient and factoryCode'});
+        } else {
+
+            var queryDevice = new AV.Query('Device');
+            queryDevice.equalTo('active', true);
+            var createPatient = AV.Object.createWithoutData('Patients', idPatient);
+            queryDevice.equalTo('idPatient', createPatient);
+            queryDevice.find().then(function(mPlusDevices){
+                if(mPlusDevices.length < 1){
+                    response.success(mPlusDevices);
+                }else{
+                    console.log(JSON.stringify(mPlusDevices));
+                    var deviceSN1 = mPlusDevices[0].get("deviceSN");
+                    console.log("deviceSN1:" + deviceSN1);
+                    if(!deviceSN1){
+                        console.log("{error:1}");
+                        response.error("{error:1}");
+                    }
+                    var queryBoundDevice = new AV.Query('BoundDevice');
+                    queryBoundDevice.equalTo('idPatient', createPatient);
+                    queryBoundDevice.find().then(function(boundDevices){
+                        // var jsonboundDevices = JSON.stringify(boundDevices);
+                        // console.log("jsonboundDevices:" + jsonboundDevices);
+                        console.log("length:" + boundDevices.length);
+                        
+                        var bDevices = [];
+                        for(var j =0; j< boundDevices.length; j++){
+                            var bDevice = {};
+                            bDevice.hwVersion = boundDevices[j].get("hwVersion");
+                            bDevice.btVersion = boundDevices[j].get("btVersion");
+                            bDevice.swVersion = boundDevices[j].get("swVersion");
+                            bDevice.dSize = boundDevices[j].get("dSize");
+                            bDevice.active = boundDevices[j].get("active");
+                            bDevice.deviceType = boundDevices[j].get("deviceType");
+                            bDevice.idPatient = boundDevices[j].get("idPatient");
+                            bDevice.sn = boundDevices[j].get("sn");
+                            bDevice.idDevice = boundDevices[j].get("idDevice");
+                            bDevice.mac = boundDevices[j].get("mac");
+                            bDevice.battery = boundDevices[j].get("battery");
+                            bDevice.powerStatus = boundDevices[j].get("powerStatus");
+                            bDevice.monitor = boundDevices[j].get("monitor");
+                            bDevice.connectStatus = boundDevices[j].get("connectStatus");
+                            bDevice.random = boundDevices[j].get("random");
+                            bDevice.objectId = boundDevices[j].id;
+                            bDevices.push(bDevice);
+                        }
+                        mPlusDevices[0].set("boundDevices", bDevices);
+                        response.success(mPlusDevices);
+                    }, function(error){
+                        console.log(error);
+                        response.error(error);
+                    });
+                }
+
+
+            }, function(error){
+                console.log(error);
+                response.error(error);
+            });    
+
+        }
+
+    }, function(error){
+        console.log(error);
+        response.error(error);
+    });
+
+});
+
+
 /**
  * [description]
  * @Author   bibitiger
