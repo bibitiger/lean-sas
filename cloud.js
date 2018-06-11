@@ -2615,9 +2615,11 @@ AV.Cloud.define('GetDevicesWithFactoryUserIDForSDK', function(request, response)
             response.error({'error':'cant find this user, please check your idPatient and factoryCode'});
         } else {
 
+            var createPatient = factoryUser.get('patient');
+
             var queryDevice = new AV.Query('Device');
             queryDevice.equalTo('active', true);
-            var createPatient = AV.Object.createWithoutData('Patients', idPatient);
+            // var createPatient = AV.Object.createWithoutData('Patients', idPatient);
             queryDevice.equalTo('idPatient', createPatient);
             queryDevice.find().then(function(mPlusDevices){
                 if(mPlusDevices.length < 1){
