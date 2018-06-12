@@ -2414,7 +2414,7 @@ AV.Cloud.define('registerForSDK', function(request, response) {
             factoryUser.set('user',loginedUser);
             factoryUser.save().then(function(factoryUser){
                 data['patientId'] = factoryUser.id;
-                data['uPatientId'] = factoryUser.get('patient');
+                data['uPatientId'] = factoryUser.get('patient').id;
                 response.success(data);
             },function(error){
                 console.log(JSON.stringify(error));
@@ -2461,7 +2461,7 @@ AV.Cloud.define('loginForSDK', function(request, response) {
             response.error({'error':'cant find this user, please check your patientId and factoryCode'});
         } else {
             response.success({'patientId':patientId,
-                    'uPatientId':factoryUser.get('patient')});
+                    'uPatientId':factoryUser.get('patient').id});
         }
     }, function (error) {
         console.log(error);
