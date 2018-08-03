@@ -1511,6 +1511,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                         "period" : newDev.get('period'),
                                         "ledOnTime" : newDev.get('ledOnTime'),
                                         "frameArea" : newDev.get('frameArea'),
+                                        "isAutoSleep" : newDev.get('isAutoSleep'),
                                         "updatedAt" : newDev.get('updatedAt'),
                                         "boundDevices":pDevices
                                     });
@@ -1528,6 +1529,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                 "period" : newDev.get('period'),
                                 "ledOnTime" : newDev.get('ledOnTime'),
                                 "frameArea" : newDev.get('frameArea'),
+                                "isAutoSleep" : newDev.get('isAutoSleep'),
                                 "updatedAt" : newDev.get('updatedAt'),
                                 "boundDevices":pDevices
                             });
@@ -1544,6 +1546,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                             "period" : newDev.get('period'),
                             "ledOnTime" : newDev.get('ledOnTime'),
                             "frameArea" : newDev.get('frameArea'),
+                            "isAutoSleep" : newDev.get('isAutoSleep'),
                             "updatedAt" : newDev.get('updatedAt'),
                             "boundDevices":pDevices
                         });
