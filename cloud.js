@@ -3708,7 +3708,7 @@ function downloadUrl(hash,key){
     console.log(key)
 
     //构建私有空间的链接
-    var url = 'http://bhealth.megahealth.cn/'+key;
+    var url = 'http://qiniu.megahealth.cn/'+key;
     var policy = new qiniu.rs.GetPolicy();
 
     //生成下载链接url
