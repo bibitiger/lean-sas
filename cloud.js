@@ -1513,6 +1513,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                         "frameArea" : newDev.get('frameArea'),
                                         "isAutoSleep" : newDev.get('isAutoSleep'),
                                         "updatedAt" : newDev.get('updatedAt'),
+                                        "setTimezone" : newDev.get('setTimezone'),
                                         "boundDevices":pDevices
                                     });
                             }, function(error){
@@ -1531,6 +1532,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                                 "frameArea" : newDev.get('frameArea'),
                                 "isAutoSleep" : newDev.get('isAutoSleep'),
                                 "updatedAt" : newDev.get('updatedAt'),
+                                "setTimezone" : newDev.get('setTimezone'),
                                 "boundDevices":pDevices
                             });
                         }
@@ -1548,6 +1550,7 @@ AV.Cloud.define('updateADevices', function(request, response) {
                             "frameArea" : newDev.get('frameArea'),
                             "isAutoSleep" : newDev.get('isAutoSleep'),
                             "updatedAt" : newDev.get('updatedAt'),
+                            "setTimezone" : newDev.get('setTimezone'),
                             "boundDevices":pDevices
                         });
                     }
